@@ -2,6 +2,31 @@ package termui
 
 import "unicode/utf8"
 import "strings"
+import tm "github.com/nsf/termbox-go"
+
+type Attribute uint16
+
+const (
+	ColorDefault Attribute = iota
+	ColorBlack
+	ColorRed
+	ColorGreen
+	ColorYellow
+	ColorBlue
+	ColorMagenta
+	ColorCyan
+	ColorWhite
+)
+
+const (
+	AttrBold Attribute = 1 << (iota + 9)
+	AttrUnderline
+	AttrReverse
+)
+
+func toTmAttr(x Attribute) tm.Attribute {
+	return tm.Attribute(x)
+}
 
 func str2runes(s string) []rune {
 	n := utf8.RuneCountInString(s)

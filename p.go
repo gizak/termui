@@ -1,22 +1,18 @@
 package termui
 
-import tm "github.com/nsf/termbox-go"
-
 type P struct {
-	Div
+	Block
 	Text        string
-	TextFgColor tm.Attribute
-	TextBgColor tm.Attribute
+	TextFgColor Attribute
+	TextBgColor Attribute
 }
 
-func NewP(s string) P {
-	return P{Div: NewDiv(), Text: s}
+func NewP(s string) *P {
+	return &P{Block: *NewBlock(), Text: s}
 }
 
-func (p P) Buffer() []Point {
-	ps := p.Div.Buffer()
-
-	(&p).sync()
+func (p *P) Buffer() []Point {
+	ps := p.Block.Buffer()
 
 	rs := str2runes(p.Text)
 	i, j, k := 0, 0, 0
@@ -34,8 +30,8 @@ func (p P) Buffer() []Point {
 		pi.Y = p.innerY + i
 
 		pi.Code.Ch = rs[k]
-		pi.Code.Bg = p.TextBgColor
-		pi.Code.Fg = p.TextFgColor
+		pi.Code.Bg = toTmAttr(p.TextBgColor)
+		pi.Code.Fg = toTmAttr(p.TextFgColor)
 
 		ps = append(ps, pi)
 		k++

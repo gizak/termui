@@ -1,14 +1,12 @@
 package termui
 
-import tm "github.com/nsf/termbox-go"
-
-type Div struct {
+type Block struct {
 	X           int
 	Y           int
-	Border      LabeledBox
+	Border      labeledBorder
 	IsDisplay   bool
 	HasBorder   bool
-	BgColor     tm.Attribute
+	BgColor     Attribute
 	Width       int
 	Height      int
 	innerWidth  int
@@ -17,21 +15,16 @@ type Div struct {
 	innerY      int
 }
 
-func NewDiv() Div {
-	d := Div{}
-	d.Border.BgColor = tm.ColorDefault
-	d.Border.FgColor = tm.ColorDefault
-	d.Border.LabelFgColor = tm.ColorDefault
-	d.Border.LabelBgColor = tm.ColorDefault
+func NewBlock() *Block {
+	d := Block{}
 	d.IsDisplay = true
 	d.HasBorder = true
 	d.Width = 2
 	d.Height = 2
-	d.BgColor = tm.ColorDefault
-	return d
+	return &d
 }
 
-func (d *Div) sync() {
+func (d *Block) align() {
 	d.innerWidth = d.Width
 	d.innerHeight = d.Height
 	d.innerX = d.X
@@ -49,8 +42,8 @@ func (d *Div) sync() {
 	}
 }
 
-func (d Div) Buffer() []Point {
-	(&d).sync()
+func (d *Block) Buffer() []Point {
+	d.align()
 
 	ps := []Point{}
 	if !d.IsDisplay {
@@ -67,7 +60,7 @@ func (d Div) Buffer() []Point {
 			p.X = d.X + 1 + i
 			p.Y = d.Y + 1 + j
 			p.Code.Ch = ' '
-			p.Code.Bg = d.BgColor
+			p.Code.Bg = toTmAttr(d.BgColor)
 			ps = append(ps, p)
 		}
 	}
