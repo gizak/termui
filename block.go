@@ -1,18 +1,22 @@
 package termui
 
 type Block struct {
-	X           int
-	Y           int
-	Border      labeledBorder
-	IsDisplay   bool
-	HasBorder   bool
-	BgColor     Attribute
-	Width       int
-	Height      int
-	innerWidth  int
-	innerHeight int
-	innerX      int
-	innerY      int
+	X             int
+	Y             int
+	Border        labeledBorder
+	IsDisplay     bool
+	HasBorder     bool
+	BgColor       Attribute
+	Width         int
+	Height        int
+	innerWidth    int
+	innerHeight   int
+	innerX        int
+	innerY        int
+	PaddingTop    int
+	PaddingBottom int
+	PaddingLeft   int
+	PaddingRight  int
 }
 
 func NewBlock() *Block {
@@ -25,10 +29,10 @@ func NewBlock() *Block {
 }
 
 func (d *Block) align() {
-	d.innerWidth = d.Width
-	d.innerHeight = d.Height
-	d.innerX = d.X
-	d.innerY = d.Y
+	d.innerWidth = d.Width - d.PaddingLeft - d.PaddingRight
+	d.innerHeight = d.Height - d.PaddingTop - d.PaddingBottom
+	d.innerX = d.X + d.PaddingLeft
+	d.innerY = d.Y + d.PaddingTop
 
 	if d.HasBorder {
 		d.innerHeight -= 2
