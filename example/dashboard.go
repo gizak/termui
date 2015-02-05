@@ -37,10 +37,32 @@ func main() {
 	g.Border.FgColor = ui.ColorWhite
 	g.Border.LabelFgColor = ui.ColorCyan
 
+	spark := ui.Sparkline{}
+	spark.Height = 1
+	spark.Title = "srv 0:"
+	spdata := []int{4, 2, 1, 6, 3, 9, 1, 4, 2, 15, 14, 9, 8, 6, 10, 13, 15, 12, 10, 5, 3, 6, 1, 7, 10, 10, 14, 13, 6}
+	spark.Data = spdata
+	spark.LineColor = ui.ColorCyan
+	spark.TitleColor = ui.ColorWhite
+
+	spark1 := ui.Sparkline{}
+	spark1.Height = 1
+	spark1.Title = "srv 1:"
+	spark1.Data = spdata
+	spark1.TitleColor = ui.ColorWhite
+	spark1.LineColor = ui.ColorRed
+
+	sp := ui.NewSparklines(spark, spark1)
+	sp.Width = 20
+	sp.Height = 6
+	sp.Border.Label = "Sparkline"
+	sp.Y = 14
+
 	draw := func(t int) {
 		g.Percent = t % 101
 		list.Items = strs[t%9:]
-		ui.Render(p, list, g)
+		sp.Lines[0].Data = spdata[t%10:]
+		ui.Render(p, list, g, sp)
 	}
 
 	evt := make(chan tm.Event)

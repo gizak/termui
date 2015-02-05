@@ -43,6 +43,7 @@ func (sl *Sparklines) update() {
 
 	// get how many lines gotta display
 	h := 0
+	sl.displayLines = 0
 	for _, v := range sl.Lines {
 		if h+v.displayHeight <= sl.innerHeight {
 			sl.displayLines++
@@ -86,8 +87,8 @@ func (sl *Sparklines) Buffer() []Point {
 				p.Code.Ch = v
 				p.Code.Fg = toTmAttr(l.TitleColor)
 				p.Code.Bg = toTmAttr(sl.BgColor)
-				p.X = oftX
-				p.Y = oftY
+				p.X = sl.innerX + oftX
+				p.Y = sl.innerY + oftY
 				ps = append(ps, p)
 			}
 		}
