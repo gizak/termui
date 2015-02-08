@@ -2,6 +2,8 @@ package main
 
 import ui "github.com/gizak/termui"
 import tm "github.com/nsf/termbox-go"
+import "math"
+
 import "time"
 
 func main() {
@@ -11,11 +13,11 @@ func main() {
 	}
 	defer ui.Close()
 
-	p := ui.NewP(":PRESS q TO QUIT DEMO\nThis is an example of termui package rendering.")
-	p.Height = 4
-	p.Width = 59
+	p := ui.NewP(":PRESS q TO QUIT DEMO")
+	p.Height = 3
+	p.Width = 50
 	p.TextFgColor = ui.ColorWhite
-	p.Border.Label = "Text"
+	p.Border.Label = "Text Box"
 	p.Border.FgColor = ui.ColorCyan
 
 	strs := []string{"[0] gizak/termui", "[1] editbox.go", "[2] iterrupt.go", "[3] keyboard.go", "[4] output.go", "[5] random_out.go", "[6] dashboard.go", "[7] nsf/termbox-go"}
@@ -29,7 +31,7 @@ func main() {
 
 	g := ui.NewGauge()
 	g.Percent = 50
-	g.Width = 52
+	g.Width = 50
 	g.Height = 3
 	g.Y = 11
 	g.Border.Label = "Gauge"
@@ -53,16 +55,84 @@ func main() {
 	spark1.LineColor = ui.ColorRed
 
 	sp := ui.NewSparklines(spark, spark1)
-	sp.Width = 20
-	sp.Height = 6
+	sp.Width = 25
+	sp.Height = 7
 	sp.Border.Label = "Sparkline"
-	sp.Y = 14
+	sp.Y = 4
+	sp.X = 25
+
+	lc := ui.NewLineChart()
+	sinps := (func() []float64 {
+		n := 100
+		ps := make([]float64, n)
+		for i := range ps {
+			ps[i] = 1 + math.Sin(float64(i)/4)
+		}
+		return ps
+	})()
+
+	lc.Border.Label = "Line Chart"
+	lc.Data = sinps
+	lc.Width = 50
+	lc.Height = 11
+	lc.X = 0
+	lc.Y = 14
+	lc.AxesColor = ui.ColorWhite
+	lc.LineColor = ui.ColorRed | ui.AttrBold
+	lc.Mode = "dot"
+
+	bc := ui.NewBarChart()
+	bcdata := []int{3, 2, 5, 3, 9, 5, 3, 2, 5, 8, 3, 2, 4, 5, 3, 2, 5, 7, 5, 3, 2, 6, 7, 4, 6, 3, 6, 7, 8, 3, 6, 4, 5, 3, 2, 4, 6, 4, 8, 5, 9, 4, 3, 6, 5, 3, 6}
+	bclabels := []string{"S0", "S1", "S2", "S3", "S4", "S5"}
+	bc.Border.Label = "Bar Chart"
+	bc.Width = 26
+	bc.Height = 10
+	bc.X = 51
+	bc.Y = 0
+	bc.DataLabels = bclabels
+	bc.BarColor = ui.ColorGreen
+	bc.NumColor = ui.ColorBlack
+
+	lc1 := ui.NewLineChart()
+	lc1.Border.Label = "Line Chart"
+	rndwalk := (func() []float64 {
+		n := 100
+		d := make([]float64, n)
+		for i := 1; i < n; i++ {
+			if i < 20 {
+				d[i] = d[i-1] + 0.01
+			}
+			if i > 20 {
+				d[i] = d[i-1] - 0.05
+			}
+		}
+		return d
+	})()
+	lc1.Data = rndwalk
+	lc1.Width = 26
+	lc1.Height = 11
+	lc1.X = 51
+	lc1.Y = 14
+	lc1.AxesColor = ui.ColorWhite
+	lc1.LineColor = ui.ColorYellow | ui.AttrBold
+
+	p1 := ui.NewP("Hey!\nI am a borderless block!")
+	p1.HasBorder = false
+	p1.Width = 26
+	p1.Height = 2
+	p1.TextFgColor = ui.ColorMagenta
+	p1.X = 52
+	p1.Y = 11
 
 	draw := func(t int) {
 		g.Percent = t % 101
 		list.Items = strs[t%9:]
 		sp.Lines[0].Data = spdata[t%10:]
-		ui.Render(p, list, g, sp)
+		sp.Lines[1].Data = spdata[t/2%10:]
+		lc.Data = sinps[t/2:]
+		lc1.Data = rndwalk[t:]
+		bc.Data = bcdata[t/2%10:]
+		ui.Render(p, list, g, sp, lc, bc, lc1, p1)
 	}
 
 	evt := make(chan tm.Event)
