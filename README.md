@@ -5,7 +5,7 @@ Cross-platform, easy to compile, and fully-customizable.
 
 __Demo:__
 
-<img src="https://raw.githubusercontent.com/gizak/termui/tree/master/example/screencast.gif" alt="demo" width="600">
+<img src="./example/screencast.gif" alt="demo" width="600">
 
 ## Installation
 
