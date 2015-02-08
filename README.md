@@ -1,11 +1,11 @@
 # termui
-Go terminal dashboard, inspired by [blessed-contrib](https://github.com/yaronn/blessed-contrib), but purely in Go.
+Go terminal dashboard. Inspired by [blessed-contrib](https://github.com/yaronn/blessed-contrib), but purely in Go.
 
 Cross-platform, easy to compile, and fully-customizable.
 
 __Demo:__
 
-<img src="https://github.com/gizak/termui/tree/master/example/screencast.gif" alt="demo" width="800">
+<img src="https://raw.githubusercontent.com/gizak/termui/tree/master/example/screencast.gif" alt="demo" width="600">
 
 ## Installation
 
@@ -13,7 +13,9 @@ __Demo:__
 
 ## Usage
 
-Each component's layout is a bit like HTML block, which has border and padding. The `Border` property can be chosen to hide or display (with its border label), when it comes to display, in this case the space it takes is counted as padding space (i.e. `PaddingTop=PaddingBottom=PaddingLeft=PaddingRight=1`).
+Each component's layout is a bit like HTML block, which has border and padding. 
+
+The `Border` property can be chosen to hide or display (with its border label), when it comes to display, in this case the space it takes is counted as padding space (i.e. `PaddingTop=PaddingBottom=PaddingLeft=PaddingRight=1`).
 
 `````go
 	import ui "github.com/gizak/termui" // <- ui shortcut, optional
@@ -48,7 +50,7 @@ Each component's layout is a bit like HTML block, which has border and padding. 
 	}
 `````
 
-Note that components can be overlapped (I'd rather call this as a feature...), `Render(Renderer...)` renders its args from left to right (i.e. each component's weight is arising from left to right).
+Note that components can be overlapped (I'd rather call this as a feature...), `Render(rs ...Renderer)` renders its args from left to right (i.e. each component's weight is arising from left to right).
 
 ## Widgets
 
