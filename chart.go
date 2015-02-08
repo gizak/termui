@@ -266,6 +266,9 @@ func (lc *LineChart) plotAxes() []Point {
 
 func (lc *LineChart) Buffer() []Point {
 	ps := lc.Block.Buffer()
+	if lc.Data == nil || len(lc.Data) == 0 {
+		return ps
+	}
 	lc.calcLayout()
 	ps = append(ps, lc.plotAxes()...)
 
