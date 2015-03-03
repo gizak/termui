@@ -60,8 +60,8 @@ func (bc *BarChart) Buffer() []Point {
 		for j := 0; j < bc.BarWidth; j++ {
 			for k := 0; k < h; k++ {
 				p := Point{}
-				p.Code.Ch = ' '
-				p.Code.Bg = toTmAttr(bc.BarColor)
+				p.Ch = ' '
+				p.Bg = bc.BarColor
 				p.X = bc.innerX + i*(bc.BarWidth+bc.BarGap) + j
 				p.Y = bc.innerY + bc.innerHeight - 2 - k
 				ps = append(ps, p)
@@ -70,9 +70,9 @@ func (bc *BarChart) Buffer() []Point {
 		// plot text
 		for j := 0; j < len(bc.labels[i]); j++ {
 			p := Point{}
-			p.Code.Ch = bc.labels[i][j]
-			p.Code.Bg = toTmAttr(bc.BgColor)
-			p.Code.Fg = toTmAttr(bc.TextColor)
+			p.Ch = bc.labels[i][j]
+			p.Bg = bc.BgColor
+			p.Fg = bc.TextColor
 			p.Y = bc.innerY + bc.innerHeight - 1
 			p.X = bc.innerX + oftX + j
 			ps = append(ps, p)
@@ -80,11 +80,11 @@ func (bc *BarChart) Buffer() []Point {
 		// plot num
 		for j := 0; j < len(bc.dataNum[i]); j++ {
 			p := Point{}
-			p.Code.Ch = bc.dataNum[i][j]
-			p.Code.Fg = toTmAttr(bc.NumColor)
-			p.Code.Bg = toTmAttr(bc.BarColor)
+			p.Ch = bc.dataNum[i][j]
+			p.Fg = bc.NumColor
+			p.Bg = bc.BarColor
 			if h == 0 {
-				p.Code.Bg = toTmAttr(bc.BgColor)
+				p.Bg = bc.BgColor
 			}
 			p.X = bc.innerX + oftX + (bc.BarWidth-len(bc.dataNum[i]))/2 + j
 			p.Y = bc.innerY + bc.innerHeight - 2

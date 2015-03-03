@@ -1,7 +1,6 @@
 package termui
 
 import "fmt"
-import tm "github.com/nsf/termbox-go"
 
 const VDASH = '┊'
 const HDASH = '┈'
@@ -83,9 +82,9 @@ func (lc *LineChart) renderBraille() []Point {
 		}
 
 		p := Point{}
-		p.Code.Ch = braillePatterns[[2]int{m0, m1}]
-		p.Code.Bg = toTmAttr(lc.BgColor)
-		p.Code.Fg = toTmAttr(lc.LineColor)
+		p.Ch = braillePatterns[[2]int{m0, m1}]
+		p.Bg = lc.BgColor
+		p.Fg = lc.LineColor
 		p.Y = lc.innerY + lc.innerHeight - 3 - b0
 		p.X = lc.innerX + lc.labelYSpace + 1 + i/2
 		ps = append(ps, p)
@@ -97,9 +96,9 @@ func (lc *LineChart) renderDot() []Point {
 	ps := []Point{}
 	for i := 0; i < len(lc.Data) && i < lc.axisXWidth; i++ {
 		p := Point{}
-		p.Code.Ch = lc.DotStyle
-		p.Code.Fg = toTmAttr(lc.LineColor)
-		p.Code.Bg = toTmAttr(lc.BgColor)
+		p.Ch = lc.DotStyle
+		p.Fg = lc.LineColor
+		p.Bg = lc.BgColor
 		p.X = lc.innerX + lc.labelYSpace + 1 + i
 		p.Y = lc.innerY + lc.innerHeight - 3 - int((lc.Data[i]-lc.minY)/lc.scale+0.5)
 		ps = append(ps, p)
@@ -206,17 +205,15 @@ func (lc *LineChart) plotAxes() []Point {
 	origY := lc.innerY + lc.innerHeight - 2
 	origX := lc.innerX + lc.labelYSpace
 
-	ps := []Point{Point{Code: tm.Cell{Ch: ORIGIN, Bg: toTmAttr(lc.BgColor), Fg: toTmAttr(lc.AxesColor)},
-		X: origX,
-		Y: origY}}
+	ps := []Point{newPointWithAttrs(ORIGIN, origX, origY, lc.AxesColor, lc.BgColor)}
 
 	for x := origX + 1; x < origX+lc.axisXWidth; x++ {
 		p := Point{}
 		p.X = x
 		p.Y = origY
-		p.Code.Bg = toTmAttr(lc.BgColor)
-		p.Code.Fg = toTmAttr(lc.AxesColor)
-		p.Code.Ch = HDASH
+		p.Bg = lc.BgColor
+		p.Fg = lc.AxesColor
+		p.Ch = HDASH
 		ps = append(ps, p)
 	}
 
@@ -224,9 +221,9 @@ func (lc *LineChart) plotAxes() []Point {
 		p := Point{}
 		p.X = origX
 		p.Y = origY - dy
-		p.Code.Bg = toTmAttr(lc.BgColor)
-		p.Code.Fg = toTmAttr(lc.AxesColor)
-		p.Code.Ch = VDASH
+		p.Bg = lc.BgColor
+		p.Fg = lc.AxesColor
+		p.Ch = VDASH
 		ps = append(ps, p)
 	}
 
@@ -238,9 +235,9 @@ func (lc *LineChart) plotAxes() []Point {
 		}
 		for j, r := range rs {
 			p := Point{}
-			p.Code.Ch = r
-			p.Code.Fg = toTmAttr(lc.AxesColor)
-			p.Code.Bg = toTmAttr(lc.BgColor)
+			p.Ch = r
+			p.Fg = lc.AxesColor
+			p.Bg = lc.BgColor
 			p.X = origX + oft + j
 			p.Y = lc.innerY + lc.innerHeight - 1
 			ps = append(ps, p)
@@ -252,9 +249,9 @@ func (lc *LineChart) plotAxes() []Point {
 	for i, rs := range lc.labelY {
 		for j, r := range rs {
 			p := Point{}
-			p.Code.Ch = r
-			p.Code.Fg = toTmAttr(lc.AxesColor)
-			p.Code.Bg = toTmAttr(lc.BgColor)
+			p.Ch = r
+			p.Fg = lc.AxesColor
+			p.Bg = lc.BgColor
 			p.X = lc.innerX + j
 			p.Y = origY - i*(lc.axisYLebelGap+1)
 			ps = append(ps, p)

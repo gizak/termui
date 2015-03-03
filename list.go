@@ -35,9 +35,9 @@ func (l *List) Buffer() []Point {
 			pi.X = l.innerX + j
 			pi.Y = l.innerY + i
 
-			pi.Code.Ch = rs[k]
-			pi.Code.Bg = toTmAttr(l.ItemBgColor)
-			pi.Code.Fg = toTmAttr(l.ItemFgColor)
+			pi.Ch = rs[k]
+			pi.Bg = l.ItemBgColor
+			pi.Fg = l.ItemFgColor
 
 			ps = append(ps, pi)
 			k++
@@ -58,9 +58,9 @@ func (l *List) Buffer() []Point {
 				p.X = l.innerX + j
 				p.Y = l.innerY + i
 
-				p.Code.Ch = vv
-				p.Code.Bg = toTmAttr(l.ItemBgColor)
-				p.Code.Fg = toTmAttr(l.ItemFgColor)
+				p.Ch = vv
+				p.Bg = l.ItemBgColor
+				p.Fg = l.ItemFgColor
 
 				ps = append(ps, p)
 				j++

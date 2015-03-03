@@ -29,9 +29,9 @@ func (p *P) Buffer() []Point {
 		pi.X = p.innerX + j
 		pi.Y = p.innerY + i
 
-		pi.Code.Ch = rs[k]
-		pi.Code.Bg = toTmAttr(p.TextBgColor)
-		pi.Code.Fg = toTmAttr(p.TextFgColor)
+		pi.Ch = rs[k]
+		pi.Bg = p.TextBgColor
+		pi.Fg = p.TextFgColor
 
 		ps = append(ps, pi)
 		k++

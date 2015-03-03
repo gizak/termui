@@ -2,7 +2,7 @@ package termui
 
 import tm "github.com/nsf/termbox-go"
 
-type Renderer interface {
+type Bufferer interface {
 	Buffer() []Point
 }
 
@@ -14,11 +14,11 @@ func Close() {
 	tm.Close()
 }
 
-func Render(rs ...Renderer) {
+func Render(rs ...Bufferer) {
 	for _, r := range rs {
 		buf := r.Buffer()
 		for _, v := range buf {
-			tm.SetCell(v.X, v.Y, v.Code.Ch, v.Code.Fg, v.Code.Bg)
+			tm.SetCell(v.X, v.Y, v.Ch, toTmAttr(v.Fg), toTmAttr(v.Bg))
 		}
 	}
 	tm.Flush()

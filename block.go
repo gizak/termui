@@ -28,6 +28,7 @@ func NewBlock() *Block {
 	return &d
 }
 
+// compute box model
 func (d *Block) align() {
 	d.innerWidth = d.Width - d.PaddingLeft - d.PaddingRight
 	d.innerHeight = d.Height - d.PaddingTop - d.PaddingBottom
@@ -63,8 +64,8 @@ func (d *Block) Buffer() []Point {
 			p := Point{}
 			p.X = d.X + 1 + i
 			p.Y = d.Y + 1 + j
-			p.Code.Ch = ' '
-			p.Code.Bg = toTmAttr(d.BgColor)
+			p.Ch = ' '
+			p.Bg = d.BgColor
 			ps = append(ps, p)
 		}
 	}

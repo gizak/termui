@@ -32,8 +32,8 @@ func (g *Gauge) Buffer() []Point {
 			p := Point{}
 			p.X = g.innerX + j
 			p.Y = g.innerY + i
-			p.Code.Ch = ' '
-			p.Code.Bg = toTmAttr(g.BarColor)
+			p.Ch = ' '
+			p.Bg = g.BarColor
 			ps = append(ps, p)
 		}
 	}
@@ -43,12 +43,12 @@ func (g *Gauge) Buffer() []Point {
 		p := Point{}
 		p.X = prx + i
 		p.Y = pry
-		p.Code.Ch = v
-		p.Code.Fg = toTmAttr(g.PercentColor)
+		p.Ch = v
+		p.Fg = g.PercentColor
 		if w > g.innerWidth/2-1+i {
-			p.Code.Bg = toTmAttr(g.BarColor)
+			p.Bg = g.BarColor
 		} else {
-			p.Code.Bg = toTmAttr(g.Block.BgColor)
+			p.Bg = g.Block.BgColor
 		}
 		ps = append(ps, p)
 	}

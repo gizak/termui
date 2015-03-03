@@ -84,9 +84,9 @@ func (sl *Sparklines) Buffer() []Point {
 			rs := trimStr2Runes(l.Title, sl.innerWidth)
 			for oftX, v := range rs {
 				p := Point{}
-				p.Code.Ch = v
-				p.Code.Fg = toTmAttr(l.TitleColor)
-				p.Code.Bg = toTmAttr(sl.BgColor)
+				p.Ch = v
+				p.Fg = l.TitleColor
+				p.Bg = sl.BgColor
 				p.X = sl.innerX + oftX
 				p.Y = sl.innerY + oftY
 				ps = append(ps, p)
@@ -101,18 +101,18 @@ func (sl *Sparklines) Buffer() []Point {
 				p := Point{}
 				p.X = sl.innerX + j
 				p.Y = sl.innerY + oftY + l.Height - jj
-				p.Code.Ch = sparks[7]
-				p.Code.Fg = toTmAttr(l.LineColor)
-				p.Code.Bg = toTmAttr(sl.BgColor)
+				p.Ch = sparks[7]
+				p.Fg = l.LineColor
+				p.Bg = sl.BgColor
 				ps = append(ps, p)
 			}
 			if barMod != 0 {
 				p := Point{}
 				p.X = sl.innerX + j
 				p.Y = sl.innerY + oftY + l.Height - barCnt
-				p.Code.Ch = sparks[barMod-1]
-				p.Code.Fg = toTmAttr(l.LineColor)
-				p.Code.Bg = toTmAttr(sl.BgColor)
+				p.Ch = sparks[barMod-1]
+				p.Fg = l.LineColor
+				p.Bg = sl.BgColor
 				ps = append(ps, p)
 			}
 		}

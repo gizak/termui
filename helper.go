@@ -4,6 +4,8 @@ import "unicode/utf8"
 import "strings"
 import tm "github.com/nsf/termbox-go"
 
+/* ---------------Port from termbox-go --------------------- */
+
 type Attribute uint16
 
 const (
@@ -23,6 +25,8 @@ const (
 	AttrUnderline
 	AttrReverse
 )
+
+/* ----------------------- End ----------------------------- */
 
 func toTmAttr(x Attribute) tm.Attribute {
 	return tm.Attribute(x)

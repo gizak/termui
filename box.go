@@ -37,9 +37,9 @@ func (l hline) Buffer() []Point {
 	for i := 0; i < l.Length; i++ {
 		pts[i].X = l.X + i
 		pts[i].Y = l.Y
-		pts[i].Code.Ch = HORIZONTAL_LINE
-		pts[i].Code.Bg = toTmAttr(l.BgColor)
-		pts[i].Code.Fg = toTmAttr(l.FgColor)
+		pts[i].Ch = HORIZONTAL_LINE
+		pts[i].Bg = l.BgColor
+		pts[i].Fg = l.FgColor
 	}
 	return pts
 }
@@ -49,9 +49,9 @@ func (l vline) Buffer() []Point {
 	for i := 0; i < l.Length; i++ {
 		pts[i].X = l.X
 		pts[i].Y = l.Y + i
-		pts[i].Code.Ch = VERTICAL_LINE
-		pts[i].Code.Bg = toTmAttr(l.BgColor)
-		pts[i].Code.Fg = toTmAttr(l.FgColor)
+		pts[i].Ch = VERTICAL_LINE
+		pts[i].Bg = l.BgColor
+		pts[i].Fg = l.FgColor
 	}
 	return pts
 }
@@ -64,27 +64,27 @@ func (b border) Buffer() []Point {
 
 	pts[0].X = b.X
 	pts[0].Y = b.Y
-	pts[0].Code.Fg = toTmAttr(b.FgColor)
-	pts[0].Code.Bg = toTmAttr(b.BgColor)
-	pts[0].Code.Ch = TOP_LEFT
+	pts[0].Fg = b.FgColor
+	pts[0].Bg = b.BgColor
+	pts[0].Ch = TOP_LEFT
 
 	pts[1].X = b.X + b.Width - 1
 	pts[1].Y = b.Y
-	pts[1].Code.Fg = toTmAttr(b.FgColor)
-	pts[1].Code.Bg = toTmAttr(b.BgColor)
-	pts[1].Code.Ch = TOP_RIGHT
+	pts[1].Fg = b.FgColor
+	pts[1].Bg = b.BgColor
+	pts[1].Ch = TOP_RIGHT
 
 	pts[2].X = b.X
 	pts[2].Y = b.Y + b.Height - 1
-	pts[2].Code.Fg = toTmAttr(b.FgColor)
-	pts[2].Code.Bg = toTmAttr(b.BgColor)
-	pts[2].Code.Ch = BOTTOM_LEFT
+	pts[2].Fg = b.FgColor
+	pts[2].Bg = b.BgColor
+	pts[2].Ch = BOTTOM_LEFT
 
 	pts[3].X = b.X + b.Width - 1
 	pts[3].Y = b.Y + b.Height - 1
-	pts[3].Code.Fg = toTmAttr(b.FgColor)
-	pts[3].Code.Bg = toTmAttr(b.BgColor)
-	pts[3].Code.Ch = BOTTOM_RIGHT
+	pts[3].Fg = b.FgColor
+	pts[3].Bg = b.BgColor
+	pts[3].Ch = BOTTOM_RIGHT
 
 	copy(pts[4:], (hline{b.X + 1, b.Y, b.Width - 2, b.FgColor, b.BgColor}).Buffer())
 	copy(pts[4+b.Width-2:], (hline{b.X + 1, b.Y + b.Height - 1, b.Width - 2, b.FgColor, b.BgColor}).Buffer())
@@ -107,13 +107,7 @@ func (lb labeledBorder) Buffer() []Point {
 	rs := trimStr2Runes(lb.Label, maxTxtW)
 
 	for i := 0; i < len(rs); i++ {
-		p := Point{}
-		p.X = lb.X + 1 + i
-		p.Y = lb.Y
-		p.Code.Ch = rs[i]
-		p.Code.Fg = toTmAttr(lb.LabelFgColor)
-		p.Code.Bg = toTmAttr(lb.LabelBgColor)
-		ps = append(ps, p)
+		ps = append(ps, newPointWithAttrs(rs[i], lb.X+1+i, lb.Y, lb.LabelFgColor, lb.LabelBgColor))
 	}
 
 	return ps
