@@ -54,9 +54,9 @@ Note that components can be overlapped (I'd rather call this a feature...), `Ren
 
 ## Themes
 
-All colors in all components call be changed at any time, while there provides some predefined color scheme.
+_All_ colors in _all_ components _can_ be changed at _any_ time, while there provides some predefined color schemes:
 
-```
+```go
 // for now there are only two themes: default and helloworld
 termui.UseTheme("helloworld")
 
@@ -64,11 +64,11 @@ termui.UseTheme("helloworld")
 ```
 The `default ` theme's settings depend on the user's terminal color scheme, which is saying if your terminal default font color is white and background is white, it will be like:
 
-<img src="./example/themedefault.gif" alt="default" type="image/tiff" width="600">
+<img src="./example/themedefault.tiff" alt="default" type="image/tiff" width="600">
 
 The `helloworld` color scheme drops in some colors!
 
-<img src="./example/themehelloworld.gif" alt="helloworld" type="image/tiff" width="600">
+<img src="./example/themehelloworld.tiff" alt="helloworld" type="image/tiff" width="600">
 
 ## Widgets
 
