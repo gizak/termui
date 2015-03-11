@@ -1,5 +1,6 @@
 package termui
 
+// basic struct, consider it as css: display:block
 type Block struct {
 	X             int
 	Y             int
@@ -22,7 +23,12 @@ type Block struct {
 func NewBlock() *Block {
 	d := Block{}
 	d.IsDisplay = true
-	d.HasBorder = true
+	d.HasBorder = theme.HasBorder
+	d.Border.BgColor = theme.BorderBg
+	d.Border.FgColor = theme.BorderFg
+	d.Border.LabelBgColor = theme.BorderLabelTextBg
+	d.Border.LabelFgColor = theme.BorderLabelTextFg
+	d.BgColor = theme.BlockBg
 	d.Width = 2
 	d.Height = 2
 	return &d

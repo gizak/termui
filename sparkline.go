@@ -26,6 +26,14 @@ func (s *Sparklines) Add(sl Sparkline) {
 	s.Lines = append(s.Lines, sl)
 }
 
+// return unrenderable single sparkline, need to add it into Sparklines
+func NewSparkline() Sparkline {
+	return Sparkline{
+		Height:     1,
+		TitleColor: theme.SparklineTitle,
+		LineColor:  theme.SparklineLine}
+}
+
 func NewSparklines(ss ...Sparkline) *Sparklines {
 	s := &Sparklines{Block: *NewBlock(), Lines: ss}
 	return s

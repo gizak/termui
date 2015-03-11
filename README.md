@@ -13,9 +13,9 @@ __Demo:__
 
 ## Usage
 
-Each component's layout is a bit like HTML block, which has border and padding. 
+Each component's layout is a bit like HTML block (box model), which has border and padding.
 
-The `Border` property can be chosen to hide or display (with its border label), when it comes to display, in this case the space it takes is counted as padding space (i.e. `PaddingTop=PaddingBottom=PaddingLeft=PaddingRight=1`).
+The `Border` property can be chosen to hide or display (with its border label), when it comes to display, the label takes 1 padding space (i.e. in css: `padding: 1;`, innerHeight and innerWidth therefore shrunk by 1).
 
 `````go
 	import ui "github.com/gizak/termui" // <- ui shortcut, optional
@@ -50,11 +50,29 @@ The `Border` property can be chosen to hide or display (with its border label), 
 	}
 `````
 
-Note that components can be overlapped (I'd rather call this as a feature...), `Render(rs ...Renderer)` renders its args from left to right (i.e. each component's weight is arising from left to right).
+Note that components can be overlapped (I'd rather call this a feature...), `Render(rs ...Renderer)` renders its args from left to right (i.e. each component's weight is arising from left to right).
+
+## Themes
+
+All colors in all components call be changed at any time, while there provides some predefined color scheme.
+
+```
+// for now there are only two themes: default and helloworld
+termui.UseTheme("helloworld")
+
+// create components...
+```
+The `default ` theme's settings depend on the user's terminal color scheme, which is saying if your terminal default font color is white and background is white, it will be like:
+
+<img src="./example/themedefault.gif" alt="default" type="image/tiff" width="600">
+
+The `helloworld` color scheme drops in some colors!
+
+<img src="./example/themehelloworld.gif" alt="helloworld" type="image/tiff" width="600">
 
 ## Widgets
 
-_APIs are subject to change, docs will be added after 2 or 3 commits_
+_APIs are subject to change, docs will be added after 1 or 2 commits_
 
 ## GoDoc
 

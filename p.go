@@ -1,17 +1,21 @@
 package termui
 
-type P struct {
+type Par struct {
 	Block
 	Text        string
 	TextFgColor Attribute
 	TextBgColor Attribute
 }
 
-func NewP(s string) *P {
-	return &P{Block: *NewBlock(), Text: s}
+func NewPar(s string) *Par {
+	return &Par{
+		Block:       *NewBlock(),
+		Text:        s,
+		TextFgColor: theme.ParTextFg,
+		TextBgColor: theme.ParTextBg}
 }
 
-func (p *P) Buffer() []Point {
+func (p *Par) Buffer() []Point {
 	ps := p.Block.Buffer()
 
 	rs := str2runes(p.Text)

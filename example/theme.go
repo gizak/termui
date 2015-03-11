@@ -13,17 +13,16 @@ func main() {
 	}
 	defer ui.Close()
 
+	ui.UseTheme("helloworld")
+
 	p := ui.NewPar(":PRESS q TO QUIT DEMO")
 	p.Height = 3
 	p.Width = 50
-	p.TextFgColor = ui.ColorWhite
 	p.Border.Label = "Text Box"
-	p.Border.FgColor = ui.ColorCyan
 
 	strs := []string{"[0] gizak/termui", "[1] editbox.go", "[2] iterrupt.go", "[3] keyboard.go", "[4] output.go", "[5] random_out.go", "[6] dashboard.go", "[7] nsf/termbox-go"}
 	list := ui.NewList()
 	list.Items = strs
-	list.ItemFgColor = ui.ColorYellow
 	list.Border.Label = "List"
 	list.Height = 7
 	list.Width = 25
@@ -35,24 +34,15 @@ func main() {
 	g.Height = 3
 	g.Y = 11
 	g.Border.Label = "Gauge"
-	g.BarColor = ui.ColorRed
-	g.Border.FgColor = ui.ColorWhite
-	g.Border.LabelFgColor = ui.ColorCyan
 
-	spark := ui.Sparkline{}
-	spark.Height = 1
+	spark := ui.NewSparkline()
 	spark.Title = "srv 0:"
 	spdata := []int{4, 2, 1, 6, 3, 9, 1, 4, 2, 15, 14, 9, 8, 6, 10, 13, 15, 12, 10, 5, 3, 6, 1, 7, 10, 10, 14, 13, 6}
 	spark.Data = spdata
-	spark.LineColor = ui.ColorCyan
-	spark.TitleColor = ui.ColorWhite
 
-	spark1 := ui.Sparkline{}
-	spark1.Height = 1
+	spark1 := ui.NewSparkline()
 	spark1.Title = "srv 1:"
 	spark1.Data = spdata
-	spark1.TitleColor = ui.ColorWhite
-	spark1.LineColor = ui.ColorRed
 
 	sp := ui.NewSparklines(spark, spark1)
 	sp.Width = 25
@@ -77,8 +67,6 @@ func main() {
 	lc.Height = 11
 	lc.X = 0
 	lc.Y = 14
-	lc.AxesColor = ui.ColorWhite
-	lc.LineColor = ui.ColorRed | ui.AttrBold
 	lc.Mode = "dot"
 
 	bc := ui.NewBarChart()
@@ -90,8 +78,6 @@ func main() {
 	bc.X = 51
 	bc.Y = 0
 	bc.DataLabels = bclabels
-	bc.BarColor = ui.ColorGreen
-	bc.NumColor = ui.ColorBlack
 
 	lc1 := ui.NewLineChart()
 	lc1.Border.Label = "Line Chart"
@@ -113,14 +99,11 @@ func main() {
 	lc1.Height = 11
 	lc1.X = 51
 	lc1.Y = 14
-	lc1.AxesColor = ui.ColorWhite
-	lc1.LineColor = ui.ColorYellow | ui.AttrBold
 
 	p1 := ui.NewPar("Hey!\nI am a borderless block!")
 	p1.HasBorder = false
 	p1.Width = 26
 	p1.Height = 2
-	p1.TextFgColor = ui.ColorMagenta
 	p1.X = 52
 	p1.Y = 11
 

@@ -55,6 +55,8 @@ type LineChart struct {
 
 func NewLineChart() *LineChart {
 	lc := &LineChart{Block: *NewBlock()}
+	lc.AxesColor = theme.LineChartAxes
+	lc.LineColor = theme.LineChartLine
 	lc.Mode = "braille"
 	lc.DotStyle = '•'
 	lc.axisXLebelGap = 2

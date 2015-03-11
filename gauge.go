@@ -10,7 +10,10 @@ type Gauge struct {
 }
 
 func NewGauge() *Gauge {
-	g := &Gauge{Block: *NewBlock(), PercentColor: ColorWhite, BarColor: ColorGreen}
+	g := &Gauge{
+		Block:        *NewBlock(),
+		PercentColor: theme.GaugePercent,
+		BarColor:     theme.GaugeBar}
 	g.Width = 12
 	g.Height = 5
 	return g
@@ -34,6 +37,9 @@ func (g *Gauge) Buffer() []Point {
 			p.Y = g.innerY + i
 			p.Ch = ' '
 			p.Bg = g.BarColor
+			if p.Bg == ColorDefault {
+				p.Bg |= AttrReverse
+			}
 			ps = append(ps, p)
 		}
 	}
@@ -47,6 +53,10 @@ func (g *Gauge) Buffer() []Point {
 		p.Fg = g.PercentColor
 		if w > g.innerWidth/2-1+i {
 			p.Bg = g.BarColor
+			if p.Bg == ColorDefault {
+				p.Bg |= AttrReverse
+			}
+
 		} else {
 			p.Bg = g.Block.BgColor
 		}

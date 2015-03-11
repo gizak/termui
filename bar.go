@@ -20,9 +20,9 @@ type BarChart struct {
 
 func NewBarChart() *BarChart {
 	bc := &BarChart{Block: *NewBlock()}
-	bc.BarColor = ColorCyan
-	bc.NumColor = ColorWhite
-	bc.TextColor = ColorWhite
+	bc.BarColor = theme.BarChartBar
+	bc.NumColor = theme.BarChartNum
+	bc.TextColor = theme.BarChartText
 	bc.BarGap = 1
 	bc.BarWidth = 3
 	return bc
@@ -62,6 +62,9 @@ func (bc *BarChart) Buffer() []Point {
 				p := Point{}
 				p.Ch = ' '
 				p.Bg = bc.BarColor
+				if bc.BarColor == ColorDefault { // when color is default, space char treated as transparent!
+					p.Bg |= AttrReverse
+				}
 				p.X = bc.innerX + i*(bc.BarWidth+bc.BarGap) + j
 				p.Y = bc.innerY + bc.innerHeight - 2 - k
 				ps = append(ps, p)
@@ -83,6 +86,9 @@ func (bc *BarChart) Buffer() []Point {
 			p.Ch = bc.dataNum[i][j]
 			p.Fg = bc.NumColor
 			p.Bg = bc.BarColor
+			if bc.BarColor == ColorDefault { // the same as above
+				p.Bg |= AttrReverse
+			}
 			if h == 0 {
 				p.Bg = bc.BgColor
 			}

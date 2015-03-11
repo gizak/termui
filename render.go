@@ -2,6 +2,7 @@ package termui
 
 import tm "github.com/nsf/termbox-go"
 
+// all renderable components should implement this
 type Bufferer interface {
 	Buffer() []Point
 }
@@ -14,7 +15,9 @@ func Close() {
 	tm.Close()
 }
 
+// render all from left to right, right could overlap on left ones
 func Render(rs ...Bufferer) {
+	tm.Clear(tm.ColorDefault, toTmAttr(theme.BodyBg))
 	for _, r := range rs {
 		buf := r.Buffer()
 		for _, v := range buf {

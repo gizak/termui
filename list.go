@@ -13,6 +13,8 @@ type List struct {
 func NewList() *List {
 	l := &List{Block: *NewBlock()}
 	l.Overflow = "hidden"
+	l.ItemFgColor = theme.ListItemFg
+	l.ItemBgColor = theme.ListItemBg
 	return l
 }
 
