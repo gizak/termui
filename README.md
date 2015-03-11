@@ -27,7 +27,7 @@ The `Border` property can be chosen to hide or display (with its border label), 
 		}
 		defer ui.Close()
 
-		p := ui.NewP(":PRESS q TO QUIT DEMO")
+		p := ui.NewPar(":PRESS q TO QUIT DEMO")
 		p.Height = 3
 		p.Width = 50
 		p.TextFgColor = ui.ColorWhite
