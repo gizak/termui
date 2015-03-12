@@ -64,11 +64,11 @@ termui.UseTheme("helloworld")
 ```
 The `default ` theme's settings depend on the user's terminal color scheme, which is saying if your terminal default font color is white and background is white, it will be like:
 
-<img src="./example/themedefault.tiff" alt="default" type="image/tiff" width="600">
+<img src="./example/themedefault.png" alt="default" type="image/png" width="600">
 
 The `helloworld` color scheme drops in some colors!
 
-<img src="./example/themehelloworld.tiff" alt="helloworld" type="image/tiff" width="600">
+<img src="./example/themehelloworld.png" alt="helloworld" type="image/png" width="600">
 
 ## Widgets
 
