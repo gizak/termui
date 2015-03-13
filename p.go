@@ -27,6 +27,15 @@ func (p *Par) Buffer() []Point {
 			if rs[k] == '\n' {
 				k++
 			}
+
+			if i >= p.innerHeight {
+				ps = append(ps, newPointWithAttrs('…',
+					p.innerX+p.innerWidth-1,
+					p.innerY+p.innerHeight-1,
+					p.TextFgColor, p.TextBgColor))
+				break
+			}
+
 			continue
 		}
 		pi := Point{}
@@ -38,6 +47,7 @@ func (p *Par) Buffer() []Point {
 		pi.Fg = p.TextFgColor
 
 		ps = append(ps, pi)
+
 		k++
 		j++
 	}

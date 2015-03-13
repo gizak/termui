@@ -72,11 +72,47 @@ The `helloworld` color scheme drops in some colors!
 
 ## Widgets
 
-_APIs are subject to change, docs will be added after 1 or 2 commits_
+#### Par
+
+[Demo code](https://github.com/gizak/termui/blob/master/example/par.go)
+
+<img src="./example/par.png" alt="par" type="image/png" width="300">
+
+#### List
+[demo code](https://github.com/gizak/termui/blob/master/example/list.go)
+
+<img src="./example/list.png" alt="list" type="image/png" width="200">
+
+#### Gauge
+[Demo code](https://github.com/gizak/termui/blob/master/example/gauge.go)
+
+<img src="./example/gauge.png" alt="gauge" type="image/png" width="300">
+
+#### Line Chart
+[Demo code](https://github.com/gizak/termui/blob/master/example/linechart.go)
+
+<img src="./example/linechart.png" alt="linechart" type="image/png" width="400">
+
+#### Bar Chart
+[Demo code](https://github.com/gizak/termui/blob/master/example/barchart.go)
+
+<img src="./example/barchart.png" alt="barchart" type="image/png" width="120">
+
+#### Sparklines
+[Demo code](https://github.com/gizak/termui/blob/master/example/sparklines.go)
+
+<img src="./example/sparklines.png" alt="sparklines" type="image/png" width="300">
+
 
 ## GoDoc
 
 [godoc](https://godoc.org/github.com/gizak/termui).
+
+## TODO
+
+[1] Float layout
+
+[2] Event system
 
 ## License
 This library is under the [MIT License](http://opensource.org/licenses/MIT)

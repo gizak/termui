@@ -46,8 +46,8 @@ func trimStr2Runes(s string, w int) []rune {
 	}
 	sw := rw.StringWidth(s)
 	if sw+dotw >= w {
-		return []rune(rw.Truncate(s, w, ""))
-	} else {
 		return []rune(rw.Truncate(s, w, "…"))
+	} else {
+		return []rune(rw.Truncate(s, w, ""))
 	}
 }

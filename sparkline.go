@@ -102,16 +102,16 @@ func (sl *Sparklines) Buffer() []Point {
 		}
 
 		for j, v := range data {
-			h := int(float32(v) * l.scale)
+			h := int(float32(v)*l.scale + 0.5)
 			barCnt := h / 8
 			barMod := h % 8
 			for jj := 0; jj < barCnt; jj++ {
 				p := Point{}
 				p.X = sl.innerX + j
 				p.Y = sl.innerY + oftY + l.Height - jj
-				p.Ch = sparks[7]
-				p.Fg = l.LineColor
-				p.Bg = sl.BgColor
+				p.Ch = ' ' //sparks[7]
+				p.Bg = l.LineColor
+				//p.Bg = sl.BgColor
 				ps = append(ps, p)
 			}
 			if barMod != 0 {
