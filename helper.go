@@ -1,8 +1,7 @@
 package termui
 
-import "unicode/utf8"
-import "strings"
 import tm "github.com/nsf/termbox-go"
+import rw "github.com/mattn/go-runewidth"
 
 /* ---------------Port from termbox-go --------------------- */
 
@@ -26,6 +25,11 @@ const (
 	AttrReverse
 )
 
+var (
+	dot  = "…"
+	dotw = rw.StringWidth(dot)
+)
+
 /* ----------------------- End ----------------------------- */
 
 func toTmAttr(x Attribute) tm.Attribute {
@@ -33,25 +37,17 @@ func toTmAttr(x Attribute) tm.Attribute {
 }
 
 func str2runes(s string) []rune {
-	n := utf8.RuneCountInString(s)
-	ss := strings.Split(s, "")
-
-	rs := make([]rune, n)
-	for i := 0; i < n; i++ {
-		r, _ := utf8.DecodeRuneInString(ss[i])
-		rs[i] = r
-	}
-	return rs
+	return []rune(s)
 }
 
 func trimStr2Runes(s string, w int) []rune {
-	rs := str2runes(s)
 	if w <= 0 {
 		return []rune{}
 	}
-	if len(rs) > w {
-		rs = rs[:w]
-		rs[w-1] = '…'
+	sw := rw.StringWidth(s)
+	if sw+dotw >= w {
+		return []rune(rw.Truncate(s, w, ""))
+	} else {
+		return []rune(rw.Truncate(s, w, "…"))
 	}
-	return rs
 }
