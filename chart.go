@@ -29,6 +29,11 @@ var braillePatterns = map[[2]int]rune{
 	[2]int{3, 3}: '⠉',
 }
 
+var lSingleBraille = [4]rune{'\u2840', '⠄', '⠂', '⠁'}
+var rSingleBraille = [4]rune{'\u2880', '⠠', '⠐', '⠈'}
+
+//var singleBraille = [4]rune{'⣀', '⠤', '⠒', '⠉'}
+
 type LineChart struct {
 	Block
 	Data          []float64
@@ -36,7 +41,7 @@ type LineChart struct {
 	Mode          string // braille | dot
 	DotStyle      rune
 	LineColor     Attribute
-	scale         float64
+	scale         float64 // data span per cell on y-axis
 	AxesColor     Attribute
 	drawingX      int
 	drawingY      int
@@ -65,31 +70,45 @@ func NewLineChart() *LineChart {
 }
 
 // one cell contains two data points
+// so the capicity is 2x as dot-mode
 func (lc *LineChart) renderBraille() []Point {
 	ps := []Point{}
-	getBaseMod := func(d float64) (b, m int) {
-		b = int((d - lc.minY) / lc.scale)
-		m = int(((d-lc.minY)-float64(b)*lc.scale)/0.25 + 0.5)
+
+	// return: b -> which cell should the point be in
+	//         m -> in the cell, divided into 4 equal height levels, which subcell?
+	getPos := func(d float64) (b, m int) {
+		cnt4 := int((d-lc.bottomValue)/(lc.scale/4) + 0.5)
+		b = cnt4 / 4
+		m = cnt4 % 4
 		return
 	}
-	for i := 0; i+1 < len(lc.Data) && i/2 < lc.axisXWidth; i += 2 {
-		b0, m0 := getBaseMod(lc.Data[i])
-		b1, m1 := getBaseMod(lc.Data[i+1])
+	// plot points
+	for i := 0; 2*i+1 < len(lc.Data) && i < lc.axisXWidth; i++ {
+		b0, m0 := getPos(lc.Data[2*i])
+		b1, m1 := getPos(lc.Data[2*i+1])
 
-		if b0 > b1 {
-			m1 = 0
-		}
-		if b0 < b1 {
-			m1 = 3
+		if b0 == b1 {
+			p := Point{}
+			p.Ch = braillePatterns[[2]int{m0, m1}]
+			p.Bg = lc.BgColor
+			p.Fg = lc.LineColor
+			p.Y = lc.innerY + lc.innerHeight - 3 - b0
+			p.X = lc.innerX + lc.labelYSpace + 1 + i
+			ps = append(ps, p)
+		} else {
+			p0 := newPointWithAttrs(lSingleBraille[m0],
+				lc.innerX+lc.labelYSpace+1+i,
+				lc.innerY+lc.innerHeight-3-b0,
+				lc.LineColor,
+				lc.BgColor)
+			p1 := newPointWithAttrs(rSingleBraille[m1],
+				lc.innerX+lc.labelYSpace+1+i,
+				lc.innerY+lc.innerHeight-3-b1,
+				lc.LineColor,
+				lc.BgColor)
+			ps = append(ps, p0, p1)
 		}
 
-		p := Point{}
-		p.Ch = braillePatterns[[2]int{m0, m1}]
-		p.Bg = lc.BgColor
-		p.Fg = lc.LineColor
-		p.Y = lc.innerY + lc.innerHeight - 3 - b0
-		p.X = lc.innerX + lc.labelYSpace + 1 + i/2
-		ps = append(ps, p)
 	}
 	return ps
 }
@@ -102,7 +121,7 @@ func (lc *LineChart) renderDot() []Point {
 		p.Fg = lc.LineColor
 		p.Bg = lc.BgColor
 		p.X = lc.innerX + lc.labelYSpace + 1 + i
-		p.Y = lc.innerY + lc.innerHeight - 3 - int((lc.Data[i]-lc.minY)/lc.scale+0.5)
+		p.Y = lc.innerY + lc.innerHeight - 3 - int((lc.Data[i]-lc.bottomValue)/lc.scale+0.5)
 		ps = append(ps, p)
 	}
 
@@ -176,9 +195,21 @@ func (lc *LineChart) calcLayout() {
 		}
 	}
 
+	// lazy increase, to avoid y shaking frequently
+	// update bound Y when drawing is gonna overflow
 	lc.minY = lc.Data[0]
 	lc.maxY = lc.Data[0]
-	for _, v := range lc.Data {
+
+	// valid visible range
+	vrange := lc.innerWidth
+	if lc.Mode == "braille" {
+		vrange = 2 * lc.innerWidth
+	}
+	if vrange > len(lc.Data) {
+		vrange = len(lc.Data)
+	}
+
+	for _, v := range lc.Data[:vrange] {
 		if v > lc.maxY {
 			lc.maxY = v
 		}
@@ -187,10 +218,14 @@ func (lc *LineChart) calcLayout() {
 		}
 	}
 
-	lc.topValue = lc.maxY * 1.2
-	lc.bottomValue = lc.minY * 0.8 //- 0.05*(lc.maxY-lc.minY)
-	if lc.minY < 0 {
-		lc.bottomValue = lc.minY * 1.2
+	span := lc.maxY - lc.minY
+
+	if lc.minY < lc.bottomValue {
+		lc.bottomValue = lc.minY - 0.2*span
+	}
+
+	if lc.maxY > lc.topValue {
+		lc.topValue = lc.maxY + 0.2*span
 	}
 
 	lc.axisYHeight = lc.innerHeight - 2

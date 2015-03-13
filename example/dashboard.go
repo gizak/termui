@@ -61,17 +61,17 @@ func main() {
 	sp.Y = 4
 	sp.X = 25
 
-	lc := ui.NewLineChart()
 	sinps := (func() []float64 {
-		n := 100
+		n := 220
 		ps := make([]float64, n)
 		for i := range ps {
-			ps[i] = 1 + math.Sin(float64(i)/4)
+			ps[i] = 1 + math.Sin(float64(i)/5)
 		}
 		return ps
 	})()
 
-	lc.Border.Label = "Line Chart"
+	lc := ui.NewLineChart()
+	lc.Border.Label = "dot-mode Line Chart"
 	lc.Data = sinps
 	lc.Width = 50
 	lc.Height = 11
@@ -94,21 +94,8 @@ func main() {
 	bc.NumColor = ui.ColorBlack
 
 	lc1 := ui.NewLineChart()
-	lc1.Border.Label = "Line Chart"
-	rndwalk := (func() []float64 {
-		n := 150
-		d := make([]float64, n)
-		for i := 1; i < n; i++ {
-			if i < 20 {
-				d[i] = d[i-1] + 0.01
-			}
-			if i > 20 {
-				d[i] = d[i-1] - 0.05
-			}
-		}
-		return d
-	})()
-	lc1.Data = rndwalk
+	lc1.Border.Label = "braille-mode Line Chart"
+	lc1.Data = sinps
 	lc1.Width = 26
 	lc1.Height = 11
 	lc1.X = 51
@@ -130,7 +117,7 @@ func main() {
 		sp.Lines[0].Data = spdata[t%10:]
 		sp.Lines[1].Data = spdata[t/2%10:]
 		lc.Data = sinps[t/2:]
-		lc1.Data = rndwalk[t:]
+		lc1.Data = sinps[2*t:]
 		bc.Data = bcdata[t/2%10:]
 		ui.Render(p, list, g, sp, lc, bc, lc1, p1)
 	}
