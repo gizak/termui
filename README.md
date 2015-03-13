@@ -106,12 +106,12 @@ The `helloworld` color scheme drops in some colors!
 
 ## GoDoc
 
-[godoc](https://godoc.org/github.com/gizak/termui).
+[godoc](https://godoc.org/github.com/gizak/termui)
 
 ## TODO
 
-[1] Float layout
-[2] Event system
+- [ ] Grid layout
+- [ ] Event system
 
 ## License
 This library is under the [MIT License](http://opensource.org/licenses/MIT)
