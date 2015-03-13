@@ -74,7 +74,7 @@ The `helloworld` color scheme drops in some colors!
 
 #### Par
 
-[Demo code](https://github.com/gizak/termui/blob/master/example/par.go)
+[demo code](https://github.com/gizak/termui/blob/master/example/par.go)
 
 <img src="./example/par.png" alt="par" type="image/png" width="300">
 
@@ -84,24 +84,24 @@ The `helloworld` color scheme drops in some colors!
 <img src="./example/list.png" alt="list" type="image/png" width="200">
 
 #### Gauge
-[Demo code](https://github.com/gizak/termui/blob/master/example/gauge.go)
+[demo code](https://github.com/gizak/termui/blob/master/example/gauge.go)
 
-<img src="./example/gauge.png" alt="gauge" type="image/png" width="300">
+<img src="./example/gauge.png" alt="gauge" type="image/png" width="350">
 
 #### Line Chart
-[Demo code](https://github.com/gizak/termui/blob/master/example/linechart.go)
+[demo code](https://github.com/gizak/termui/blob/master/example/linechart.go)
 
-<img src="./example/linechart.png" alt="linechart" type="image/png" width="400">
+<img src="./example/linechart.png" alt="linechart" type="image/png" width="450">
 
 #### Bar Chart
-[Demo code](https://github.com/gizak/termui/blob/master/example/barchart.go)
+[demo code](https://github.com/gizak/termui/blob/master/example/barchart.go)
 
-<img src="./example/barchart.png" alt="barchart" type="image/png" width="120">
+<img src="./example/barchart.png" alt="barchart" type="image/png" width="150">
 
 #### Sparklines
-[Demo code](https://github.com/gizak/termui/blob/master/example/sparklines.go)
+[demo code](https://github.com/gizak/termui/blob/master/example/sparklines.go)
 
-<img src="./example/sparklines.png" alt="sparklines" type="image/png" width="300">
+<img src="./example/sparklines.png" alt="sparklines" type="image/png" width="350">
 
 
 ## GoDoc
@@ -111,7 +111,6 @@ The `helloworld` color scheme drops in some colors!
 ## TODO
 
 [1] Float layout
-
 [2] Event system
 
 ## License
