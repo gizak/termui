@@ -8,6 +8,10 @@ type Bufferer interface {
 }
 
 func Init() error {
+	Body = container{
+		BgColor: theme.BodyBg,
+		Rows:    []Row{},
+	}
 	return tm.Init()
 }
 

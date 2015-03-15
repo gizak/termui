@@ -7,6 +7,10 @@ __Demo:__
 
 <img src="./example/screencast.gif" alt="demo" width="600">
 
+__Grid layout:(incomplete)__
+
+<img src="./example/grid.gif" alt="grid" width="400">
+
 ## Installation
 
 	go get github.com/gizak/termui

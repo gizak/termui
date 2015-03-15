@@ -77,3 +77,23 @@ func (d *Block) Buffer() []Point {
 	}
 	return ps
 }
+
+func (d Block) GetHeight() int {
+	return d.Height
+}
+
+func (d Block) GetWidth() int {
+	return d.Width
+}
+
+func (d *Block) SetX(x int) {
+	d.X = x
+}
+
+func (d *Block) SetY(y int) {
+	d.Y = y
+}
+
+func (d *Block) SetWidth(w int) {
+	d.Width = w
+}
