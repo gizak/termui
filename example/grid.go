@@ -1,5 +1,6 @@
 package main
 
+/*
 import ui "github.com/gizak/termui"
 import tm "github.com/nsf/termbox-go"
 import "math"
@@ -84,3 +85,4 @@ func main() {
 		}
 	}
 }
+*/
