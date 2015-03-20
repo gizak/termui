@@ -8,15 +8,29 @@ type Bufferer interface {
 }
 
 func Init() error {
-	// Body = container{
-	// 	BgColor: theme.BodyBg,
-	// 	Rows:    []Row{},
-	// }
+	Body = NewGrid()
+	Body.X = 0
+	Body.Y = 0
+	Body.BgColor = theme.BodyBg
+	defer (func() {
+		w, _ := tm.Size()
+		Body.Width = w
+	})()
 	return tm.Init()
 }
 
 func Close() {
 	tm.Close()
+}
+
+func TermWidth() int {
+	w, _ := tm.Size()
+	return w
+}
+
+func TermHeight() int {
+	_, h := tm.Size()
+	return h
 }
 
 // render all from left to right, right could overlap on left ones

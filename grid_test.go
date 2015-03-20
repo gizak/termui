@@ -30,22 +30,32 @@ func TestRowWidth(t *testing.T) {
 	         /
 	       1100:w
 	*/
-	r = &row{
-		Span: 12,
-		Cols: []*row{
-			&row{Widget: p0, Span: 6},
-			&row{
-				Span: 6,
-				Cols: []*row{
-					&row{Widget: p1, Span: 6},
-					&row{
-						Span: 6,
-						Cols: []*row{
-							&row{
-								Span:   12,
-								Widget: p2,
-								Cols: []*row{
-									&row{Span: 12, Widget: p3}}}}}}}}}
+	/*
+		r = &row{
+			Span: 12,
+			Cols: []*row{
+				&row{Widget: p0, Span: 6},
+				&row{
+					Span: 6,
+					Cols: []*row{
+						&row{Widget: p1, Span: 6},
+						&row{
+							Span: 6,
+							Cols: []*row{
+								&row{
+									Span:   12,
+									Widget: p2,
+									Cols: []*row{
+										&row{Span: 12, Widget: p3}}}}}}}}}
+	*/
+
+	r = NewRow(
+		NewCol(6, 0, p0),
+		NewCol(6, 0,
+			NewRow(
+				NewCol(6, 0, p1),
+				NewCol(6, 0, p2, p3))))
+
 	r.assignWidth(100)
 	if r.Width != 100 ||
 		(r.Cols[0].Width) != 50 ||
@@ -60,6 +70,7 @@ func TestRowWidth(t *testing.T) {
 
 func TestRowHeight(t *testing.T) {
 	spew.Dump()
+
 	if (r.solveHeight()) != 2 ||
 		(r.Cols[1].Cols[1].Height) != 2 ||
 		(r.Cols[1].Cols[1].Cols[0].Height) != 2 ||

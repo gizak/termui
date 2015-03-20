@@ -7,9 +7,31 @@ __Demo:__
 
 <img src="./example/screencast.gif" alt="demo" width="600">
 
-__Grid layout:(incomplete)__
+__Grid layout:__
 
-<img src="./example/grid.gif" alt="grid" width="400">
+Expressive syntax, using [12 columns grid system](http://www.w3schools.com/bootstrap/bootstrap_grid_system.asp)
+```go
+	import ui "github.com/gizak/termui"
+	// init and create widgets...
+
+	// build
+	ui.Body.AddRows(
+		ui.NewRow(
+			ui.NewCol(6, 0, widget0),
+			ui.NewCol(6, 0, widget1)),
+		ui.NewRow(
+			ui.NewCol(3, 0, widget2),
+			ui.NewCol(3, 0, widget30, widget31, widget32),
+			ui.NewCol(6, 0, widget4)))
+
+	// calculate layout
+	ui.Body.Align()
+
+	ui.Render(ui.Body)
+```
+[demo code:](https://github.com/gizak/termui/blob/master/example/grid.go)
+
+<img src="./example/grid.gif" alt="grid" width="500">
 
 ## Installation
 
@@ -58,7 +80,7 @@ Note that components can be overlapped (I'd rather call this a feature...), `Ren
 
 ## Themes
 
-_All_ colors in _all_ components _can_ be changed at _any_ time, while there provides some predefined color schemes:
+_All_ colors in _all_ components can be changed at _any_ time, while there provides some predefined color schemes:
 
 ```go
 // for now there are only two themes: default and helloworld
@@ -114,8 +136,11 @@ The `helloworld` color scheme drops in some colors!
 
 ## TODO
 
-- [ ] Grid layout
+- [x] Grid layout
 - [ ] Event system
+- [ ] Canvas widget
+- [ ] Refine APIs
+- [ ] Focusable widgets
 
 ## License
 This library is under the [MIT License](http://opensource.org/licenses/MIT)

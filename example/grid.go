@@ -1,6 +1,5 @@
 package main
 
-/*
 import ui "github.com/gizak/termui"
 import tm "github.com/nsf/termbox-go"
 import "math"
@@ -50,10 +49,43 @@ func main() {
 	lc.AxesColor = ui.ColorWhite
 	lc.LineColor = ui.ColorYellow | ui.AttrBold
 
-	ui.Body.Rows = []ui.Row{
+	gs := make([]*ui.Gauge, 3)
+	for i := range gs {
+		gs[i] = ui.NewGauge()
+		gs[i].Height = 2
+		gs[i].HasBorder = false
+		gs[i].Percent = i * 10
+		gs[i].PaddingBottom = 1
+		gs[i].BarColor = ui.ColorRed
+	}
+
+	ls := ui.NewList()
+	ls.HasBorder = false
+	ls.Items = []string{
+		"[1] Downloading File 1",
+		"", // == \newline
+		"[2] Downloading File 2",
+		"",
+		"[3] Uploading File 3",
+	}
+	ls.Height = 5
+
+	par := ui.NewPar("<> This row has 3 columns\n<- Widgets can be stacked up like left side\n<- Stacked widgets are treated as a single widget")
+	par.Height = 5
+	par.Border.Label = "Demonstration"
+
+	// build layout
+	ui.Body.AddRows(
 		ui.NewRow(
-			ui.NewCol(sp, 6, 0, true),
-			ui.NewCol(lc, 6, 0, true))}
+			ui.NewCol(6, 0, sp),
+			ui.NewCol(6, 0, lc)),
+		ui.NewRow(
+			ui.NewCol(3, 0, ls),
+			ui.NewCol(3, 0, gs[0], gs[1], gs[2]),
+			ui.NewCol(6, 0, par)))
+
+	// calculate layout
+	ui.Body.Align()
 
 	draw := func(t int) {
 		sp.Lines[0].Data = spdata[t:]
@@ -75,7 +107,15 @@ func main() {
 			if e.Type == tm.EventKey && e.Ch == 'q' {
 				return
 			}
+			if e.Type == tm.EventResize {
+				ui.Body.Width = ui.TermWidth()
+				ui.Body.Align()
+			}
 		default:
+			for _, g := range gs {
+				g.Percent = (g.Percent + 3) % 100
+			}
+
 			draw(i)
 			i++
 			if i == 102 {
@@ -85,4 +125,3 @@ func main() {
 		}
 	}
 }
-*/
