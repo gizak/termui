@@ -1,4 +1,7 @@
-# termui ![build status](https://travis-ci.org/gizak/termui.svg?branch=master)
+# termui [![Build Status](https://travis-ci.org/gizak/termui.svg)](https://travis-ci.org/gizak/termui) ![Doc Status](https://godoc.org/github.com/gizak/termui?status.png)
+
+---
+
 Go terminal dashboard. Inspired by [blessed-contrib](https://github.com/yaronn/blessed-contrib), but purely in Go.
 
 Cross-platform, easy to compile, and fully-customizable.
