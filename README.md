@@ -1,4 +1,4 @@
-# termui [![Build Status](https://travis-ci.org/gizak/termui.svg)](https://travis-ci.org/gizak/termui) ![Doc Status](https://godoc.org/github.com/gizak/termui?status.png)
+# termui [![Build Status](https://travis-ci.org/gizak/termui.svg)](https://travis-ci.org/gizak/termui) [![Doc Status](https://godoc.org/github.com/gizak/termui?status.png)](https://godoc.org/github.com/gizak/termui)
 
 ---
 
