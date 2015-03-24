@@ -32,8 +32,18 @@ var braillePatterns = map[[2]int]rune{
 var lSingleBraille = [4]rune{'\u2840', '⠄', '⠂', '⠁'}
 var rSingleBraille = [4]rune{'\u2880', '⠠', '⠐', '⠈'}
 
-//var singleBraille = [4]rune{'⣀', '⠤', '⠒', '⠉'}
-
+// LineChart has two modes: braille(default) and dot. Using braille gives 2x capicity as dot mode,
+// because one braille char can represent two data points.
+/*
+  lc := termui.NewLineChart()
+  lc.Border.Label = "braille-mode Line Chart"
+  lc.Data = [1.2, 1.3, 1.5, 1.7, 1.5, 1.6, 1.8, 2.0]
+  lc.Width = 50
+  lc.Height = 12
+  lc.AxesColor = termui.ColorWhite
+  lc.LineColor = termui.ColorGreen | termui.AttrBold
+  // termui.Render(lc)...
+*/
 type LineChart struct {
 	Block
 	Data          []float64
@@ -58,6 +68,7 @@ type LineChart struct {
 	minY          float64
 }
 
+// NewLineChart returns a new LineChart with current theme.
 func NewLineChart() *LineChart {
 	lc := &LineChart{Block: *NewBlock()}
 	lc.AxesColor = theme.LineChartAxes
@@ -298,6 +309,7 @@ func (lc *LineChart) plotAxes() []Point {
 	return ps
 }
 
+// Buffer implements Bufferer interface.
 func (lc *LineChart) Buffer() []Point {
 	ps := lc.Block.Buffer()
 	if lc.Data == nil || len(lc.Data) == 0 {

@@ -6,6 +6,20 @@ package termui
 
 import "fmt"
 
+// BarChart creates multiple bars in a widget:
+/*
+   bc := termui.NewBarChart()
+   data := []int{3, 2, 5, 3, 9, 5}
+   bclabels := []string{"S0", "S1", "S2", "S3", "S4", "S5"}
+   bc.Border.Label = "Bar Chart"
+   bc.Data = data
+   bc.Width = 26
+   bc.Height = 10
+   bc.DataLabels = bclabels
+   bc.TextColor = termui.ColorGreen
+   bc.BarColor = termui.ColorRed
+   bc.NumColor = termui.ColorYellow
+*/
 type BarChart struct {
 	Block
 	BarColor   Attribute
@@ -22,6 +36,7 @@ type BarChart struct {
 	max        int
 }
 
+// NewBarChart returns a new *BarChart with current theme.
 func NewBarChart() *BarChart {
 	bc := &BarChart{Block: *NewBlock()}
 	bc.BarColor = theme.BarChartBar
@@ -53,6 +68,7 @@ func (bc *BarChart) layout() {
 	bc.scale = float64(bc.max) / float64(bc.innerHeight-1)
 }
 
+// Buffer implements Bufferer interface.
 func (bc *BarChart) Buffer() []Point {
 	ps := bc.Block.Buffer()
 	bc.layout()

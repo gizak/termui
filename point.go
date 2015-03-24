@@ -4,6 +4,7 @@
 
 package termui
 
+// Point stands for a single cell in terminal.
 type Point struct {
 	Ch rune
 	Bg Attribute

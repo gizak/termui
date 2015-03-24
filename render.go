@@ -6,11 +6,13 @@ package termui
 
 import tm "github.com/nsf/termbox-go"
 
-// all renderable components should implement this
+// Bufferer should be implemented by all renderable components.
 type Bufferer interface {
 	Buffer() []Point
 }
 
+// Init initializes termui library. This function should be called before any others.
+// After initialization, the library must be finalized by 'Close' function.
 func Init() error {
 	Body = NewGrid()
 	Body.X = 0
@@ -23,21 +25,26 @@ func Init() error {
 	return tm.Init()
 }
 
+// Close finalizes termui library,
+// should be called after successful initialization when termui's functionality isn't required anymore.
 func Close() {
 	tm.Close()
 }
 
+// TermWidth returns the current terminal's width.
 func TermWidth() int {
 	w, _ := tm.Size()
 	return w
 }
 
+// TermHeight returns the current terminal's height.
 func TermHeight() int {
 	_, h := tm.Size()
 	return h
 }
 
-// render all from left to right, right could overlap on left ones
+// Render renders all Bufferer in the given order from left to right,
+// right could overlap on left ones.
 func Render(rs ...Bufferer) {
 	tm.Clear(tm.ColorDefault, toTmAttr(theme.BodyBg))
 	for _, r := range rs {

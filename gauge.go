@@ -6,6 +6,17 @@ package termui
 
 import "strconv"
 
+// Gauge is a progress bar like widget.
+// A simple example:
+/*
+  g := termui.NewGauge()
+  g.Percent = 40
+  g.Width = 50
+  g.Height = 3
+  g.Border.Label = "Slim Gauge"
+  g.BarColor = termui.ColorRed
+  g.PercentColor = termui.ColorBlue
+*/
 type Gauge struct {
 	Block
 	Percent      int
@@ -13,6 +24,7 @@ type Gauge struct {
 	PercentColor Attribute
 }
 
+// NewGauge return a new gauge with current theme.
 func NewGauge() *Gauge {
 	g := &Gauge{
 		Block:        *NewBlock(),
@@ -23,6 +35,7 @@ func NewGauge() *Gauge {
 	return g
 }
 
+// Buffer implements Bufferer interface.
 func (g *Gauge) Buffer() []Point {
 	ps := g.Block.Buffer()
 

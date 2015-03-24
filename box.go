@@ -29,6 +29,7 @@ type vline struct {
 	BgColor Attribute
 }
 
+// Draw a horizontal line.
 func (l hline) Buffer() []Point {
 	pts := make([]Point, l.Length)
 	for i := 0; i < l.Length; i++ {
@@ -41,6 +42,7 @@ func (l hline) Buffer() []Point {
 	return pts
 }
 
+// Draw a vertical line.
 func (l vline) Buffer() []Point {
 	pts := make([]Point, l.Length)
 	for i := 0; i < l.Length; i++ {
@@ -53,6 +55,7 @@ func (l vline) Buffer() []Point {
 	return pts
 }
 
+// Draw a box border.
 func (b border) Buffer() []Point {
 	if b.Width < 2 || b.Height < 2 {
 		return nil
@@ -98,6 +101,7 @@ type labeledBorder struct {
 	LabelBgColor Attribute
 }
 
+// Draw a box border with label.
 func (lb labeledBorder) Buffer() []Point {
 	ps := lb.border.Buffer()
 	maxTxtW := lb.Width - 2

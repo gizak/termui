@@ -6,6 +6,14 @@ package termui
 
 import "math"
 
+// Sparkline is like: ▅▆▂▂▅▇▂▂▃▆▆▆▅▃
+/*
+  data := []int{4, 2, 1, 6, 3, 9, 1, 4, 2, 15, 14, 9, 8, 6, 10, 13, 15, 12, 10, 5, 3, 6, 1}
+  spl := termui.NewSparkline()
+  spl.Data = data
+  spl.Title = "Sparkline 0"
+  spl.LineColor = termui.ColorGreen
+*/
 type Sparkline struct {
 	Data          []int
 	Height        int
@@ -17,6 +25,12 @@ type Sparkline struct {
 	max           int
 }
 
+// Sparklines is a renderable widget which groups together the given sparklines.
+/*
+  spls := termui.NewSparklines(spl0,spl1,spl2) //...
+  spls.Height = 2
+  spls.Width = 20
+*/
 type Sparklines struct {
 	Block
 	Lines        []Sparkline
@@ -26,11 +40,12 @@ type Sparklines struct {
 
 var sparks = []rune{'▁', '▂', '▃', '▄', '▅', '▆', '▇', '█'}
 
+// Add appends a given Sparkline to s *Sparklines.
 func (s *Sparklines) Add(sl Sparkline) {
 	s.Lines = append(s.Lines, sl)
 }
 
-// return unrenderable single sparkline, need to add it into Sparklines
+// NewSparkline returns a unrenderable single sparkline that intended to be added into Sparklines.
 func NewSparkline() Sparkline {
 	return Sparkline{
 		Height:     1,
@@ -38,6 +53,7 @@ func NewSparkline() Sparkline {
 		LineColor:  theme.SparklineLine}
 }
 
+// NewSparklines return a new *Spaklines with given Sparkline(s), you can always add a new Sparkline later.
 func NewSparklines(ss ...Sparkline) *Sparklines {
 	s := &Sparklines{Block: *NewBlock(), Lines: ss}
 	return s
@@ -79,6 +95,7 @@ func (sl *Sparklines) update() {
 	}
 }
 
+// Buffer implements Bufferer interface.
 func (sl *Sparklines) Buffer() []Point {
 	ps := sl.Block.Buffer()
 	sl.update()

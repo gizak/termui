@@ -4,8 +4,8 @@
 
 package termui
 
-// Bufferers that can be manipulated by Grid
-type LayoutBufferer interface {
+// GridBufferer introduces a Bufferer that can be manipulated by Grid.
+type GridBufferer interface {
 	Bufferer
 	GetHeight() int
 	SetWidth(int)
@@ -13,10 +13,10 @@ type LayoutBufferer interface {
 	SetY(int)
 }
 
-// build a layout tree
+// row builds a layout tree
 type row struct {
-	Cols   []*row         //children
-	Widget LayoutBufferer // root
+	Cols   []*row       //children
+	Widget GridBufferer // root
 	X      int
 	Y      int
 	Width  int
@@ -25,6 +25,7 @@ type row struct {
 	Offset int
 }
 
+// calculate and set the underlying layout tree's x, y, height and width.
 func (r *row) calcLayout() {
 	r.assignWidth(r.Width)
 	r.Height = r.solveHeight()
@@ -32,6 +33,7 @@ func (r *row) calcLayout() {
 	r.assignY(r.Y)
 }
 
+// tell if the node is leaf in the tree.
 func (r *row) isLeaf() bool {
 	return r.Cols == nil || len(r.Cols) == 0
 }
@@ -40,16 +42,18 @@ func (r *row) isRenderableLeaf() bool {
 	return r.isLeaf() && r.Widget != nil
 }
 
+// assign widgets' (and their parent rows') width recursively.
 func (r *row) assignWidth(w int) {
 	cw := int(float64(w*r.Span) / 12)
 	r.SetWidth(cw)
 
-	for i, _ := range r.Cols {
+	for i := range r.Cols {
 		r.Cols[i].assignWidth(cw)
 	}
 }
 
-// bottom up, return r's total height
+// bottom up calc and set rows' (and their widgets') height,
+// return r's total height.
 func (r *row) solveHeight() int {
 	if r.isRenderableLeaf() {
 		r.Height = r.Widget.GetHeight()
@@ -74,6 +78,7 @@ func (r *row) solveHeight() int {
 	return maxh
 }
 
+// recursively assign x position for r tree.
 func (r *row) assignX(x int) {
 	r.SetX(x)
 
@@ -89,6 +94,7 @@ func (r *row) assignX(x int) {
 	}
 }
 
+// recursively assign y position to r.
 func (r *row) assignY(y int) {
 	r.SetY(y)
 
@@ -106,10 +112,12 @@ func (r *row) assignY(y int) {
 
 }
 
+// GetHeight implements GridBufferer interface.
 func (r row) GetHeight() int {
 	return r.Height
 }
 
+// SetX implements GridBufferer interface.
 func (r *row) SetX(x int) {
 	r.X = x
 	if r.Widget != nil {
@@ -117,6 +125,7 @@ func (r *row) SetX(x int) {
 	}
 }
 
+// SetY implements GridBufferer interface.
 func (r *row) SetY(y int) {
 	r.Y = y
 	if r.Widget != nil {
@@ -124,6 +133,7 @@ func (r *row) SetY(y int) {
 	}
 }
 
+// SetWidth implements GridBufferer interface.
 func (r *row) SetWidth(w int) {
 	r.Width = w
 	if r.Widget != nil {
@@ -131,6 +141,7 @@ func (r *row) SetWidth(w int) {
 	}
 }
 
+// Buffer implements Bufferer interface,
 // recursively merge all widgets buffer
 func (r *row) Buffer() []Point {
 	merged := []Point{}
@@ -154,6 +165,27 @@ func (r *row) Buffer() []Point {
 	return merged
 }
 
+// Grid implements 12 columns system.
+// A simple example:
+/*
+   import ui "github.com/gizak/termui"
+   // init and create widgets...
+
+   // build
+   ui.Body.AddRows(
+       ui.NewRow(
+           ui.NewCol(6, 0, widget0),
+           ui.NewCol(6, 0, widget1)),
+       ui.NewRow(
+           ui.NewCol(3, 0, widget2),
+           ui.NewCol(3, 0, widget30, widget31, widget32),
+           ui.NewCol(6, 0, widget4)))
+
+   // calculate layout
+   ui.Body.Align()
+
+   ui.Render(ui.Body)
+*/
 type Grid struct {
 	Rows    []*row
 	Width   int
@@ -162,23 +194,25 @@ type Grid struct {
 	BgColor Attribute
 }
 
+// NewGrid returns *Grid with given rows.
 func NewGrid(rows ...*row) *Grid {
 	return &Grid{Rows: rows}
 }
 
+// AddRows appends given rows to Grid.
 func (g *Grid) AddRows(rs ...*row) {
 	g.Rows = append(g.Rows, rs...)
 }
 
+// NewRow creates a new row out of given columns.
 func NewRow(cols ...*row) *row {
 	rs := &row{Span: 12, Cols: cols}
 	return rs
 }
 
-// NewCol accepts: widgets are LayoutBufferer or
-//                 widgets is A NewRow
-// Note that if multiple widgets are provided, they will stack up in the col
-func NewCol(span, offset int, widgets ...LayoutBufferer) *row {
+// NewCol accepts: widgets are LayoutBufferer or widgets is A NewRow.
+// Note that if multiple widgets are provided, they will stack up in the col.
+func NewCol(span, offset int, widgets ...GridBufferer) *row {
 	r := &row{Span: span, Offset: offset}
 
 	if widgets != nil && len(widgets) == 1 {
@@ -203,7 +237,7 @@ func NewCol(span, offset int, widgets ...LayoutBufferer) *row {
 	return r
 }
 
-// Calculate each rows' layout
+// Align calculate each rows' layout.
 func (g *Grid) Align() {
 	h := 0
 	for _, r := range g.Rows {
@@ -215,6 +249,7 @@ func (g *Grid) Align() {
 	}
 }
 
+// Buffer implments Bufferer interface.
 func (g Grid) Buffer() []Point {
 	ps := []Point{}
 	for _, r := range g.Rows {
@@ -223,4 +258,5 @@ func (g Grid) Buffer() []Point {
 	return ps
 }
 
+// Body corresponds to the entire terminal display region.
 var Body *Grid

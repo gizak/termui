@@ -4,7 +4,9 @@
 
 package termui
 
-// basic struct, consider it as css: display:block
+// Block is a base struct for all other upper level widgets,
+// consider it as css: display:block.
+// Normally you do not need to create it manually.
 type Block struct {
 	X             int
 	Y             int
@@ -24,6 +26,7 @@ type Block struct {
 	PaddingRight  int
 }
 
+// NewBlock returns a *Block which inherits styles from current theme.
 func NewBlock() *Block {
 	d := Block{}
 	d.IsDisplay = true
@@ -52,11 +55,13 @@ func (d *Block) align() {
 		d.Border.Y = d.Y
 		d.Border.Width = d.Width
 		d.Border.Height = d.Height
-		d.innerX += 1
-		d.innerY += 1
+		d.innerX++
+		d.innerY++
 	}
 }
 
+// Buffer implements Bufferer interface.
+// Draw background and border (if any).
 func (d *Block) Buffer() []Point {
 	d.align()
 
@@ -82,22 +87,23 @@ func (d *Block) Buffer() []Point {
 	return ps
 }
 
+// GetHeight implements GridBufferer.
+// It returns current height of the block.
 func (d Block) GetHeight() int {
 	return d.Height
 }
 
-func (d Block) GetWidth() int {
-	return d.Width
-}
-
+// SetX implements GridBufferer interface, which sets block's x position.
 func (d *Block) SetX(x int) {
 	d.X = x
 }
 
+// SetY implements GridBufferer interface, it sets y position for block.
 func (d *Block) SetY(y int) {
 	d.Y = y
 }
 
+// SetWidth implements GridBuffer interface, it sets block's width.
 func (d *Block) SetWidth(w int) {
 	d.Width = w
 }

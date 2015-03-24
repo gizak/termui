@@ -4,6 +4,13 @@
 
 package termui
 
+// Par displays a paragraph.
+/*
+  par := termui.NewPar("Simple Text")
+  par.Height = 3
+  par.Width = 17
+  par.Border.Label = "Label"
+*/
 type Par struct {
 	Block
 	Text        string
@@ -11,6 +18,7 @@ type Par struct {
 	TextBgColor Attribute
 }
 
+// NewPar returns a new *Par with given text as its content.
 func NewPar(s string) *Par {
 	return &Par{
 		Block:       *NewBlock(),
@@ -19,6 +27,7 @@ func NewPar(s string) *Par {
 		TextBgColor: theme.ParTextBg}
 }
 
+// Buffer implements Bufferer interface.
 func (p *Par) Buffer() []Point {
 	ps := p.Block.Buffer()
 
