@@ -34,9 +34,12 @@ func (p *Par) Buffer() []Point {
 	rs := str2runes(p.Text)
 	i, j, k := 0, 0, 0
 	for i < p.innerHeight && k < len(rs) {
-		if rs[k] == '\n' || j == p.innerWidth {
+		// the width of char is about to print
+		w := charWidth(rs[k])
+
+		if rs[k] == '\n' || j+w > p.innerWidth {
 			i++
-			j = 0
+			j = 0 // set x = 0
 			if rs[k] == '\n' {
 				k++
 			}
@@ -62,7 +65,7 @@ func (p *Par) Buffer() []Point {
 		ps = append(ps, pi)
 
 		k++
-		j++
+		j += w
 	}
 	return ps
 }

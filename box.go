@@ -107,8 +107,10 @@ func (lb labeledBorder) Buffer() []Point {
 	maxTxtW := lb.Width - 2
 	rs := trimStr2Runes(lb.Label, maxTxtW)
 
-	for i := 0; i < len(rs); i++ {
-		ps = append(ps, newPointWithAttrs(rs[i], lb.X+1+i, lb.Y, lb.LabelFgColor, lb.LabelBgColor))
+	for i, j, w := 0, 0, 0; i < len(rs); i++ {
+		w = charWidth(rs[i])
+		ps = append(ps, newPointWithAttrs(rs[i], lb.X+1+j, lb.Y, lb.LabelFgColor, lb.LabelBgColor))
+		j += w
 	}
 
 	return ps

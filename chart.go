@@ -47,8 +47,8 @@ var rSingleBraille = [4]rune{'\u2880', '⠠', '⠐', '⠈'}
 type LineChart struct {
 	Block
 	Data          []float64
-	DataLabels    []string
-	Mode          string // braille | dot
+	DataLabels    []string // if unset, the data indices will be used
+	Mode          string   // braille | dot
 	DotStyle      rune
 	LineColor     Attribute
 	scale         float64 // data span per cell on y-axis
@@ -149,20 +149,22 @@ func (lc *LineChart) calcLabelX() {
 			}
 
 			s := str2runes(lc.DataLabels[l])
-			if l+len(s) <= lc.axisXWidth {
+			w := strWidth(lc.DataLabels[l])
+			if l+w <= lc.axisXWidth {
 				lc.labelX = append(lc.labelX, s)
 			}
-			l += (len(s) + lc.axisXLebelGap) // -1 needed
-		} else {
+			l += w + lc.axisXLebelGap
+		} else { // braille
 			if 2*l >= len(lc.DataLabels) {
 				break
 			}
 
 			s := str2runes(lc.DataLabels[2*l])
-			if l+len(s) <= lc.axisXWidth {
+			w := strWidth(lc.DataLabels[2*l])
+			if l+w <= lc.axisXWidth {
 				lc.labelX = append(lc.labelX, s)
 			}
-			l += (len(s) + lc.axisXLebelGap) // -1 needed
+			l += w + lc.axisXLebelGap
 
 		}
 	}
@@ -199,6 +201,7 @@ func (lc *LineChart) calcLabelY() {
 }
 
 func (lc *LineChart) calcLayout() {
+	// set datalabels if it is not provided
 	if lc.DataLabels == nil || len(lc.DataLabels) == 0 {
 		lc.DataLabels = make([]string, len(lc.Data))
 		for i := range lc.Data {

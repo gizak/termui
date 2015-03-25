@@ -111,7 +111,9 @@ func (sl *Sparklines) Buffer() []Point {
 
 		if l.Title != "" {
 			rs := trimStr2Runes(l.Title, sl.innerWidth)
-			for oftX, v := range rs {
+			oftX := 0
+			for _, v := range rs {
+				w := charWidth(v)
 				p := Point{}
 				p.Ch = v
 				p.Fg = l.TitleColor
@@ -119,6 +121,7 @@ func (sl *Sparklines) Buffer() []Point {
 				p.X = sl.innerX + oftX
 				p.Y = sl.innerY + oftY
 				ps = append(ps, p)
+				oftX += w
 			}
 		}
 
@@ -130,7 +133,7 @@ func (sl *Sparklines) Buffer() []Point {
 				p := Point{}
 				p.X = sl.innerX + j
 				p.Y = sl.innerY + oftY + l.Height - jj
-				p.Ch = ' ' //sparks[7]
+				p.Ch = ' ' // => sparks[7]
 				p.Bg = l.LineColor
 				//p.Bg = sl.BgColor
 				ps = append(ps, p)

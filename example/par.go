@@ -24,11 +24,11 @@ func main() {
 	par0.Y = 1
 	par0.HasBorder = false
 
-	par1 := termui.NewPar("Simple Text")
+	par1 := termui.NewPar("你好，世界。")
 	par1.Height = 3
 	par1.Width = 17
 	par1.X = 20
-	par1.Border.Label = "Label"
+	par1.Border.Label = "标签"
 
 	par2 := termui.NewPar("Simple text\nwith label. It can be multilined with \\n or break automatically")
 	par2.Height = 5

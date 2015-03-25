@@ -9,6 +9,7 @@ import rw "github.com/mattn/go-runewidth"
 
 /* ---------------Port from termbox-go --------------------- */
 
+// Attribute is printable cell's color and style.
 type Attribute uint16
 
 const (
@@ -49,9 +50,16 @@ func trimStr2Runes(s string, w int) []rune {
 		return []rune{}
 	}
 	sw := rw.StringWidth(s)
-	if sw+dotw >= w {
-		return []rune(rw.Truncate(s, w, "…"))
-	} else {
-		return []rune(rw.Truncate(s, w, ""))
+	if sw > w {
+		return []rune(rw.Truncate(s, w, dot))
 	}
+	return str2runes(s) //[]rune(rw.Truncate(s, w, ""))
+}
+
+func strWidth(s string) int {
+	return rw.StringWidth(s)
+}
+
+func charWidth(ch rune) int {
+	return rw.RuneWidth(ch)
 }

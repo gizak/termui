@@ -20,8 +20,8 @@ func main() {
 
 	strs := []string{
 		"[0] github.com/gizak/termui",
-		"[1] editbox.go",
-		"[2] iterrupt.go",
+		"[1] 你好，世界",
+		"[2] こんにちは世界",
 		"[3] keyboard.go",
 		"[4] output.go",
 		"[5] random_out.go",

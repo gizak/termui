@@ -91,14 +91,16 @@ func (bc *BarChart) Buffer() []Point {
 			}
 		}
 		// plot text
-		for j := 0; j < len(bc.labels[i]); j++ {
+		for j, k := 0, 0; j < len(bc.labels[i]); j++ {
+			w := charWidth(bc.labels[i][j])
 			p := Point{}
 			p.Ch = bc.labels[i][j]
 			p.Bg = bc.BgColor
 			p.Fg = bc.TextColor
 			p.Y = bc.innerY + bc.innerHeight - 1
-			p.X = bc.innerX + oftX + j
+			p.X = bc.innerX + oftX + k
 			ps = append(ps, p)
+			k += w
 		}
 		// plot num
 		for j := 0; j < len(bc.dataNum[i]); j++ {

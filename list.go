@@ -54,7 +54,8 @@ func (l *List) Buffer() []Point {
 		rs := str2runes(strings.Join(l.Items, "\n"))
 		i, j, k := 0, 0, 0
 		for i < l.innerHeight && k < len(rs) {
-			if rs[k] == '\n' || j == l.innerWidth {
+			w := charWidth(rs[k])
+			if rs[k] == '\n' || j+w > l.innerWidth {
 				i++
 				j = 0
 				if rs[k] == '\n' {
@@ -85,6 +86,7 @@ func (l *List) Buffer() []Point {
 
 			j := 0
 			for _, vv := range rs {
+				w := charWidth(vv)
 				p := Point{}
 				p.X = l.innerX + j
 				p.Y = l.innerY + i
@@ -94,7 +96,7 @@ func (l *List) Buffer() []Point {
 				p.Fg = l.ItemFgColor
 
 				ps = append(ps, p)
-				j++
+				j += w
 			}
 		}
 	}
