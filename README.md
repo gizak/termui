@@ -6,9 +6,9 @@ Go terminal dashboard. Inspired by [blessed-contrib](https://github.com/yaronn/b
 
 Cross-platform, easy to compile, and fully-customizable.
 
-__Demo:__
+__Demo:__ (cast under osx 10.10; Terminal.app; Menlo Regular 12pt.)
 
-<img src="./example/screencast.gif" alt="demo" width="600">
+<img src="./example/dashboard.gif" alt="demo" width="600">
 
 __Grid layout:__
 
