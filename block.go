@@ -58,6 +58,14 @@ func (d *Block) align() {
 		d.innerX++
 		d.innerY++
 	}
+
+	if d.innerHeight < 0 {
+		d.innerHeight = 0
+	}
+	if d.innerWidth < 0 {
+		d.innerWidth = 0
+	}
+
 }
 
 // Buffer implements Bufferer interface.
