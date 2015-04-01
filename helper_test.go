@@ -5,8 +5,9 @@
 package termui
 
 import (
-	"fmt"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
 )
 
 func TestStr2Rune(t *testing.T) {
@@ -54,20 +55,11 @@ func TestTrim(t *testing.T) {
 	}
 }
 
-func assertEqual(t *testing.T, expected, got interface{}, msg ...interface{}) {
-	baseMsg := fmt.Sprintf("Got %v expected %v", got, expected)
-	msg = append([]interface{}{baseMsg}, msg...)
-
-	if expected != got {
-		t.Error(fmt.Sprint(msg...))
-	}
-}
-
 func TestTrimStrIfAppropriate_NoTrim(t *testing.T) {
-	assertEqual(t, "hello", TrimStrIfAppropriate("hello", 5))
+	assert.Equal(t, "hello", TrimStrIfAppropriate("hello", 5))
 }
 
 func TestTrimStrIfAppropriate(t *testing.T) {
-	assertEqual(t, "hel…", TrimStrIfAppropriate("hello", 4))
-	assertEqual(t, "h…", TrimStrIfAppropriate("hello", 2))
+	assert.Equal(t, "hel…", TrimStrIfAppropriate("hello", 4))
+	assert.Equal(t, "h…", TrimStrIfAppropriate("hello", 2))
 }

@@ -83,14 +83,13 @@ func (l *List) Buffer() []Point {
 		}
 		for i, v := range trimItems {
 			rs := trimStr2Runes(v, l.innerWidth)
-
 			j := 0
+
 			for _, vv := range rs {
 				w := charWidth(vv)
 				p := Point{}
 				p.X = l.innerX + j
 				p.Y = l.innerY + i
-
 				p.Ch = vv
 				p.Bg = l.ItemBgColor
 				p.Fg = l.ItemFgColor
