@@ -5,24 +5,21 @@
 package termui
 
 import (
+	"fmt"
 	"testing"
-
-	"github.com/davecgh/go-spew/spew"
 )
 
 func TestStr2Rune(t *testing.T) {
 	s := "你好,世界."
 	rs := str2runes(s)
 	if len(rs) != 6 {
-		t.Error()
+		t.Error(t)
 	}
 }
 
 func TestWidth(t *testing.T) {
 	s0 := "つのだ☆HIRO"
 	s1 := "11111111111"
-	spew.Dump(s0)
-	spew.Dump(s1)
 	// above not align for setting East Asian Ambiguous to wide!!
 
 	if strWidth(s0) != strWidth(s1) {
@@ -55,4 +52,22 @@ func TestTrim(t *testing.T) {
 	if string(trimStr2Runes(s, 15)) != "つのだ☆HIRO" {
 		t.Error("avoid trim failed")
 	}
+}
+
+func assertEqual(t *testing.T, expected, got interface{}, msg ...interface{}) {
+	baseMsg := fmt.Sprintf("Got %v expected %v", got, expected)
+	msg = append([]interface{}{baseMsg}, msg...)
+
+	if expected != got {
+		t.Error(fmt.Sprint(msg...))
+	}
+}
+
+func TestTrimStrIfAppropriate_NoTrim(t *testing.T) {
+	assertEqual(t, "hello", TrimStrIfAppropriate("hello", 5))
+}
+
+func TestTrimStrIfAppropriate(t *testing.T) {
+	assertEqual(t, "hel…", TrimStrIfAppropriate("hello", 4))
+	assertEqual(t, "h…", TrimStrIfAppropriate("hello", 2))
 }
