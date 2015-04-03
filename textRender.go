@@ -8,7 +8,7 @@ import (
 // TextRender adds common methods for rendering a text on screeen.
 type TextRender interface {
 	NormalizedText(text string) string
-	RenderSequence(text string, lastColor, background Attribute) RenderedSequence
+	RenderSequence(start, end int, lastColor, background Attribute) RenderedSequence
 }
 
 // MarkdownRegex is used by MarkdownTextRenderer to determine how to format the
@@ -22,12 +22,30 @@ var markdownPattern = regexp.MustCompile(MarkdownRegex)
 // MarkdownTextRenderer is used for rendering the text with colors using
 // markdown-like syntax.
 // See: https://github.com/gizak/termui/issues/4#issuecomment-87270635
-type MarkdownTextRenderer struct{}
+type MarkdownTextRenderer struct {
+	Text string
+}
 
 // NormalizedText returns the text the user will see (without colors).
 // It strips out all formatting option and only preserves plain text.
-func (r MarkdownTextRenderer) NormalizedText(text string) string {
-	return r.RenderSequence(text, 0, 0).NormalizedText
+func (r MarkdownTextRenderer) NormalizedText() string {
+	return r.normalizeText(r.Text)
+}
+
+func (r MarkdownTextRenderer) normalizeText(text string) string {
+	lText := strings.ToLower(text)
+	indexes := markdownPattern.FindAllStringSubmatchIndex(lText, -1)
+
+	// Interate through indexes in reverse order.
+	for i := len(indexes) - 1; i >= 0; i-- {
+		theIndex := indexes[i]
+		start, end := theIndex[0], theIndex[1]
+		contentStart, contentEnd := theIndex[2], theIndex[3]
+
+		text = text[:start] + text[contentStart:contentEnd] + text[end:]
+	}
+
+	return text
 }
 
 /*
@@ -42,14 +60,21 @@ For all available combinations, colors, and attribute, see: `StringToAttribute`.
 
 This method returns a RenderedSequence
 */
-func (r MarkdownTextRenderer) RenderSequence(text string, lastColor, background Attribute) RenderedSequence {
+func (r MarkdownTextRenderer) RenderSequence(start, end int, lastColor, background Attribute) RenderedSequence {
+	text := r.Text
+	if end == -1 {
+		end = len(r.NormalizedText())
+	}
+
 	getMatch := func(s string) []int {
 		return markdownPattern.FindStringSubmatchIndex(strings.ToLower(s))
 	}
 
 	var sequences []ColorSubsequence
 	for match := getMatch(text); match != nil; match = getMatch(text) {
-		start, end := match[0], match[1]
+		// Check if match is in the start/end range.
+
+		matchStart, matchEnd := match[0], match[1]
 		colorStart, colorEnd := match[4], match[5]
 		contentStart, contentEnd := match[2], match[3]
 
@@ -57,11 +82,30 @@ func (r MarkdownTextRenderer) RenderSequence(text string, lastColor, background 
 		content := text[contentStart:contentEnd]
 		theSequence := ColorSubsequence{color, contentStart - 1, contentEnd - 1}
 
-		sequences = append(sequences, theSequence)
-		text = text[:start] + content + text[end:]
+		if start < theSequence.End && end > theSequence.Start {
+			// Make the sequence relative and append.
+			theSequence.Start -= start
+			if theSequence.Start < 0 {
+				theSequence.Start = 0
+			}
+
+			theSequence.End -= start
+			if theSequence.End < 0 {
+				theSequence.End = 0
+			} else if theSequence.End > end-start {
+				theSequence.End = end - start
+			}
+
+			sequences = append(sequences, theSequence)
+		}
+
+		text = text[:matchStart] + content + text[matchEnd:]
 	}
 
-	return RenderedSequence{text, lastColor, background, sequences}
+	if end == -1 {
+		end = len(text)
+	}
+	return RenderedSequence{text[start:end], lastColor, background, sequences}
 }
 
 // RenderedSequence is a string sequence that is capable of returning the
@@ -80,8 +124,35 @@ type ColorSubsequence struct {
 	End   int
 }
 
+// ColorSubsequencesToMap creates a map with all colors that from the
+// subsequences.
+func ColorSubsequencesToMap(sequences []ColorSubsequence) map[int]Attribute {
+	result := make(map[int]Attribute)
+	for _, theSequence := range sequences {
+		for i := theSequence.Start; i < theSequence.End; i++ {
+			result[i] = theSequence.Color
+		}
+	}
+
+	return result
+}
+
 // Buffer returns the colorful formatted buffer and the last color that was
 // used.
 func (s *RenderedSequence) Buffer(x, y int) ([]Point, Attribute) {
-	return nil, s.LastColor
+	buffer := make([]Point, 0, len(s.NormalizedText)) // This is just an assumtion
+
+	colors := ColorSubsequencesToMap(s.Sequences)
+	for i, r := range []rune(s.NormalizedText) {
+		color, ok := colors[i]
+		if !ok {
+			color = s.LastColor
+		}
+
+		p := Point{r, s.BackgroundColor, color, x, y}
+		buffer = append(buffer, p)
+		x += charWidth(r)
+	}
+
+	return buffer, s.LastColor
 }
