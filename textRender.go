@@ -53,7 +53,7 @@ func (r MarkdownTextRenderer) RenderSequence(text string, lastColor, background 
 		colorStart, colorEnd := match[4], match[5]
 		contentStart, contentEnd := match[2], match[3]
 
-		color := strings.ToUpper(text[colorStart:colorEnd])
+		color := StringToAttribute(text[colorStart:colorEnd])
 		content := text[contentStart:contentEnd]
 		theSequence := ColorSubsequence{color, contentStart - 1, contentEnd - 1}
 
@@ -75,7 +75,7 @@ type RenderedSequence struct {
 
 // A ColorSubsequence represents a color for the given text span.
 type ColorSubsequence struct {
-	Color string // TODO: use attribute
+	Color Attribute
 	Start int
 	End   int
 }

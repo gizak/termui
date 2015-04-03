@@ -63,3 +63,8 @@ func TestTrimStrIfAppropriate(t *testing.T) {
 	assert.Equal(t, "hel…", TrimStrIfAppropriate("hello", 4))
 	assert.Equal(t, "h…", TrimStrIfAppropriate("hello", 2))
 }
+
+func TestStringToAttribute(t *testing.T) {
+	assert.Equal(t, ColorRed, StringToAttribute("ReD"))
+	assert.Equal(t, ColorRed|AttrBold, StringToAttribute("RED, bold"))
+}

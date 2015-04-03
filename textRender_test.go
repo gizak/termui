@@ -34,7 +34,7 @@ func assertRenderSequence(t *testing.T, sequence RenderedSequence, last, backgro
 }
 
 func assertColorSubsequence(t *testing.T, s ColorSubsequence, color string, start, end int) {
-	assert.Equal(t, ColorSubsequence{color, start, end}, s)
+	assert.Equal(t, ColorSubsequence{StringToAttribute(color), start, end}, s)
 }
 
 func TestMarkdownTextRenderer_RenderSequence(t *testing.T) {
