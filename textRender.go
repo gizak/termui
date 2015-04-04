@@ -8,12 +8,13 @@ import (
 // TextRender adds common methods for rendering a text on screeen.
 type TextRender interface {
 	NormalizedText(text string) string
+	Render(lastColor, background Attribute) RenderedSequence
 	RenderSequence(start, end int, lastColor, background Attribute) RenderedSequence
 }
 
 // MarkdownRegex is used by MarkdownTextRenderer to determine how to format the
 // text.
-const MarkdownRegex = `(?:\[([[a-z]+)\])\(([a-z\s,]+)\)`
+const MarkdownRegex = `(?:\[([^]]+)\])\(([a-z\s,]+)\)`
 
 // unexported because a pattern can't be a constant and we don't want anyone
 // messing with the regex.
@@ -48,8 +49,13 @@ func (r MarkdownTextRenderer) normalizeText(text string) string {
 	return text
 }
 
+// Returns the position considering unicode characters.
+func posUnicode(text string, pos int) int {
+	return len([]rune(text[:pos]))
+}
+
 /*
-RenderSequence renders the sequence `text` using a markdown-like syntax:
+Render renders the sequence `text` using a markdown-like syntax:
 `[hello](red) world` will become: `hello world` where hello is red.
 
 You may also specify other attributes such as bold text:
@@ -60,10 +66,16 @@ For all available combinations, colors, and attribute, see: `StringToAttribute`.
 
 This method returns a RenderedSequence
 */
+func (r MarkdownTextRenderer) Render(lastColor, background Attribute) RenderedSequence {
+	return r.RenderSequence(0, -1, lastColor, background)
+}
+
+// RenderSequence renders the text just like Render but the start and end can
+// be specified.
 func (r MarkdownTextRenderer) RenderSequence(start, end int, lastColor, background Attribute) RenderedSequence {
 	text := r.Text
 	if end == -1 {
-		end = len(r.NormalizedText())
+		end = len([]rune(r.NormalizedText()))
 	}
 
 	getMatch := func(s string) []int {
@@ -81,6 +93,8 @@ func (r MarkdownTextRenderer) RenderSequence(start, end int, lastColor, backgrou
 		color := StringToAttribute(text[colorStart:colorEnd])
 		content := text[contentStart:contentEnd]
 		theSequence := ColorSubsequence{color, contentStart - 1, contentEnd - 1}
+		theSequence.Start = posUnicode(text, contentStart) - 1
+		theSequence.End = posUnicode(text, contentEnd) - 1
 
 		if start < theSequence.End && end > theSequence.Start {
 			// Make the sequence relative and append.
@@ -105,7 +119,9 @@ func (r MarkdownTextRenderer) RenderSequence(start, end int, lastColor, backgrou
 	if end == -1 {
 		end = len(text)
 	}
-	return RenderedSequence{text[start:end], lastColor, background, sequences}
+
+	runes := []rune(text)[start:end]
+	return RenderedSequence{string(runes), lastColor, background, sequences, nil}
 }
 
 // RenderedSequence is a string sequence that is capable of returning the
@@ -115,6 +131,9 @@ type RenderedSequence struct {
 	LastColor       Attribute
 	BackgroundColor Attribute
 	Sequences       []ColorSubsequence
+
+	// Use the color() method for getting the correct value.
+	mapSequences map[int]Attribute
 }
 
 // A ColorSubsequence represents a color for the given text span.
@@ -137,22 +156,39 @@ func ColorSubsequencesToMap(sequences []ColorSubsequence) map[int]Attribute {
 	return result
 }
 
+func (s *RenderedSequence) colors() map[int]Attribute {
+	if s.mapSequences == nil {
+		s.mapSequences = ColorSubsequencesToMap(s.Sequences)
+	}
+
+	return s.mapSequences
+}
+
 // Buffer returns the colorful formatted buffer and the last color that was
 // used.
 func (s *RenderedSequence) Buffer(x, y int) ([]Point, Attribute) {
 	buffer := make([]Point, 0, len(s.NormalizedText)) // This is just an assumtion
 
-	colors := ColorSubsequencesToMap(s.Sequences)
-	for i, r := range []rune(s.NormalizedText) {
-		color, ok := colors[i]
-		if !ok {
-			color = s.LastColor
-		}
-
-		p := Point{r, s.BackgroundColor, color, x, y}
+	for i := range []rune(s.NormalizedText) {
+		p, width := s.PointAt(i, x, y)
 		buffer = append(buffer, p)
-		x += charWidth(r)
+		x += width
 	}
 
 	return buffer, s.LastColor
+}
+
+// PointAt returns the point at the position of n. The x, and y coordinates
+// are used for placing the point at the right position.
+// Since some charaters are wider (like `一`), this method also returns the
+// width the point actually took.
+// This is important for increasing the x property properly.
+func (s *RenderedSequence) PointAt(n, x, y int) (Point, int) {
+	color, ok := s.colors()[n]
+	if !ok {
+		color = s.LastColor
+	}
+
+	char := []rune(s.NormalizedText)[n]
+	return Point{char, s.BackgroundColor, color, x, y}, charWidth(char)
 }
