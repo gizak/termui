@@ -4,8 +4,6 @@
 
 package termui
 
-import "strings"
-
 // List displays []string as its items,
 // it has a Overflow option (default is "hidden"), when set to "hidden",
 // the item exceeding List's width is truncated, but when set to "wrap",
@@ -31,10 +29,11 @@ import "strings"
 */
 type List struct {
 	Block
-	Items       []string
-	Overflow    string
-	ItemFgColor Attribute
-	ItemBgColor Attribute
+	Items           []string
+	Overflow        string
+	ItemFgColor     Attribute
+	ItemBgColor     Attribute
+	RendererFactory TextRendererFactory
 }
 
 // NewList returns a new *List with current theme.
@@ -43,6 +42,7 @@ func NewList() *List {
 	l.Overflow = "hidden"
 	l.ItemFgColor = theme.ListItemFg
 	l.ItemBgColor = theme.ListItemBg
+	l.RendererFactory = NoopRendererFactory{}
 	return l
 }
 
@@ -51,29 +51,24 @@ func (l *List) Buffer() []Point {
 	ps := l.Block.Buffer()
 	switch l.Overflow {
 	case "wrap":
-		rs := str2runes(strings.Join(l.Items, "\n"))
-		i, j, k := 0, 0, 0
-		for i < l.innerHeight && k < len(rs) {
-			w := charWidth(rs[k])
-			if rs[k] == '\n' || j+w > l.innerWidth {
-				i++
-				j = 0
-				if rs[k] == '\n' {
-					k++
+		y := 0
+		for _, item := range l.Items {
+			x := 0
+
+			renderer := l.RendererFactory.TextRenderer(item)
+			sequence := renderer.Render(l.ItemFgColor, l.ItemBgColor)
+			for n := range []rune(sequence.NormalizedText) {
+				point, width := sequence.PointAt(n, x+l.innerX, y+l.innerY)
+
+				if width+x <= l.innerWidth {
+					ps = append(ps, point)
+					x += width
+				} else {
+					y++
+					x = 0
 				}
-				continue
 			}
-			pi := Point{}
-			pi.X = l.innerX + j
-			pi.Y = l.innerY + i
-
-			pi.Ch = rs[k]
-			pi.Bg = l.ItemBgColor
-			pi.Fg = l.ItemFgColor
-
-			ps = append(ps, pi)
-			k++
-			j++
+			y++
 		}
 
 	case "hidden":
@@ -81,23 +76,15 @@ func (l *List) Buffer() []Point {
 		if len(trimItems) > l.innerHeight {
 			trimItems = trimItems[:l.innerHeight]
 		}
-		for i, v := range trimItems {
-			rs := trimStr2Runes(v, l.innerWidth)
-			j := 0
 
-			for _, vv := range rs {
-				w := charWidth(vv)
-				p := Point{}
-				p.X = l.innerX + j
-				p.Y = l.innerY + i
-				p.Ch = vv
-				p.Bg = l.ItemBgColor
-				p.Fg = l.ItemFgColor
-
-				ps = append(ps, p)
-				j += w
-			}
+		for y, item := range trimItems {
+			text := TrimStrIfAppropriate(item, l.innerWidth)
+			render := l.RendererFactory.TextRenderer(text)
+			sequence := render.RenderSequence(0, -1, l.ItemFgColor, l.ItemBgColor)
+			t, _ := sequence.Buffer(l.innerX, y+l.innerY)
+			ps = append(ps, t...)
 		}
 	}
+
 	return l.Block.chopOverflow(ps)
 }
