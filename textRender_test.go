@@ -9,6 +9,13 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
+func TestTextRender_TestInterface(t *testing.T) {
+	var inter *TextRender
+
+	assert.Implements(t, inter, new(MarkdownTextRenderer))
+	assert.Implements(t, inter, new(NoopRenderer))
+}
+
 func TestMarkdownTextRenderer_normalizeText(t *testing.T) {
 	renderer := MarkdownTextRenderer{}
 
@@ -210,6 +217,28 @@ func TestRenderedSequence_PointAt(t *testing.T) {
 	AssertPoint(t, pointAt(8, 0, 5), 'r', 0, 5)
 	AssertPoint(t, pointAt(9, 9, 0), 'l', 9, 0, ColorBlue|AttrBold)
 	AssertPoint(t, pointAt(10, 7, 1), 'd', 7, 1)
+}
+
+func getTestNoopRenderer() NoopRenderer {
+	return NoopRenderer{"[Hello](red) \x1b[31mworld"}
+}
+
+func TestNoopRenderer_NormalizedText(t *testing.T) {
+	r := getTestNoopRenderer()
+	assert.Equal(t, "[Hello](red) \x1b[31mworld", r.NormalizedText())
+	assert.Equal(t, "[Hello](red) \x1b[31mworld", r.Text)
+}
+
+func TestNoopRenderer_Render(t *testing.T) {
+	renderer := getTestNoopRenderer()
+	got := renderer.Render(5, 7)
+	assertRenderSequence(t, got, 5, 7, "[Hello](red) \x1b[31mworld", 0)
+}
+
+func TestNoopRenderer_RenderSequence(t *testing.T) {
+	renderer := getTestNoopRenderer()
+	got := renderer.RenderSequence(3, 5, 9, 1)
+	assertRenderSequence(t, got, 9, 1, "ll", 0)
 }
 
 func TestPosUnicode(t *testing.T) {

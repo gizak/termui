@@ -7,7 +7,7 @@ import (
 
 // TextRender adds common methods for rendering a text on screeen.
 type TextRender interface {
-	NormalizedText(text string) string
+	NormalizedText() string
 	Render(lastColor, background Attribute) RenderedSequence
 	RenderSequence(start, end int, lastColor, background Attribute) RenderedSequence
 }
@@ -191,4 +191,32 @@ func (s *RenderedSequence) PointAt(n, x, y int) (Point, int) {
 
 	char := []rune(s.NormalizedText)[n]
 	return Point{char, s.BackgroundColor, color, x, y}, charWidth(char)
+}
+
+// A NoopRenderer does not render the text at all.
+type NoopRenderer struct {
+	Text string
+}
+
+// NormalizedText returns the text given in
+func (r NoopRenderer) NormalizedText() string {
+	return r.Text
+}
+
+// RenderSequence returns a RenderedSequence that does not have any color
+// sequences.
+func (r NoopRenderer) RenderSequence(start, end int, lastColor, background Attribute) RenderedSequence {
+	runes := []rune(r.Text)
+	if end < 0 {
+		end = len(runes)
+	}
+
+	runes = runes[start:end]
+	var s []ColorSubsequence
+	return RenderedSequence{string(runes), lastColor, background, s, nil}
+}
+
+// Render just like RenderSequence
+func (r NoopRenderer) Render(lastColor, background Attribute) RenderedSequence {
+	return r.RenderSequence(0, -1, lastColor, background)
 }
