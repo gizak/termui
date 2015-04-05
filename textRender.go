@@ -12,6 +12,11 @@ type TextRender interface {
 	RenderSequence(start, end int, lastColor, background Attribute) RenderedSequence
 }
 
+// TextRendererFactory is factory for creating text renderers.
+type TextRendererFactory interface {
+	TextRenderer(text string) TextRender
+}
+
 // MarkdownRegex is used by MarkdownTextRenderer to determine how to format the
 // text.
 const MarkdownRegex = `(?:\[([^]]+)\])\(([a-z\s,]+)\)`
@@ -124,6 +129,15 @@ func (r MarkdownTextRenderer) RenderSequence(start, end int, lastColor, backgrou
 	return RenderedSequence{string(runes), lastColor, background, sequences, nil}
 }
 
+// MarkdownTextRendererFactory is a TextRendererFactory for
+// the MarkdownTextRenderer.
+type MarkdownTextRendererFactory struct{}
+
+// TextRenderer returns a MarkdownTextRenderer instance.
+func (f MarkdownTextRendererFactory) TextRenderer(text string) TextRender {
+	return MarkdownTextRenderer{text}
+}
+
 // RenderedSequence is a string sequence that is capable of returning the
 // Buffer used by termui for displaying the colorful string.
 type RenderedSequence struct {
@@ -219,4 +233,13 @@ func (r NoopRenderer) RenderSequence(start, end int, lastColor, background Attri
 // Render just like RenderSequence
 func (r NoopRenderer) Render(lastColor, background Attribute) RenderedSequence {
 	return r.RenderSequence(0, -1, lastColor, background)
+}
+
+// NoopRendererFactory is a TextRendererFactory for
+// the NoopRenderer.
+type NoopRendererFactory struct{}
+
+// TextRenderer returns a NoopRenderer instance.
+func (f NoopRendererFactory) TextRenderer(text string) TextRender {
+	return NoopRenderer{text}
 }

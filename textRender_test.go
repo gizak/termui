@@ -16,6 +16,13 @@ func TestTextRender_TestInterface(t *testing.T) {
 	assert.Implements(t, inter, new(NoopRenderer))
 }
 
+func TestTextRendererFactory_TestInterface(t *testing.T) {
+	var inter *TextRendererFactory
+
+	assert.Implements(t, inter, new(MarkdownTextRendererFactory))
+	assert.Implements(t, inter, new(NoopRendererFactory))
+}
+
 func TestMarkdownTextRenderer_normalizeText(t *testing.T) {
 	renderer := MarkdownTextRenderer{}
 
@@ -135,6 +142,12 @@ func TestMarkdownTextRenderer_Render(t *testing.T) {
 	}
 }
 
+func TestMarkdownTextRendererFactory(t *testing.T) {
+	factory := MarkdownTextRendererFactory{}
+	expected := MarkdownTextRenderer{"Hello world"}
+	assert.Equal(t, factory.TextRenderer("Hello world"), expected)
+}
+
 func TestColorSubsequencesToMap(t *testing.T) {
 	colorSubsequences := []ColorSubsequence{
 		{ColorRed, 1, 4},
@@ -239,6 +252,12 @@ func TestNoopRenderer_RenderSequence(t *testing.T) {
 	renderer := getTestNoopRenderer()
 	got := renderer.RenderSequence(3, 5, 9, 1)
 	assertRenderSequence(t, got, 9, 1, "ll", 0)
+}
+
+func TestNoopRendererFactory(t *testing.T) {
+	factory := NoopRendererFactory{}
+	expected := NoopRenderer{"Hello world"}
+	assert.Equal(t, factory.TextRenderer("Hello world"), expected)
 }
 
 func TestPosUnicode(t *testing.T) {
