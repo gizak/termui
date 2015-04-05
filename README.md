@@ -112,6 +112,11 @@ The `helloworld` color scheme drops in some colors!
 
 <img src="./example/list.png" alt="list" type="image/png" width="200">
 
+#### Colored List
+[demo code](https://github.com/gizak/termui/blob/master/example/coloredList.go)
+
+TODO: Image (let's wait until the implementation is finished).
+
 #### Gauge
 [demo code](https://github.com/gizak/termui/blob/master/example/gauge.go)
 
