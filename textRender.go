@@ -5,8 +5,8 @@ import (
 	"strings"
 )
 
-// TextRender adds common methods for rendering a text on screeen.
-type TextRender interface {
+// TextRenderer adds common methods for rendering a text on screeen.
+type TextRenderer interface {
 	NormalizedText() string
 	Render(lastColor, background Attribute) RenderedSequence
 	RenderSequence(start, end int, lastColor, background Attribute) RenderedSequence
@@ -14,7 +14,7 @@ type TextRender interface {
 
 // TextRendererFactory is factory for creating text renderers.
 type TextRendererFactory interface {
-	TextRenderer(text string) TextRender
+	TextRenderer(text string) TextRenderer
 }
 
 // MarkdownRegex is used by MarkdownTextRenderer to determine how to format the
@@ -134,7 +134,7 @@ func (r MarkdownTextRenderer) RenderSequence(start, end int, lastColor, backgrou
 type MarkdownTextRendererFactory struct{}
 
 // TextRenderer returns a MarkdownTextRenderer instance.
-func (f MarkdownTextRendererFactory) TextRenderer(text string) TextRender {
+func (f MarkdownTextRendererFactory) TextRenderer(text string) TextRenderer {
 	return MarkdownTextRenderer{text}
 }
 
@@ -207,19 +207,19 @@ func (s *RenderedSequence) PointAt(n, x, y int) (Point, int) {
 	return Point{char, s.BackgroundColor, color, x, y}, charWidth(char)
 }
 
-// A NoopRenderer does not render the text at all.
-type NoopRenderer struct {
+// A PlainRenderer does not render the text at all.
+type PlainRenderer struct {
 	Text string
 }
 
 // NormalizedText returns the text given in
-func (r NoopRenderer) NormalizedText() string {
+func (r PlainRenderer) NormalizedText() string {
 	return r.Text
 }
 
 // RenderSequence returns a RenderedSequence that does not have any color
 // sequences.
-func (r NoopRenderer) RenderSequence(start, end int, lastColor, background Attribute) RenderedSequence {
+func (r PlainRenderer) RenderSequence(start, end int, lastColor, background Attribute) RenderedSequence {
 	runes := []rune(r.Text)
 	if end < 0 {
 		end = len(runes)
@@ -231,15 +231,15 @@ func (r NoopRenderer) RenderSequence(start, end int, lastColor, background Attri
 }
 
 // Render just like RenderSequence
-func (r NoopRenderer) Render(lastColor, background Attribute) RenderedSequence {
+func (r PlainRenderer) Render(lastColor, background Attribute) RenderedSequence {
 	return r.RenderSequence(0, -1, lastColor, background)
 }
 
-// NoopRendererFactory is a TextRendererFactory for
-// the NoopRenderer.
-type NoopRendererFactory struct{}
+// PlainRendererFactory is a TextRendererFactory for
+// the PlainRenderer.
+type PlainRendererFactory struct{}
 
-// TextRenderer returns a NoopRenderer instance.
-func (f NoopRendererFactory) TextRenderer(text string) TextRender {
-	return NoopRenderer{text}
+// TextRenderer returns a PlainRenderer instance.
+func (f PlainRendererFactory) TextRenderer(text string) TextRenderer {
+	return PlainRenderer{text}
 }

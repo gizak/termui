@@ -19,8 +19,8 @@ func commonList() *termui.List {
 
 	list := termui.NewList()
 	list.Items = strs
-	list.Height = 20
-	list.Width = 25
+	list.Height = 15
+	list.Width = 26
 	list.RendererFactory = termui.MarkdownTextRendererFactory{}
 
 	return list

@@ -42,49 +42,54 @@ func NewList() *List {
 	l.Overflow = "hidden"
 	l.ItemFgColor = theme.ListItemFg
 	l.ItemBgColor = theme.ListItemBg
-	l.RendererFactory = NoopRendererFactory{}
+	l.RendererFactory = PlainRendererFactory{}
 	return l
 }
 
 // Buffer implements Bufferer interface.
 func (l *List) Buffer() []Point {
-	ps := l.Block.Buffer()
-	switch l.Overflow {
-	case "wrap":
-		y := 0
-		for _, item := range l.Items {
-			x := 0
+	buffer := l.Block.Buffer()
 
-			renderer := l.RendererFactory.TextRenderer(item)
-			sequence := renderer.Render(l.ItemFgColor, l.ItemBgColor)
-			for n := range []rune(sequence.NormalizedText) {
-				point, width := sequence.PointAt(n, x+l.innerX, y+l.innerY)
+	breakLoop := func(y int) bool {
+		return y+1 > l.innerHeight
+	}
+	y := 0
 
-				if width+x <= l.innerWidth {
-					ps = append(ps, point)
-					x += width
-				} else {
+MainLoop:
+	for _, item := range l.Items {
+		x := 0
+		bg, fg := l.ItemFgColor, l.ItemBgColor
+		renderer := l.RendererFactory.TextRenderer(item)
+		sequence := renderer.Render(bg, fg)
+
+		for n := range []rune(sequence.NormalizedText) {
+			point, width := sequence.PointAt(n, x+l.innerX, y+l.innerY)
+
+			if width+x <= l.innerWidth {
+				buffer = append(buffer, point)
+				x += width
+			} else {
+				if l.Overflow == "wrap" {
 					y++
+					if breakLoop(y) {
+						break MainLoop
+					}
 					x = 0
+				} else {
+					dotR := []rune(dot)[0]
+					dotX := l.innerWidth + l.innerX - charWidth(dotR)
+					p := newPointWithAttrs(dotR, dotX, y+l.innerY, bg, fg)
+					buffer = append(buffer, p)
+					break
 				}
 			}
-			y++
 		}
 
-	case "hidden":
-		trimItems := l.Items
-		if len(trimItems) > l.innerHeight {
-			trimItems = trimItems[:l.innerHeight]
-		}
-
-		for y, item := range trimItems {
-			text := TrimStrIfAppropriate(item, l.innerWidth)
-			render := l.RendererFactory.TextRenderer(text)
-			sequence := render.RenderSequence(0, -1, l.ItemFgColor, l.ItemBgColor)
-			t, _ := sequence.Buffer(l.innerX, y+l.innerY)
-			ps = append(ps, t...)
+		y++
+		if breakLoop(y) {
+			break MainLoop
 		}
 	}
 
-	return l.Block.chopOverflow(ps)
+	return l.Block.chopOverflow(buffer)
 }

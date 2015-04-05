@@ -10,17 +10,17 @@ import (
 )
 
 func TestTextRender_TestInterface(t *testing.T) {
-	var inter *TextRender
+	var inter *TextRenderer
 
 	assert.Implements(t, inter, new(MarkdownTextRenderer))
-	assert.Implements(t, inter, new(NoopRenderer))
+	assert.Implements(t, inter, new(PlainRenderer))
 }
 
 func TestTextRendererFactory_TestInterface(t *testing.T) {
 	var inter *TextRendererFactory
 
 	assert.Implements(t, inter, new(MarkdownTextRendererFactory))
-	assert.Implements(t, inter, new(NoopRendererFactory))
+	assert.Implements(t, inter, new(PlainRendererFactory))
 }
 
 func TestMarkdownTextRenderer_normalizeText(t *testing.T) {
@@ -232,31 +232,31 @@ func TestRenderedSequence_PointAt(t *testing.T) {
 	AssertPoint(t, pointAt(10, 7, 1), 'd', 7, 1)
 }
 
-func getTestNoopRenderer() NoopRenderer {
-	return NoopRenderer{"[Hello](red) \x1b[31mworld"}
+func getTestPlainRenderer() PlainRenderer {
+	return PlainRenderer{"[Hello](red) \x1b[31mworld"}
 }
 
-func TestNoopRenderer_NormalizedText(t *testing.T) {
-	r := getTestNoopRenderer()
+func TestPlainRenderer_NormalizedText(t *testing.T) {
+	r := getTestPlainRenderer()
 	assert.Equal(t, "[Hello](red) \x1b[31mworld", r.NormalizedText())
 	assert.Equal(t, "[Hello](red) \x1b[31mworld", r.Text)
 }
 
-func TestNoopRenderer_Render(t *testing.T) {
-	renderer := getTestNoopRenderer()
+func TestPlainRenderer_Render(t *testing.T) {
+	renderer := getTestPlainRenderer()
 	got := renderer.Render(5, 7)
 	assertRenderSequence(t, got, 5, 7, "[Hello](red) \x1b[31mworld", 0)
 }
 
-func TestNoopRenderer_RenderSequence(t *testing.T) {
-	renderer := getTestNoopRenderer()
+func TestPlainRenderer_RenderSequence(t *testing.T) {
+	renderer := getTestPlainRenderer()
 	got := renderer.RenderSequence(3, 5, 9, 1)
 	assertRenderSequence(t, got, 9, 1, "ll", 0)
 }
 
-func TestNoopRendererFactory(t *testing.T) {
-	factory := NoopRendererFactory{}
-	expected := NoopRenderer{"Hello world"}
+func TestPlainRendererFactory(t *testing.T) {
+	factory := PlainRendererFactory{}
+	expected := PlainRenderer{"Hello world"}
 	assert.Equal(t, factory.TextRenderer("Hello world"), expected)
 }
 
