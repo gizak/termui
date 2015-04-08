@@ -7,7 +7,6 @@
 package main
 
 import "github.com/gizak/termui"
-import "github.com/nsf/termbox-go"
 
 func main() {
 	err := termui.Init()
@@ -62,5 +61,5 @@ func main() {
 
 	termui.Render(spls0, spls1, spls2)
 
-	termbox.PollEvent()
+	<-termui.EventCh()
 }

@@ -7,7 +7,6 @@
 package main
 
 import ui "github.com/gizak/termui"
-import tm "github.com/nsf/termbox-go"
 import "math"
 
 import "time"
@@ -124,18 +123,12 @@ func main() {
 		ui.Render(p, list, g, sp, lc, bc, lc1, p1)
 	}
 
-	evt := make(chan tm.Event)
-	go func() {
-		for {
-			evt <- tm.PollEvent()
-		}
-	}()
-
+	evt := EventCh()
 	i := 0
 	for {
 		select {
 		case e := <-evt:
-			if e.Type == tm.EventKey && e.Ch == 'q' {
+			if e.Type == ui.EventKey && e.Ch == 'q' {
 				return
 			}
 		default:

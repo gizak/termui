@@ -18,10 +18,11 @@ func Init() error {
 	Body.X = 0
 	Body.Y = 0
 	Body.BgColor = theme.BodyBg
-	defer (func() {
+	defer func() {
 		w, _ := tm.Size()
 		Body.Width = w
-	})()
+		evtListen()
+	}()
 	return tm.Init()
 }
 
