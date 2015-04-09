@@ -68,6 +68,13 @@ func (d *Block) align() {
 
 }
 
+// InnerBounds returns the internal bounds of the block after aligning and
+// calculating the padding and border, if any.
+func (d *Block) InnerBounds() (x, y, width, height int) {
+	d.align()
+	return d.innerX, d.innerY, d.innerWidth, d.innerHeight
+}
+
 // Buffer implements Bufferer interface.
 // Draw background and border (if any).
 func (d *Block) Buffer() []Point {
