@@ -122,3 +122,21 @@ func (d *Block) SetY(y int) {
 func (d *Block) SetWidth(w int) {
 	d.Width = w
 }
+
+// chop the overflow parts
+func (d *Block) chopOverflow(ps []Point) []Point {
+	nps := make([]Point, 0, len(ps))
+	x := d.X
+	y := d.Y
+	w := d.Width
+	h := d.Height
+	for _, v := range ps {
+		if v.X >= x &&
+			v.X < x+w &&
+			v.Y >= y &&
+			v.Y < y+h {
+			nps = append(nps, v)
+		}
+	}
+	return nps
+}

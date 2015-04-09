@@ -120,5 +120,5 @@ func (bc *BarChart) Buffer() []Point {
 		}
 	}
 
-	return ps
+	return bc.Block.chopOverflow(ps)
 }

@@ -327,5 +327,5 @@ func (lc *LineChart) Buffer() []Point {
 		ps = append(ps, lc.renderBraille()...)
 	}
 
-	return ps
+	return lc.Block.chopOverflow(ps)
 }

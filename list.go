@@ -100,5 +100,5 @@ func (l *List) Buffer() []Point {
 			}
 		}
 	}
-	return ps
+	return l.Block.chopOverflow(ps)
 }

@@ -152,5 +152,5 @@ func (sl *Sparklines) Buffer() []Point {
 		oftY += l.displayHeight
 	}
 
-	return ps
+	return sl.Block.chopOverflow(ps)
 }
