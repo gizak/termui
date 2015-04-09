@@ -85,11 +85,11 @@ func (r *row) assignX(x int) {
 	if !r.isLeaf() {
 		acc := 0
 		for i, c := range r.Cols {
+			if c.Offset != 0 {
+				acc += int(float64(c.Offset*r.Width) / float64(12))
+			}
 			r.Cols[i].assignX(x + acc)
 			acc += c.Width
-			if c.Offset != 0 {
-				acc += int(float64(c.Offset*c.Width) / float64(12*c.Span))
-			}
 		}
 	}
 }
