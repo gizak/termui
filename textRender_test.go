@@ -13,6 +13,7 @@ func TestTextRender_TestInterface(t *testing.T) {
 	var inter *TextRenderer
 
 	assert.Implements(t, inter, new(MarkdownTextRenderer))
+	assert.Implements(t, inter, new(EscapeCodeRenderer))
 	assert.Implements(t, inter, new(PlainRenderer))
 }
 
@@ -20,6 +21,7 @@ func TestTextRendererFactory_TestInterface(t *testing.T) {
 	var inter *TextRendererFactory
 
 	assert.Implements(t, inter, new(MarkdownTextRendererFactory))
+	assert.Implements(t, inter, new(EscapeCodeRendererFactory))
 	assert.Implements(t, inter, new(PlainRendererFactory))
 }
 
@@ -269,4 +271,184 @@ func TestPosUnicode(t *testing.T) {
 	text := "你好世界"
 	require.Equal(t, "你好", text[:6])
 	assert.Equal(t, 2, posUnicode(text, 6))
+}
+
+// Make `escapeCode` safe (i.e. replace \033 by \\033) so that it is not
+// formatted.
+// func makeEscapeCodeSafe(escapeCode string) string {
+// 	return strings.Replace(escapeCode, "\033", "\\033", -1)
+// }
+
+func TestEscapeCode_Color(t *testing.T) {
+	codes := map[EscapeCode]Attribute{
+		"\033[30m":     ColorBlack,
+		"\033[31m":     ColorRed,
+		"\033[32m":     ColorGreen,
+		"\033[33m":     ColorYellow,
+		"\033[34m":     ColorBlue,
+		"\033[35m":     ColorMagenta,
+		"\033[36m":     ColorCyan,
+		"\033[37m":     ColorWhite,
+		"\033[1;31m":   ColorRed | AttrBold,
+		"\033[1;4;31m": ColorRed | AttrBold | AttrUnderline,
+		"\033[0m":      ColorDefault,
+	}
+
+	for code, color := range codes {
+		got, err := code.Color()
+		msg := fmt.Sprintf("Escape code: '%v'", code.MakeSafe())
+		if assert.NoError(t, err, msg) {
+			assert.Equal(t, color, got, msg)
+		}
+	}
+
+	invalidEscapeCodes := []EscapeCode{
+		"\03354m",
+		"[54m",
+		"\033[34",
+		"\033[34;m",
+		"\033[34m;",
+		"\033[34;",
+		"\033[5432m",
+		"t\033[30m",
+		"t\033[30ms",
+		"\033[30ms",
+	}
+
+	errMsg := "%v is not a valid ASCII escape code"
+	for _, invalidEscapeCode := range invalidEscapeCodes {
+		color, err := invalidEscapeCode.Color()
+		safeEscapeCode := invalidEscapeCode.MakeSafe()
+		expectedErr := fmt.Sprintf(errMsg, safeEscapeCode)
+		if assert.EqualError(t, err, expectedErr, "Expected: "+expectedErr) {
+			assert.Equal(t, color, Attribute(0))
+		}
+	}
+
+	outOfRangeCodes := []EscapeCode{
+		"\033[2m",
+		"\033[3m",
+		"\033[3m",
+		"\033[5m",
+		"\033[6m",
+		"\033[7m",
+		"\033[8m",
+		"\033[38m",
+		"\033[39m",
+		"\033[40m",
+		"\033[41m",
+		"\033[43m",
+		"\033[45m",
+		"\033[46m",
+		"\033[48m",
+		"\033[49m",
+		"\033[50m",
+	}
+
+	for _, code := range outOfRangeCodes {
+		color, err := code.Color()
+		safeCode := code.MakeSafe()
+		errMsg := fmt.Sprintf("Unkown/unsupported escape code: '%v'", safeCode)
+		if assert.EqualError(t, err, errMsg) {
+			assert.Equal(t, color, Attribute(0), "Escape Code: "+safeCode)
+		}
+	}
+
+	// Special case: check for out of slice panic on empty string
+	_, err := EscapeCode("").Color()
+	assert.EqualError(t, err, " is not a valid ASCII escape code")
+}
+
+func TestEscapeCode_String(t *testing.T) {
+	e := EscapeCode("\033[32m")
+	assert.Equal(t, "\\033[32m", e.String())
+}
+
+func TestEscapeCode_Raw(t *testing.T) {
+	e := EscapeCode("\033[32m")
+	assert.Equal(t, "\033[32m", e.Raw())
+}
+
+func TestEscapeCodeRenderer_NormalizedText(t *testing.T) {
+	renderer := EscapeCodeRenderer{"\033[33mtest \033[35mfoo \033[33;1mbar"}
+	assert.Equal(t, "test foo bar", renderer.NormalizedText())
+
+	renderer = EscapeCodeRenderer{"hello \033[38mtest"}
+	assert.Equal(t, "hello \033[38mtest", renderer.NormalizedText())
+}
+
+func TestEscapeCodeRenderer_RenderSequence(t *testing.T) {
+	black, white := ColorWhite, ColorBlack
+	renderer := EscapeCodeRenderer{"test \033[33mfoo \033[31mbar"}
+	sequence := renderer.RenderSequence(0, -1, black, white)
+	if assertRenderSequence(t, sequence, black, white, "test foo bar", 2) {
+		assertColorSubsequence(t, sequence.Sequences[0], "YELLOW", 5, 9)
+		assertColorSubsequence(t, sequence.Sequences[1], "RED", 9, 12)
+		getPoint := func(n int) Point {
+			point, width := sequence.PointAt(n, 10+n, 30)
+			assert.Equal(t, 1, width)
+
+			return point
+		}
+
+		// Also test the points at to make sure that
+		// I didn't make a counting mistake...
+		AssertPoint(t, getPoint(0), 't', 10, 30)
+		AssertPoint(t, getPoint(1), 'e', 11, 30)
+		AssertPoint(t, getPoint(2), 's', 12, 30)
+		AssertPoint(t, getPoint(3), 't', 13, 30)
+		AssertPoint(t, getPoint(4), ' ', 14, 30)
+		AssertPoint(t, getPoint(5), 'f', 15, 30, ColorYellow)
+		AssertPoint(t, getPoint(6), 'o', 16, 30, ColorYellow)
+		AssertPoint(t, getPoint(7), 'o', 17, 30, ColorYellow)
+		AssertPoint(t, getPoint(8), ' ', 18, 30, ColorYellow)
+		AssertPoint(t, getPoint(9), 'b', 19, 30, ColorRed)
+		AssertPoint(t, getPoint(10), 'a', 20, 30, ColorRed)
+		AssertPoint(t, getPoint(11), 'r', 21, 30, ColorRed)
+	}
+
+	renderer = EscapeCodeRenderer{"甗 郔\033[33m镺 笀耔 澉 灊\033[31m灅甗"}
+	sequence = renderer.RenderSequence(2, -1, black, white)
+	if assertRenderSequence(t, sequence, black, white, "郔镺 笀耔 澉 灊灅甗", 2) {
+		assertColorSubsequence(t, sequence.Sequences[0], "YELLOW", 1, 9)
+		assertColorSubsequence(t, sequence.Sequences[1], "RED", 9, 11)
+	}
+
+	renderer = EscapeCodeRenderer{"\033[33mHell\033[31mo world"}
+	sequence = renderer.RenderSequence(2, -1, black, white)
+	if assertRenderSequence(t, sequence, black, white, "llo world", 2) {
+		assertColorSubsequence(t, sequence.Sequences[0], "YELLOW", 0, 2)
+		assertColorSubsequence(t, sequence.Sequences[1], "RED", 2, 9)
+	}
+
+	sequence = renderer.RenderSequence(1, 7, black, white)
+	if assertRenderSequence(t, sequence, black, white, "ello w", 2) {
+		assertColorSubsequence(t, sequence.Sequences[0], "YELLOW", 0, 3)
+		assertColorSubsequence(t, sequence.Sequences[1], "RED", 3, 6)
+	}
+
+	sequence = renderer.RenderSequence(6, 10, black, white)
+	if assertRenderSequence(t, sequence, black, white, "worl", 1) {
+		assertColorSubsequence(t, sequence.Sequences[0], "RED", 0, 4)
+	}
+
+	// Test with out-of-range escape code
+	renderer = EscapeCodeRenderer{"hello \033[38mtest"}
+	sequence = renderer.RenderSequence(0, -1, black, white)
+	assertRenderSequence(t, sequence, black, white, "hello \033[38mtest", 0)
+}
+
+func TestEscapeCodeRenderer_Render(t *testing.T) {
+	renderer := EscapeCodeRenderer{"test \033[33mfoo \033[31mbar"}
+	sequence := renderer.Render(4, 6)
+	if assertRenderSequence(t, sequence, 4, 6, "test foo bar", 2) {
+		assertColorSubsequence(t, sequence.Sequences[0], "YELLOW", 5, 9)
+		assertColorSubsequence(t, sequence.Sequences[1], "RED", 9, 12)
+	}
+}
+
+func TestEscapeCodeRendererFactory_TextRenderer(t *testing.T) {
+	factory := EscapeCodeRendererFactory{}
+	assert.Equal(t, EscapeCodeRenderer{"foo"}, factory.TextRenderer("foo"))
+	assert.Equal(t, EscapeCodeRenderer{"bar"}, factory.TextRenderer("bar"))
 }

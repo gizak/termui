@@ -1,7 +1,9 @@
 package termui
 
 import (
+	"fmt"
 	"regexp"
+	"strconv"
 	"strings"
 )
 
@@ -242,4 +244,211 @@ type PlainRendererFactory struct{}
 // TextRenderer returns a PlainRenderer instance.
 func (f PlainRendererFactory) TextRenderer(text string) TextRenderer {
 	return PlainRenderer{text}
+}
+
+// We can't use a raw string here because \033 must not be escaped.
+// I'd like to append (?<=m; i.e. lookbehind), but unfortunately,
+// it is not supported. So we will need to do that manually.
+var escapeRegex = "\033\\[(([0-9]{1,2}[;m])+)"
+var colorEscapeCodeRegex = regexp.MustCompile(escapeRegex)
+var colorEscapeCodeRegexMatchAll = regexp.MustCompile("^" + escapeRegex + "$")
+
+// An EscapeCode is a unix ASCII Escape code.
+type EscapeCode string
+
+func (e EscapeCode) escapeNumberToColor(colorID int) (Attribute, error) {
+	var color Attribute
+	switch colorID {
+	case 0:
+		color = ColorDefault
+
+	case 1:
+		color = AttrBold
+
+	case 4:
+		color = AttrUnderline
+
+	case 30:
+		color = ColorBlack
+
+	case 31:
+		color = ColorRed
+
+	case 32:
+		color = ColorGreen
+
+	case 33:
+		color = ColorYellow
+
+	case 34:
+		color = ColorBlue
+
+	case 35:
+		color = ColorMagenta
+
+	case 36:
+		color = ColorCyan
+
+	case 37:
+		color = ColorWhite
+
+	default:
+		safeCode := e.MakeSafe()
+		return 0, fmt.Errorf("Unkown/unsupported escape code: '%v'", safeCode)
+	}
+
+	return color, nil
+}
+
+// Color converts the escape code to an `Attribute` (color).
+// The EscapeCode must be formatted like this:
+//  - ASCII-Escape chacter (\033) + [ + Number + (;Number...) + m
+// The second number is optimal. The semicolon (;) is used
+// to seperate the colors.
+// For example: `\033[1;31m` means: the following text is red and bold.
+func (e EscapeCode) Color() (Attribute, error) {
+	escapeCode := string(e)
+	matches := colorEscapeCodeRegexMatchAll.FindStringSubmatch(escapeCode)
+	invalidEscapeCode := func() error {
+		safeCode := e.MakeSafe()
+		return fmt.Errorf("%v is not a valid ASCII escape code", safeCode)
+	}
+
+	if matches == nil || escapeCode[len(escapeCode)-1] != 'm' {
+		return 0, invalidEscapeCode()
+	}
+
+	color := Attribute(0)
+	for _, id := range strings.Split(matches[1][:len(matches[1])-1], ";") {
+		colorID, err := strconv.Atoi(id)
+		if err != nil {
+			return 0, invalidEscapeCode()
+		}
+
+		newColor, err := e.escapeNumberToColor(colorID)
+		if err != nil {
+			return 0, err
+		}
+
+		color |= newColor
+	}
+
+	return color, nil
+}
+
+// MakeSafe replace the invisible escape code chacacter (\0333)
+// with \\0333 so that it will not mess up the terminal when an error
+// is shown.
+func (e EscapeCode) MakeSafe() string {
+	return strings.Replace(string(e), "\033", "\\033", -1)
+}
+
+// Alias to `EscapeCode.MakeSafe()`
+func (e EscapeCode) String() string {
+	return e.MakeSafe()
+}
+
+// Raw returns the raw value of the escape code.
+// Alias to string(EscapeCode)
+func (e EscapeCode) Raw() string {
+	return string(e)
+}
+
+// IsValid returns whether or not the syntax of the escape code is
+// valid and the code is supported.
+func (e EscapeCode) IsValid() bool {
+	_, err := e.Color()
+	return err == nil
+}
+
+// A EscapeCodeRenderer does not render the text at all.
+type EscapeCodeRenderer struct {
+	Text string
+}
+
+// NormalizedText strips all escape code outs (even the unkown/unsupported)
+// ones.
+func (r EscapeCodeRenderer) NormalizedText() string {
+	matches := colorEscapeCodeRegex.FindAllStringIndex(r.Text, -1)
+	text := []byte(r.Text)
+
+	// Iterate through matches in reverse order
+	for i := len(matches) - 1; i >= 0; i-- {
+		start, end := matches[i][0], matches[i][1]
+		if EscapeCode(text[start:end]).IsValid() {
+			text = append(text[:start], text[end:]...)
+		}
+	}
+
+	return string(text)
+}
+
+// RenderSequence renders the text just like Render but the start and end may
+// be set. If end is -1, the end of the string will be used.
+func (r EscapeCodeRenderer) RenderSequence(start, end int, lastColor, background Attribute) RenderedSequence {
+	normalizedRunes := []rune(r.NormalizedText())
+	if end < 0 {
+		end = len(normalizedRunes)
+	}
+
+	text := []byte(r.Text)
+	matches := colorEscapeCodeRegex.FindAllSubmatchIndex(text, -1)
+	removed := 0
+	var sequences []ColorSubsequence
+	runeLength := func(length int) int {
+		return len([]rune(string(text[:length])))
+	}
+
+	runes := []rune(r.Text)
+	for _, theMatch := range matches {
+		// Escapde code start, escape code end
+		eStart := runeLength(theMatch[0]) - removed
+		eEnd := runeLength(theMatch[1]) - removed
+		escapeCode := EscapeCode(runes[eStart:eEnd])
+
+		// If an error occurs (e.g. unkown escape code), we will just ignore it :)
+		color, err := escapeCode.Color()
+		if err != nil {
+			continue
+		}
+
+		// Patch old color sequence
+		if len(sequences) > 0 {
+			last := &sequences[len(sequences)-1]
+			last.End = eStart - start
+		}
+
+		// eEnd < 0 means the the sequence is withing the range.
+		if eEnd-start >= 0 {
+			// The sequence starts when the escape code ends and ends when the text
+			// end. If there is another escape code, this will be patched in the
+			// previous line.
+			colorSeq := ColorSubsequence{color, eStart - start, end - start}
+			if colorSeq.Start < 0 {
+				colorSeq.Start = 0
+			}
+
+			sequences = append(sequences, colorSeq)
+		}
+
+		runes = append(runes[:eStart], runes[eEnd:]...)
+		removed += eEnd - eStart
+	}
+
+	runes = runes[start:end]
+	return RenderedSequence{string(runes), lastColor, background, sequences, nil}
+}
+
+// Render just like RenderSequence
+func (r EscapeCodeRenderer) Render(lastColor, background Attribute) RenderedSequence {
+	return r.RenderSequence(0, -1, lastColor, background)
+}
+
+// EscapeCodeRendererFactory is a TextRendererFactory for
+// the EscapeCodeRenderer.
+type EscapeCodeRendererFactory struct{}
+
+// TextRenderer returns a EscapeCodeRenderer instance.
+func (f EscapeCodeRendererFactory) TextRenderer(text string) TextRenderer {
+	return EscapeCodeRenderer{text}
 }
