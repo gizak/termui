@@ -44,10 +44,27 @@ func (r *row) isRenderableLeaf() bool {
 
 // assign widgets' (and their parent rows') width recursively.
 func (r *row) assignWidth(w int) {
-	cw := int(float64(w*r.Span) / 12)
-	r.SetWidth(cw)
+	r.SetWidth(w)
 
-	for i := range r.Cols {
+	accW := 0                            // acc span and offset
+	calcW := make([]int, len(r.Cols))    // calculated width
+	calcOftX := make([]int, len(r.Cols)) // computated start position of x
+
+	for i, c := range r.Cols {
+		accW += c.Span + c.Offset
+		cw := int(float64(c.Span*r.Width) / 12.0)
+
+		if i >= 1 {
+			calcOftX[i] = calcOftX[i-1] +
+				calcW[i-1] +
+				int(float64(r.Cols[i-1].Offset*r.Width)/12.0)
+		}
+
+		// use up the space if it is the last col
+		if i == len(r.Cols)-1 && accW == 12 {
+			cw = r.Width - calcOftX[i]
+		}
+		calcW[i] = cw
 		r.Cols[i].assignWidth(cw)
 	}
 }
@@ -86,7 +103,7 @@ func (r *row) assignX(x int) {
 		acc := 0
 		for i, c := range r.Cols {
 			if c.Offset != 0 {
-				acc += int(float64(c.Offset*r.Width) / float64(12))
+				acc += int(float64(c.Offset*r.Width) / 12.0)
 			}
 			r.Cols[i].assignX(x + acc)
 			acc += c.Width

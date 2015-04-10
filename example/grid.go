@@ -107,14 +107,12 @@ func main() {
 			if e.Type == ui.EventKey && e.Ch == 'q' {
 				return
 			}
-			if e.Type == ui.EventResize {
-				ui.Body.Width = ui.TermWidth()
-				ui.Body.Align()
-			}
 		default:
 			for _, g := range gs {
 				g.Percent = (g.Percent + 3) % 100
 			}
+			ui.Body.Width = ui.TermWidth()
+			ui.Body.Align()
 
 			draw(i)
 			i++
