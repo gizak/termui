@@ -9,7 +9,6 @@
 package termui
 
 import "github.com/nsf/termbox-go"
-import "unsafe"
 
 /***********************************termbox-go**************************************/
 
@@ -133,7 +132,19 @@ const (
 
 // convert termbox.Event to termui.Event
 func uiEvt(e termbox.Event) Event {
-	return *(*Event)(unsafe.Pointer(&e))
+	event := Event{}
+	event.Type = EventType(e.Type)
+	event.Mod = Modifier(e.Mod)
+	event.Key = Key(e.Key)
+	event.Ch = e.Ch
+	event.Width = e.Width
+	event.Height = e.Height
+	event.Err = e.Err
+	event.MouseX = e.MouseX
+	event.MouseY = e.MouseY
+	event.N = e.N
+
+	return event
 }
 
 var evtChs = make([]chan Event, 0)
