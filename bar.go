@@ -59,13 +59,24 @@ func (bc *BarChart) layout() {
 		bc.dataNum[i] = trimStr2Runes(s, bc.BarWidth)
 	}
 
-	bc.max = bc.Data[0] //  what if Data is nil?
+	//bc.max = bc.Data[0] //  what if Data is nil? Sometimes when bar graph is nill it produces panic with panic: runtime error: index out of range
+	// Asign a negative value to get maxvalue auto-populates
+	if bc.max == 0 {
+		bc.max = -1
+	}
 	for i := 0; i < len(bc.Data); i++ {
 		if bc.max < bc.Data[i] {
 			bc.max = bc.Data[i]
 		}
 	}
 	bc.scale = float64(bc.max) / float64(bc.innerHeight-1)
+}
+
+func (bc *BarChart) SetMax(max int) {
+
+	if max > 0 {
+		bc.max = max
+	}
 }
 
 // Buffer implements Bufferer interface.
