@@ -4,8 +4,6 @@
 
 package termui
 
-import "strings"
-
 // List displays []string as its items,
 // it has a Overflow option (default is "hidden"), when set to "hidden",
 // the item exceeding List's width is truncated, but when set to "wrap",
@@ -31,10 +29,11 @@ import "strings"
 */
 type List struct {
 	Block
-	Items       []string
-	Overflow    string
-	ItemFgColor Attribute
-	ItemBgColor Attribute
+	Items           []string
+	Overflow        string
+	ItemFgColor     Attribute
+	ItemBgColor     Attribute
+	RendererFactory TextRendererFactory
 }
 
 // NewList returns a new *List with current theme.
@@ -43,62 +42,54 @@ func NewList() *List {
 	l.Overflow = "hidden"
 	l.ItemFgColor = theme.ListItemFg
 	l.ItemBgColor = theme.ListItemBg
+	l.RendererFactory = PlainRendererFactory{}
 	return l
 }
 
 // Buffer implements Bufferer interface.
 func (l *List) Buffer() []Point {
-	ps := l.Block.Buffer()
-	switch l.Overflow {
-	case "wrap":
-		rs := str2runes(strings.Join(l.Items, "\n"))
-		i, j, k := 0, 0, 0
-		for i < l.innerHeight && k < len(rs) {
-			w := charWidth(rs[k])
-			if rs[k] == '\n' || j+w > l.innerWidth {
-				i++
-				j = 0
-				if rs[k] == '\n' {
-					k++
+	buffer := l.Block.Buffer()
+
+	breakLoop := func(y int) bool {
+		return y+1 > l.innerHeight
+	}
+	y := 0
+
+MainLoop:
+	for _, item := range l.Items {
+		x := 0
+		bg, fg := l.ItemFgColor, l.ItemBgColor
+		renderer := l.RendererFactory.TextRenderer(item)
+		sequence := renderer.Render(bg, fg)
+
+		for n := range []rune(sequence.NormalizedText) {
+			point, width := sequence.PointAt(n, x+l.innerX, y+l.innerY)
+
+			if width+x <= l.innerWidth {
+				buffer = append(buffer, point)
+				x += width
+			} else {
+				if l.Overflow == "wrap" {
+					y++
+					if breakLoop(y) {
+						break MainLoop
+					}
+					x = 0
+				} else {
+					dotR := []rune(dot)[0]
+					dotX := l.innerWidth + l.innerX - charWidth(dotR)
+					p := newPointWithAttrs(dotR, dotX, y+l.innerY, bg, fg)
+					buffer = append(buffer, p)
+					break
 				}
-				continue
 			}
-			pi := Point{}
-			pi.X = l.innerX + j
-			pi.Y = l.innerY + i
-
-			pi.Ch = rs[k]
-			pi.Bg = l.ItemBgColor
-			pi.Fg = l.ItemFgColor
-
-			ps = append(ps, pi)
-			k++
-			j++
 		}
 
-	case "hidden":
-		trimItems := l.Items
-		if len(trimItems) > l.innerHeight {
-			trimItems = trimItems[:l.innerHeight]
-		}
-		for i, v := range trimItems {
-			rs := trimStr2Runes(v, l.innerWidth)
-
-			j := 0
-			for _, vv := range rs {
-				w := charWidth(vv)
-				p := Point{}
-				p.X = l.innerX + j
-				p.Y = l.innerY + i
-
-				p.Ch = vv
-				p.Bg = l.ItemBgColor
-				p.Fg = l.ItemFgColor
-
-				ps = append(ps, p)
-				j += w
-			}
+		y++
+		if breakLoop(y) {
+			break MainLoop
 		}
 	}
-	return l.Block.chopOverflow(ps)
+
+	return l.Block.chopOverflow(buffer)
 }

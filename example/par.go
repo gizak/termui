@@ -29,7 +29,8 @@ func main() {
 	par1.X = 20
 	par1.Border.Label = "标签"
 
-	par2 := termui.NewPar("Simple text\nwith label. It can be multilined with \\n or break automatically")
+	par2 := termui.NewPar("Simple colored text\nwith label. It [can be](RED) multilined with \\n or [break automatically](GREEN, BOLD)")
+	par2.RendererFactory = termui.MarkdownTextRendererFactory{}
 	par2.Height = 5
 	par2.Width = 37
 	par2.Y = 4
