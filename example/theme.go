@@ -123,7 +123,7 @@ func main() {
 		ui.Render(p, list, g, sp, lc, bc, lc1, p1)
 	}
 
-	evt := EventCh()
+	evt := ui.EventCh()
 	i := 0
 	for {
 		select {

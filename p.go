@@ -13,38 +13,43 @@ package termui
 */
 type Par struct {
 	Block
-	Text        string
-	TextFgColor Attribute
-	TextBgColor Attribute
+	Text            string
+	TextFgColor     Attribute
+	TextBgColor     Attribute
+	RendererFactory TextRendererFactory
 }
 
 // NewPar returns a new *Par with given text as its content.
 func NewPar(s string) *Par {
 	return &Par{
-		Block:       *NewBlock(),
-		Text:        s,
-		TextFgColor: theme.ParTextFg,
-		TextBgColor: theme.ParTextBg}
+		Block:           *NewBlock(),
+		Text:            s,
+		TextFgColor:     theme.ParTextFg,
+		TextBgColor:     theme.ParTextBg,
+		RendererFactory: PlainRendererFactory{},
+	}
 }
 
 // Buffer implements Bufferer interface.
 func (p *Par) Buffer() []Point {
 	ps := p.Block.Buffer()
 
-	rs := str2runes(p.Text)
-	i, j, k := 0, 0, 0
-	for i < p.innerHeight && k < len(rs) {
-		// the width of char is about to print
-		w := charWidth(rs[k])
+	fg, bg := p.TextFgColor, p.TextBgColor
+	sequence := p.RendererFactory.TextRenderer(p.Text).Render(fg, bg)
+	runes := []rune(sequence.NormalizedText)
 
-		if rs[k] == '\n' || j+w > p.innerWidth {
-			i++
-			j = 0 // set x = 0
-			if rs[k] == '\n' {
-				k++
+	y, x, n := 0, 0, 0
+	for y < p.innerHeight && n < len(runes) {
+		point, width := sequence.PointAt(n, x+p.innerX, y+p.innerY)
+
+		if runes[n] == '\n' || x+width > p.innerWidth {
+			y++
+			x = 0 // set x = 0
+			if runes[n] == '\n' {
+				n++
 			}
 
-			if i >= p.innerHeight {
+			if y >= p.innerHeight {
 				ps = append(ps, newPointWithAttrs('…',
 					p.innerX+p.innerWidth-1,
 					p.innerY+p.innerHeight-1,
@@ -54,18 +59,11 @@ func (p *Par) Buffer() []Point {
 
 			continue
 		}
-		pi := Point{}
-		pi.X = p.innerX + j
-		pi.Y = p.innerY + i
 
-		pi.Ch = rs[k]
-		pi.Bg = p.TextBgColor
-		pi.Fg = p.TextFgColor
-
-		ps = append(ps, pi)
-
-		k++
-		j += w
+		ps = append(ps, point)
+		n++
+		x += width
 	}
+
 	return p.Block.chopOverflow(ps)
 }
