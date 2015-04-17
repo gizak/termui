@@ -26,6 +26,9 @@ type ColorScheme struct {
 	BarChartBar       Attribute
 	BarChartText      Attribute
 	BarChartNum       Attribute
+	MBarChartBar      Attribute
+	MBarChartText     Attribute
+	MBarChartNum      Attribute
 }
 
 // default color scheme depends on the user's terminal setting.
@@ -52,6 +55,9 @@ var themeHelloWorld = ColorScheme{
 	BarChartBar:       ColorRed,
 	BarChartNum:       ColorWhite,
 	BarChartText:      ColorCyan,
+	MBarChartBar:      ColorRed,
+	MBarChartNum:      ColorWhite,
+	MBarChartText:     ColorCyan,
 }
 
 var theme = themeDefault // global dep
