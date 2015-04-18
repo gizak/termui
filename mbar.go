@@ -82,14 +82,14 @@ func (bc *MBarChart) layout() {
 		LabelLen = bc.minDataLen
 	}
 
-	for i := 0; i < LabelLen; i++ {
+	for i := 0; i < LabelLen && i < bc.numBar; i++ {
 		bc.labels[i] = trimStr2Runes(bc.DataLabels[i], bc.BarWidth)
 	}
 
 	for i := 0; i < bc.numStack; i++ {
 		bc.dataNum[i] = make([][]rune, len(bc.Data[i]))
 		//For each stack of bar calcualte the rune
-		for j := 0; j < LabelLen; j++ {
+		for j := 0; j < LabelLen && i < bc.numBar; j++ {
 			n := bc.Data[i][j]
 			s := fmt.Sprint(n)
 			bc.dataNum[i][j] = trimStr2Runes(s, bc.BarWidth)
@@ -175,7 +175,7 @@ func (bc *MBarChart) Buffer() []Point {
 		ph = 0 //re-initialize previous height
 		for i1 := 0; i1 < bc.numStack; i1++ {
 			h := int(float64(bc.Data[i1][i]) / bc.scale)
-			for j := 0; j < len(bc.dataNum[i1][i]); j++ {
+			for j := 0; j < len(bc.dataNum[i1][i]) && h > 0; j++ {
 				p := Point{}
 				p.Ch = bc.dataNum[i1][i][j]
 				p.Fg = bc.NumColor[i1]
@@ -186,7 +186,7 @@ func (bc *MBarChart) Buffer() []Point {
 				if h == 0 {
 					p.Bg = bc.BgColor
 				}
-				p.X = bc.innerX + oftX + (bc.BarWidth-len(bc.dataNum[i]))/2 + j
+				p.X = bc.innerX + oftX + (bc.BarWidth-len(bc.dataNum[i1][i]))/2 + j
 				p.Y = bc.innerY + bc.innerHeight - 2 - ph
 				ps = append(ps, p)
 			}
