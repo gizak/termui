@@ -47,7 +47,15 @@ func main() {
 	g1.Border.FgColor = termui.ColorWhite
 	g1.Border.LabelFgColor = termui.ColorMagenta
 
-	termui.Render(g0, g1, g2)
+	g3 := termui.NewGauge()
+	g3.Percent = 50
+	g3.Width = 50
+	g3.Height = 3
+	g3.Y = 11
+	g3.Border.Label = "Gauge with custom label"
+	g3.Label = "{{percent}}% (100MBs free)"
+
+	termui.Render(g0, g1, g2, g3)
 
 	<-termui.EventCh()
 }
