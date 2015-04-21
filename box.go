@@ -4,114 +4,120 @@
 
 package termui
 
-type border struct {
-	X       int
-	Y       int
-	Width   int
-	Height  int
-	FgColor Attribute
-	BgColor Attribute
+import "image"
+
+type Border struct {
+	Area   image.Rectangle
+	Left   bool
+	Top    bool
+	Right  bool
+	Bottom bool
+	Fg     Attribute
+	Bg     Attribute
 }
 
-type hline struct {
-	X       int
-	Y       int
-	Length  int
-	FgColor Attribute
-	BgColor Attribute
+type Hline struct {
+	X   int
+	Y   int
+	Len int
+	Fg  Attribute
+	Bg  Attribute
 }
 
-type vline struct {
-	X       int
-	Y       int
-	Length  int
-	FgColor Attribute
-	BgColor Attribute
+type Vline struct {
+	X   int
+	Y   int
+	Len int
+	Fg  Attribute
+	Bg  Attribute
 }
 
-// Draw a horizontal line.
-func (l hline) Buffer() []Point {
-	pts := make([]Point, l.Length)
-	for i := 0; i < l.Length; i++ {
-		pts[i].X = l.X + i
-		pts[i].Y = l.Y
-		pts[i].Ch = HORIZONTAL_LINE
-		pts[i].Bg = l.BgColor
-		pts[i].Fg = l.FgColor
+// Buffer draws a horizontal line.
+func (l Hline) Buffer() Buffer {
+	buf := NewBuffer()
+	for i := 0; i < l.Len; i++ {
+		buf.Set(l.X+i, l.Y, Cell{HORIZONTAL_LINE, l.Fg, l.Bg})
 	}
-	return pts
+	buf.Align()
+	return buf
 }
 
-// Draw a vertical line.
-func (l vline) Buffer() []Point {
-	pts := make([]Point, l.Length)
-	for i := 0; i < l.Length; i++ {
-		pts[i].X = l.X
-		pts[i].Y = l.Y + i
-		pts[i].Ch = VERTICAL_LINE
-		pts[i].Bg = l.BgColor
-		pts[i].Fg = l.FgColor
+// Buffer draws a vertical line.
+func (l Vline) Buffer() Buffer {
+	buf := NewBuffer()
+	for i := 0; i < l.Len; i++ {
+		buf.Set(l.X, l.Y+i, Cell{VERTICAL_LINE, l.Fg, l.Bg})
 	}
-	return pts
+	buf.Align()
+	return buf
 }
 
-// Draw a box border.
-func (b border) Buffer() []Point {
-	if b.Width < 2 || b.Height < 2 {
-		return nil
-	}
-	pts := make([]Point, 2*b.Width+2*b.Height-4)
-
-	pts[0].X = b.X
-	pts[0].Y = b.Y
-	pts[0].Fg = b.FgColor
-	pts[0].Bg = b.BgColor
-	pts[0].Ch = TOP_LEFT
-
-	pts[1].X = b.X + b.Width - 1
-	pts[1].Y = b.Y
-	pts[1].Fg = b.FgColor
-	pts[1].Bg = b.BgColor
-	pts[1].Ch = TOP_RIGHT
-
-	pts[2].X = b.X
-	pts[2].Y = b.Y + b.Height - 1
-	pts[2].Fg = b.FgColor
-	pts[2].Bg = b.BgColor
-	pts[2].Ch = BOTTOM_LEFT
-
-	pts[3].X = b.X + b.Width - 1
-	pts[3].Y = b.Y + b.Height - 1
-	pts[3].Fg = b.FgColor
-	pts[3].Bg = b.BgColor
-	pts[3].Ch = BOTTOM_RIGHT
-
-	copy(pts[4:], (hline{b.X + 1, b.Y, b.Width - 2, b.FgColor, b.BgColor}).Buffer())
-	copy(pts[4+b.Width-2:], (hline{b.X + 1, b.Y + b.Height - 1, b.Width - 2, b.FgColor, b.BgColor}).Buffer())
-	copy(pts[4+2*b.Width-4:], (vline{b.X, b.Y + 1, b.Height - 2, b.FgColor, b.BgColor}).Buffer())
-	copy(pts[4+2*b.Width-4+b.Height-2:], (vline{b.X + b.Width - 1, b.Y + 1, b.Height - 2, b.FgColor, b.BgColor}).Buffer())
-
-	return pts
-}
-
-type labeledBorder struct {
-	border
-	Label        string
-	LabelFgColor Attribute
-	LabelBgColor Attribute
-}
-
-// Draw a box border with label.
-func (lb labeledBorder) Buffer() []Point {
-	ps := lb.border.Buffer()
-	maxTxtW := lb.Width - 2
-	rs := trimStr2Runes(lb.Label, maxTxtW)
-
-	for i, j, w := 0, 0, 0; i < len(rs); i++ {
-		w = charWidth(rs[i])
-		ps = append(ps, newPointWithAttrs(rs[i], lb.X+1+j, lb.Y, lb.LabelFgColor, lb.LabelBgColor))
-		j += w
+// Buffer draws a box border.
+func (b Border) Buffer() Buffer {
+	buf := NewBuffer()
+	if b.Area.Size().X < 2 || b.Area.Size().Y < 2 {
+		return buf
 	}
 
-	return ps
+	min := b.Area.Min
+	max := b.Area.Max
+
+	x0 := min.X
+	y0 := min.Y
+	x1 := max.X
+	y1 := max.Y
+
+	// draw lines
+	switch {
+	case b.Top:
+		buf.Union(Hline{x0, y0, x1 - x0, b.Fg, b.Bg}.Buffer())
+		fallthrough
+	case b.Bottom:
+		buf.Union(Hline{x0, y1, x1 - x0, b.Fg, b.Bg}.Buffer())
+		fallthrough
+	case b.Left:
+		buf.Union(Vline{x0, y0, y1 - y0, b.Fg, b.Bg}.Buffer())
+		fallthrough
+	case b.Right:
+		buf.Union(Vline{x1, y0, y1 - y0, b.Fg, b.Bg}.Buffer())
+	}
+
+	// draw corners
+	switch {
+	case b.Top && b.Left:
+		buf.Set(x0, y0, Cell{TOP_LEFT, b.Fg, b.Bg})
+		fallthrough
+	case b.Top && b.Right:
+		buf.Set(x1, y0, Cell{TOP_RIGHT, b.Fg, b.Bg})
+		fallthrough
+	case b.Bottom && b.Left:
+		buf.Set(x0, y1, Cell{BOTTOM_LEFT, b.Fg, b.Bg})
+		fallthrough
+	case b.Bottom && b.Right:
+		buf.Set(x1, y1, Cell{BOTTOM_RIGHT, b.Fg, b.Bg})
+	}
+
+	return buf
+}
+
+// LabeledBorder defined label upon Border
+type LabeledBorder struct {
+	Border
+	Label      string
+	LabelFgClr Attribute
+	LabelBgClr Attribute
+}
+
+// Buffer draw a box border with label.
+func (lb LabeledBorder) Buffer() Buffer {
+	border := lb.Border.Buffer()
+	maxTxtW := lb.Area.Dx() + 1 - 2
+	tx := DTrimTxCls(TextCells(lb.Label, lb.LabelFgClr, lb.LabelBgClr), maxTxtW)
+
+	for i, w := 0, 0; i < len(tx); i++ {
+		border.Set(border.Area.Min.X+1+w, border.Area.Min.Y, tx[i])
+		w += tx[i].Width()
+	}
+
+	return border
 }

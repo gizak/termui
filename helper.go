@@ -148,3 +148,60 @@ func StringToAttribute(text string) Attribute {
 
 	return result
 }
+
+// TextCells returns a coloured text cells []Cell
+func TextCells(s string, fg, bg Attribute) []Cell {
+	cs := make([]Cell, 0, len(s))
+
+	// sequence := MarkdownTextRendererFactory{}.TextRenderer(s).Render(fg, bg)
+	// runes := []rune(sequence.NormalizedText)
+	runes := str2runes(s)
+
+	for n := range runes {
+		// point, _ := sequence.PointAt(n, 0, 0)
+		// cs = append(cs, Cell{point.Ch, point.Fg, point.Bg})
+		cs = append(cs, Cell{runes[n], fg, bg})
+	}
+	return cs
+}
+
+// Width returns the actual screen space the cell takes (usually 1 or 2).
+func (c Cell) Width() int {
+	return charWidth(c.Ch)
+}
+
+// Copy return a copy of c
+func (c Cell) Copy() Cell {
+	return c
+}
+
+// TrimTxCells trims the overflowed text cells sequence.
+func TrimTxCells(cs []Cell, w int) []Cell {
+	if len(cs) <= w {
+		return cs
+	}
+	return cs[:w]
+}
+
+// DTrimTxCls trims the overflowed text cells sequence and append dots at the end.
+func DTrimTxCls(cs []Cell, w int) []Cell {
+	l := len(cs)
+	if l <= 0 {
+		return []Cell{}
+	}
+
+	rt := make([]Cell, 0, w)
+	csw := 0
+	for i := 0; i < l && csw <= w; i++ {
+		c := cs[i]
+		cw := c.Width()
+
+		if cw+csw <= w {
+			rt = append(rt, c)
+		} else {
+			rt = append(rt, Cell{'…', c.Fg, c.Bg})
+		}
+	}
+
+	return rt
+}

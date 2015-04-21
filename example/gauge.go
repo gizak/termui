@@ -7,6 +7,7 @@
 package main
 
 import "github.com/gizak/termui"
+import "github.com/gizak/termui/widget"
 
 func main() {
 	err := termui.Init()
@@ -17,16 +18,23 @@ func main() {
 
 	termui.UseTheme("helloworld")
 
-	g0 := termui.NewGauge()
+	g0 := widget.NewGauge()
 	g0.Percent = 40
 	g0.Width = 50
 	g0.Height = 3
 	g0.Border.Label = "Slim Gauge"
 	g0.BarColor = termui.ColorRed
-	g0.Border.FgColor = termui.ColorWhite
-	g0.Border.LabelFgColor = termui.ColorCyan
+	g0.Border.Fg = termui.ColorWhite
+	g0.Border.LabelFgClr = termui.ColorCyan
 
-	g2 := termui.NewGauge()
+	gg := termui.NewBlock()
+	gg.Width = 50
+	gg.Height = 5
+	gg.Y = 12
+	gg.Border.Label = "TEST"
+	gg.Align()
+
+	g2 := widget.NewGauge()
 	g2.Percent = 60
 	g2.Width = 50
 	g2.Height = 3
@@ -34,9 +42,9 @@ func main() {
 	g2.Y = 3
 	g2.Border.Label = "Slim Gauge"
 	g2.BarColor = termui.ColorYellow
-	g2.Border.FgColor = termui.ColorWhite
+	g2.Border.Fg = termui.ColorWhite
 
-	g1 := termui.NewGauge()
+	g1 := widget.NewGauge()
 	g1.Percent = 30
 	g1.Width = 50
 	g1.Height = 5
@@ -44,10 +52,10 @@ func main() {
 	g1.Border.Label = "Big Gauge"
 	g1.PercentColor = termui.ColorYellow
 	g1.BarColor = termui.ColorGreen
-	g1.Border.FgColor = termui.ColorWhite
-	g1.Border.LabelFgColor = termui.ColorMagenta
+	g1.Border.Fg = termui.ColorWhite
+	g1.Border.LabelFgClr = termui.ColorMagenta
 
-	termui.Render(g0, g1, g2)
+	termui.Render(g0, g1, g2, gg)
 
 	<-termui.EventCh()
 }
