@@ -20,12 +20,24 @@ import (
   g.BarColor = termui.ColorRed
   g.PercentColor = termui.ColorBlue
 */
+
+// Align is the position of the gauge's label.
+type Align int
+
+// All supported positions.
+const (
+	AlignLeft Align = iota
+	AlignCenter
+	AlignRight
+)
+
 type Gauge struct {
 	Block
 	Percent      int
 	BarColor     Attribute
 	PercentColor Attribute
 	Label        string
+	Align        Align
 }
 
 // NewGauge return a new gauge with current theme.
@@ -35,6 +47,7 @@ func NewGauge() *Gauge {
 		PercentColor: theme.GaugePercent,
 		BarColor:     theme.GaugeBar,
 		Label:        "{{percent}}%",
+		Align:        AlignCenter,
 	}
 
 	g.Width = 12
@@ -64,16 +77,27 @@ func (g *Gauge) Buffer() []Point {
 
 	// plot percentage
 	s := strings.Replace(g.Label, "{{percent}}", strconv.Itoa(g.Percent), -1)
-	prx := g.innerX + (g.innerWidth-strWidth(s))/2
 	pry := g.innerY + g.innerHeight/2
 	rs := str2runes(s)
+	var pos int
+	switch g.Align {
+	case AlignLeft:
+		pos = 0
+
+	case AlignCenter:
+		pos = (g.innerWidth - strWidth(s)) / 2
+
+	case AlignRight:
+		pos = g.innerWidth - strWidth(s)
+	}
+
 	for i, v := range rs {
 		p := Point{}
-		p.X = prx + i
+		p.X = 1 + pos + i
 		p.Y = pry
 		p.Ch = v
 		p.Fg = g.PercentColor
-		if w > (g.innerWidth-strWidth(s))/2+i {
+		if w > pos+i {
 			p.Bg = g.BarColor
 			if p.Bg == ColorDefault {
 				p.Bg |= AttrReverse
