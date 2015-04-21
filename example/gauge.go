@@ -54,7 +54,7 @@ func main() {
 	g3.Y = 11
 	g3.Border.Label = "Gauge with custom label"
 	g3.Label = "{{percent}}% (100MBs free)"
-	g3.Align = termui.AlignRight
+	g3.LabelAlign = termui.AlignRight
 
 	termui.Render(g0, g1, g2, g3)
 

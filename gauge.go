@@ -37,7 +37,7 @@ type Gauge struct {
 	BarColor     Attribute
 	PercentColor Attribute
 	Label        string
-	Align        Align
+	LabelAlign   Align
 }
 
 // NewGauge return a new gauge with current theme.
@@ -47,7 +47,7 @@ func NewGauge() *Gauge {
 		PercentColor: theme.GaugePercent,
 		BarColor:     theme.GaugeBar,
 		Label:        "{{percent}}%",
-		Align:        AlignCenter,
+		LabelAlign:   AlignCenter,
 	}
 
 	g.Width = 12
@@ -80,7 +80,7 @@ func (g *Gauge) Buffer() []Point {
 	pry := g.innerY + g.innerHeight/2
 	rs := str2runes(s)
 	var pos int
-	switch g.Align {
+	switch g.LabelAlign {
 	case AlignLeft:
 		pos = 0
 
