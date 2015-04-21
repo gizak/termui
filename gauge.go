@@ -4,7 +4,10 @@
 
 package termui
 
-import "strconv"
+import (
+	"strconv"
+	"strings"
+)
 
 // Gauge is a progress bar like widget.
 // A simple example:
@@ -17,11 +20,24 @@ import "strconv"
   g.BarColor = termui.ColorRed
   g.PercentColor = termui.ColorBlue
 */
+
+// Align is the position of the gauge's label.
+type Align int
+
+// All supported positions.
+const (
+	AlignLeft Align = iota
+	AlignCenter
+	AlignRight
+)
+
 type Gauge struct {
 	Block
 	Percent      int
 	BarColor     Attribute
 	PercentColor Attribute
+	Label        string
+	LabelAlign   Align
 }
 
 // NewGauge return a new gauge with current theme.
@@ -29,7 +45,11 @@ func NewGauge() *Gauge {
 	g := &Gauge{
 		Block:        *NewBlock(),
 		PercentColor: theme.GaugePercent,
-		BarColor:     theme.GaugeBar}
+		BarColor:     theme.GaugeBar,
+		Label:        "{{percent}}%",
+		LabelAlign:   AlignCenter,
+	}
+
 	g.Width = 12
 	g.Height = 5
 	return g
@@ -39,14 +59,8 @@ func NewGauge() *Gauge {
 func (g *Gauge) Buffer() []Point {
 	ps := g.Block.Buffer()
 
-	w := g.Percent * g.innerWidth / 100
-	s := strconv.Itoa(g.Percent) + "%"
-	rs := str2runes(s)
-
-	prx := g.innerX + g.innerWidth/2 - 1
-	pry := g.innerY + g.innerHeight/2
-
 	// plot bar
+	w := g.Percent * g.innerWidth / 100
 	for i := 0; i < g.innerHeight; i++ {
 		for j := 0; j < w; j++ {
 			p := Point{}
@@ -62,13 +76,28 @@ func (g *Gauge) Buffer() []Point {
 	}
 
 	// plot percentage
+	s := strings.Replace(g.Label, "{{percent}}", strconv.Itoa(g.Percent), -1)
+	pry := g.innerY + g.innerHeight/2
+	rs := str2runes(s)
+	var pos int
+	switch g.LabelAlign {
+	case AlignLeft:
+		pos = 0
+
+	case AlignCenter:
+		pos = (g.innerWidth - strWidth(s)) / 2
+
+	case AlignRight:
+		pos = g.innerWidth - strWidth(s)
+	}
+
 	for i, v := range rs {
 		p := Point{}
-		p.X = prx + i
+		p.X = 1 + pos + i
 		p.Y = pry
 		p.Ch = v
 		p.Fg = g.PercentColor
-		if w > g.innerWidth/2-1+i {
+		if w > pos+i {
 			p.Bg = g.BarColor
 			if p.Bg == ColorDefault {
 				p.Bg |= AttrReverse
@@ -77,6 +106,7 @@ func (g *Gauge) Buffer() []Point {
 		} else {
 			p.Bg = g.Block.BgColor
 		}
+
 		ps = append(ps, p)
 	}
 	return g.Block.chopOverflow(ps)
