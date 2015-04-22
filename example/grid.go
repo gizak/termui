@@ -92,34 +92,39 @@ func main() {
 	// calculate layout
 	ui.Body.Align()
 
-	draw := func(t int) {
-		sp.Lines[0].Data = spdata[t:]
-		lc.Data = sinps[2*t:]
-		ui.Render(ui.Body)
+	done := make(chan bool)
+
+	draw := func() {
+		for i := 0; i < 103; i++ {
+			for _, g := range gs {
+				g.Percent = (g.Percent + 3) % 100
+			}
+
+			sp.Lines[0].Data = spdata[i:]
+			lc.Data = sinps[2*i:]
+
+			time.Sleep(time.Second / 2)
+		}
+		done <- true
 	}
 
 	evt := ui.EventCh()
 
-	i := 0
+	go draw()
 	for {
 		select {
 		case e := <-evt:
 			if e.Type == ui.EventKey && e.Ch == 'q' {
 				return
 			}
+			if e.Type == ui.EventResize {
+				ui.Body.Width = ui.TermWidth()
+				ui.Body.Align()
+			}
+		case <-done:
+			return
 		default:
-			for _, g := range gs {
-				g.Percent = (g.Percent + 3) % 100
-			}
-			ui.Body.Width = ui.TermWidth()
-			ui.Body.Align()
-
-			draw(i)
-			i++
-			if i == 102 {
-				return
-			}
-			time.Sleep(time.Second / 2)
+			ui.Render(ui.Body)
 		}
 	}
 }
