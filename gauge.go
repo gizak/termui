@@ -97,7 +97,7 @@ func (g *Gauge) Buffer() []Point {
 		p.Y = pry
 		p.Ch = v
 		p.Fg = g.PercentColor
-		if w > pos+i {
+		if w+g.innerX > pos+i {
 			p.Bg = g.BarColor
 			if p.Bg == ColorDefault {
 				p.Bg |= AttrReverse
