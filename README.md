@@ -1,7 +1,9 @@
 # termui [![Build Status](https://travis-ci.org/gizak/termui.svg?branch=master)](https://travis-ci.org/gizak/termui) [![Doc Status](https://godoc.org/github.com/gizak/termui?status.png)](https://godoc.org/github.com/gizak/termui)
 
----
+## Notice
+termui comes with ABSOLUTELY NO WARRANTY, and there is a breaking change coming up (see refactoring branch) which will change the `Bufferer` interface and many others. These changes reduce calculation overhead and introduce a new drawing buffer with better capacibilities. We will step into the next stage (call it beta) after merging these changes.
 
+## Introduction
 Go terminal dashboard. Inspired by [blessed-contrib](https://github.com/yaronn/blessed-contrib), but purely in Go.
 
 Cross-platform, easy to compile, and fully-customizable.
