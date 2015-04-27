@@ -129,6 +129,11 @@ The `helloworld` color scheme drops in some colors!
 
 <img src="./example/barchart.png" alt="barchart" type="image/png" width="150">
 
+#### Mult-Bar / Stacked-Bar Chart
+[demo code](https://github.com/gizak/termui/blob/master/example/mbarchart.go)
+
+<img src="./example/mbarchart.png" alt="barchart" type="image/png" width="150">
+
 #### Sparklines
 [demo code](https://github.com/gizak/termui/blob/master/example/sparklines.go)
 

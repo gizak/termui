@@ -41,6 +41,8 @@ type MBarChart struct {
 	max        int
 	minDataLen int
 	numStack   int
+	ShowScale  bool
+	maxScale   []rune
 }
 
 // NewBarChart returns a new *BarChart with current theme.
@@ -59,7 +61,7 @@ func (bc *MBarChart) layout() {
 	bc.labels = make([][]rune, bc.numBar)
 	DataLen := 0
 	LabelLen := len(bc.DataLabels)
-	bc.minDataLen = 9999 //Set this to some very hight value so that we find the minimum one We want to know which array among data[][] has got the least lenght
+	bc.minDataLen = 9999 //Set this to some very hight value so that we find the minimum one We want to know which array among data[][] has got the least length
 
 	// We need to know how many stack/data array data[0] , data[1] are there
 	for i := 0; i < len(bc.Data); i++ {
@@ -70,7 +72,7 @@ func (bc *MBarChart) layout() {
 	}
 	bc.numStack = DataLen
 
-	//We need to what is the mimimum size of data array data[0] could have 10 elements data[1] could have only 5, so we plot only 5 bar graphs
+	//We need to know what is the mimimum size of data array data[0] could have 10 elements data[1] could have only 5, so we plot only 5 bar graphs
 
 	for i := 0; i < DataLen; i++ {
 		if bc.minDataLen > len(bc.Data[i]) {
@@ -122,7 +124,16 @@ func (bc *MBarChart) layout() {
 			bc.max = dsum
 		}
 	}
-	bc.scale = float64(bc.max) / float64(bc.innerHeight-1)
+
+	//Finally Calculate max sale
+	if bc.ShowScale {
+		s := fmt.Sprintf("%d", bc.max)
+		bc.maxScale = trimStr2Runes(s, len(s))
+		bc.scale = float64(bc.max) / float64(bc.innerHeight-2)
+	} else {
+		bc.scale = float64(bc.max) / float64(bc.innerHeight-1)
+	}
+
 }
 
 func (bc *MBarChart) SetMax(max int) {
@@ -140,9 +151,9 @@ func (bc *MBarChart) Buffer() []Point {
 
 	for i := 0; i < bc.numBar && i < bc.minDataLen && i < len(bc.DataLabels); i++ {
 		ph := 0 //Previous Height to stack up
+		oftX = i * (bc.BarWidth + bc.BarGap)
 		for i1 := 0; i1 < bc.numStack; i1++ {
 			h := int(float64(bc.Data[i1][i]) / bc.scale)
-			oftX = i * (bc.BarWidth + bc.BarGap)
 			// plot bars
 			for j := 0; j < bc.BarWidth; j++ {
 				for k := 0; k < h; k++ {
@@ -167,7 +178,7 @@ func (bc *MBarChart) Buffer() []Point {
 			p.Bg = bc.BgColor
 			p.Fg = bc.TextColor
 			p.Y = bc.innerY + bc.innerHeight - 1
-			p.X = bc.innerX + oftX + k
+			p.X = bc.innerX + oftX + ((bc.BarWidth - len(bc.labels[i])) / 2) + k
 			ps = append(ps, p)
 			k += w
 		}
@@ -192,6 +203,30 @@ func (bc *MBarChart) Buffer() []Point {
 			}
 			ph += h
 		}
+	}
+
+	if bc.ShowScale {
+		//Currently bar graph only supprts data range from 0 to MAX
+		//Plot 0
+		p := Point{}
+		p.Ch = '0'
+		p.Bg = bc.BgColor
+		p.Fg = bc.TextColor
+		p.Y = bc.innerY + bc.innerHeight - 2
+		p.X = bc.X
+		ps = append(ps, p)
+
+		//Plot the maximum sacle value
+		for i := 0; i < len(bc.maxScale); i++ {
+			p := Point{}
+			p.Ch = bc.maxScale[i]
+			p.Bg = bc.BgColor
+			p.Fg = bc.TextColor
+			p.Y = bc.innerY
+			p.X = bc.X + i
+			ps = append(ps, p)
+		}
+
 	}
 
 	return bc.Block.chopOverflow(ps)
