@@ -18,10 +18,10 @@ func main() {
 	termui.UseTheme("helloworld")
 
 	bc := termui.NewMBarChart()
-	math := []int{45, 75, 34, 62}
-	english := []int{50, 45, 25, 57}
-	science := []int{75, 60, 15, 50}
-	compsci := []int{90, 95, 100, 100}
+	math := []int{90, 85, 90, 80}
+	english := []int{70, 85, 75, 60}
+	science := []int{75, 60, 80, 85}
+	compsci := []int{100, 100, 100, 100}
 	bc.Data[0] = math
 	bc.Data[1] = english
 	bc.Data[2] = science
@@ -33,6 +33,8 @@ func main() {
 	bc.Y = 10
 	bc.BarWidth = 10
 	bc.DataLabels = studentsName
+	bc.ShowScale = true //Show y_axis scale value (min and max)
+	bc.SetMax(400)
 
 	bc.TextColor = termui.ColorGreen    //this is color for label (x-axis)
 	bc.BarColor[3] = termui.ColorGreen  //BarColor for computerscience
