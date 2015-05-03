@@ -6,10 +6,6 @@ package termui
 
 import "image"
 
-// Copyright 2015 Zack Guo <gizak@icloud.com>. All rights reserved.
-// Use of this source code is governed by a MIT license that can
-// be found in the LICENSE file.
-
 // Hline is a horizontal line.
 type Hline struct {
 	X   int
@@ -33,7 +29,7 @@ func (l Hline) Buffer() Buffer {
 	if l.Len <= 0 {
 		return NewBuffer()
 	}
-	return NewFilledBuffer(l.X, l.Y, l.X+l.Len, l.Y, HORIZONTAL_LINE, l.Fg, l.Bg)
+	return NewFilledBuffer(l.X, l.Y, l.X+l.Len, l.Y+1, HORIZONTAL_LINE, l.Fg, l.Bg)
 }
 
 // Buffer draws a vertical line.
@@ -41,7 +37,7 @@ func (l Vline) Buffer() Buffer {
 	if l.Len <= 0 {
 		return NewBuffer()
 	}
-	return NewFilledBuffer(l.X, l.Y, l.X, l.Y+l.Len, VERTICAL_LINE, l.Fg, l.Bg)
+	return NewFilledBuffer(l.X, l.Y, l.X+1, l.Y+l.Len, VERTICAL_LINE, l.Fg, l.Bg)
 }
 
 // Buffer draws a box border.
@@ -55,8 +51,8 @@ func (b Block) drawBorder(buf Buffer) {
 
 	x0 := min.X
 	y0 := min.Y
-	x1 := max.X
-	y1 := max.Y
+	x1 := max.X - 1
+	y1 := max.Y - 1
 
 	// draw lines
 	if b.BorderTop {
@@ -148,8 +144,8 @@ func NewBlock() *Block {
 func (b *Block) Align() {
 	b.area.Min.X = b.X
 	b.area.Min.Y = b.Y
-	b.area.Max.X = b.X + b.Width - 1
-	b.area.Max.Y = b.Y + b.Height - 1
+	b.area.Max.X = b.X + b.Width
+	b.area.Max.Y = b.Y + b.Height
 
 	b.innerArea.Min.X = b.X + b.PaddingLeft
 	b.innerArea.Min.Y = b.Y + b.PaddingTop

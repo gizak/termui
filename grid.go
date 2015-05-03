@@ -161,7 +161,7 @@ func (r *Row) SetWidth(w int) {
 // Buffer implements Bufferer interface,
 // recursively merge all widgets buffer
 func (r *Row) Buffer() Buffer {
-	merged := Buffer{}
+	merged := NewBuffer()
 
 	if r.isRenderableLeaf() {
 		return r.Widget.Buffer()
@@ -169,13 +169,13 @@ func (r *Row) Buffer() Buffer {
 
 	// for those are not leaves but have a renderable widget
 	if r.Widget != nil {
-		merged.Union(r.Widget.Buffer())
+		merged.Merge(r.Widget.Buffer())
 	}
 
 	// collect buffer from children
 	if !r.isLeaf() {
 		for _, c := range r.Cols {
-			merged.Union(c.Buffer())
+			merged.Merge(c.Buffer())
 		}
 	}
 
@@ -268,10 +268,10 @@ func (g *Grid) Align() {
 
 // Buffer implments Bufferer interface.
 func (g Grid) Buffer() Buffer {
-	buf := Buffer{}
+	buf := NewBuffer()
 
 	for _, r := range g.Rows {
-		buf.Union(r.Buffer())
+		buf.Merge(r.Buffer())
 	}
 	return buf
 }

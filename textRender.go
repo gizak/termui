@@ -9,6 +9,83 @@ import (
 	"strings"
 )
 
+// Minial interface
+type TextBuilder interface {
+	Build(s string, fg, bg Attribute) []Cells
+}
+
+type MarkdownTxBuilder struct {
+	regex   string
+	pattern *regexp.Regexp
+	baseFg  Attribute
+	baseBg  Attribute
+}
+
+var colorMap = map[string]Attribute{
+	"red":     ColorRed,
+	"blue":    ColorBlue,
+	"black":   ColorBlack,
+	"cyan":    ColorCyan,
+	"white":   ColorWhite,
+	"default": ColorDefault,
+	"green":   ColorGreen,
+	"magenta": ColorMagenta,
+}
+
+var attrMap = map[string]Attribute{
+	"bold":      AttrBold,
+	"underline": AttrUnderline,
+	"reverse":   AttrReverse,
+}
+
+func rmSpc(s string) string {
+	reg := regexp.MustCompile(`\s+`)
+	return reg.ReplaceAllString(s, "")
+}
+
+// readAttr translates strings like `fg-red,fg-bold,bg-white` to fg and bg Attribute
+func (mtb MarkdownTxBuilder) readAttr(s string) (Attribute, Attribute) {
+	fg := mtb.baseFg
+	bg := mtb.baseBg
+
+	updateAttr := func(a Attribute, attrs []string) Attribute {
+		for _, s := range attrs {
+			if c, ok := colorMap[s]; ok {
+				a &= ^(1<<9 - 1) //erase clr 0 ~ 1<<9-1
+				a |= c           // set clr
+			}
+			if c, ok := attrMap[s]; ok {
+				a |= c
+			}
+		}
+		return a
+	}
+
+	ss := strings.Split(s, ",")
+	fgs := []string{}
+	bgs := []string{}
+	for _, v := range ss {
+		subs := strings.Split(ss, "-")
+		if len(subs) > 1 {
+			if subs[0] == "fg" {
+				fgs := append(fgs, subs[1])
+			}
+			if subs[0] == "bg" {
+				bgs := append(bgs, subs[1])
+			}
+		}
+	}
+
+	fg = updateAttr(fg)
+	bg = updateAttr(bg)
+	return fg, bg
+}
+
+type EscCodeTxBuilder struct {
+	regex   string
+	pattern *regexp.Regexp
+}
+
 // TextRenderer adds common methods for rendering a text on screeen.
 type TextRenderer interface {
 	NormalizedText() string
