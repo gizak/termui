@@ -8,7 +8,6 @@ package main
 
 import ui "github.com/gizak/termui"
 import "math"
-
 import "time"
 
 func main() {
@@ -39,7 +38,7 @@ func main() {
 	spark := ui.Sparkline{}
 	spark.Height = 8
 	spdata := sinpsint
-	spark.Data = spdata
+	spark.Data = spdata[:100]
 	spark.LineColor = ui.ColorCyan
 	spark.TitleColor = ui.ColorWhite
 
@@ -93,24 +92,28 @@ func main() {
 	ui.Body.Align()
 
 	done := make(chan bool)
+	redraw := make(chan bool)
 
-	draw := func() {
+	update := func() {
 		for i := 0; i < 103; i++ {
 			for _, g := range gs {
 				g.Percent = (g.Percent + 3) % 100
 			}
 
-			sp.Lines[0].Data = spdata[i:]
+			sp.Lines[0].Data = spdata[:100+i]
 			lc.Data = sinps[2*i:]
 
 			time.Sleep(time.Second / 2)
+			redraw <- true
 		}
 		done <- true
 	}
 
 	evt := ui.EventCh()
 
-	go draw()
+	ui.Render(ui.Body)
+	go update()
+
 	for {
 		select {
 		case e := <-evt:
@@ -120,10 +123,11 @@ func main() {
 			if e.Type == ui.EventResize {
 				ui.Body.Width = ui.TermWidth()
 				ui.Body.Align()
+				go func() { redraw <- true }()
 			}
 		case <-done:
 			return
-		default:
+		case <-redraw:
 			ui.Render(ui.Body)
 		}
 	}
