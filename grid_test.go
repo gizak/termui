@@ -10,7 +10,7 @@ import (
 	"github.com/davecgh/go-spew/spew"
 )
 
-var r *row
+var r *Row
 
 func TestRowWidth(t *testing.T) {
 	p0 := NewPar("p0")
