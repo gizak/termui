@@ -8,7 +8,6 @@ package main
 
 import ui "github.com/gizak/termui"
 import "math"
-
 import "time"
 
 func main() {
@@ -39,7 +38,7 @@ func main() {
 	spark := ui.Sparkline{}
 	spark.Height = 8
 	spdata := sinpsint
-	spark.Data = spdata
+	spark.Data = spdata[:100]
 	spark.LineColor = ui.ColorCyan
 	spark.TitleColor = ui.ColorWhite
 
@@ -92,34 +91,44 @@ func main() {
 	// calculate layout
 	ui.Body.Align()
 
-	draw := func(t int) {
-		sp.Lines[0].Data = spdata[t:]
-		lc.Data = sinps[2*t:]
-		ui.Render(ui.Body)
+	done := make(chan bool)
+	redraw := make(chan bool)
+
+	update := func() {
+		for i := 0; i < 103; i++ {
+			for _, g := range gs {
+				g.Percent = (g.Percent + 3) % 100
+			}
+
+			sp.Lines[0].Data = spdata[:100+i]
+			lc.Data = sinps[2*i:]
+
+			time.Sleep(time.Second / 2)
+			redraw <- true
+		}
+		done <- true
 	}
 
 	evt := ui.EventCh()
 
-	i := 0
+	ui.Render(ui.Body)
+	go update()
+
 	for {
 		select {
 		case e := <-evt:
 			if e.Type == ui.EventKey && e.Ch == 'q' {
 				return
 			}
-		default:
-			for _, g := range gs {
-				g.Percent = (g.Percent + 3) % 100
+			if e.Type == ui.EventResize {
+				ui.Body.Width = ui.TermWidth()
+				ui.Body.Align()
+				go func() { redraw <- true }()
 			}
-			ui.Body.Width = ui.TermWidth()
-			ui.Body.Align()
-
-			draw(i)
-			i++
-			if i == 102 {
-				return
-			}
-			time.Sleep(time.Second / 2)
+		case <-done:
+			return
+		case <-redraw:
+			ui.Render(ui.Body)
 		}
 	}
 }

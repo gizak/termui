@@ -29,6 +29,7 @@ const (
 	ColorWhite
 )
 
+const NumberofColors = 8 //Have a constant that defines number of colors
 const (
 	AttrBold Attribute = 1 << (iota + 9)
 	AttrUnderline

@@ -35,12 +35,14 @@ func Close() {
 
 // TermWidth returns the current terminal's width.
 func TermWidth() int {
+	tm.Sync()
 	w, _ := tm.Size()
 	return w
 }
 
 // TermHeight returns the current terminal's height.
 func TermHeight() int {
+	tm.Sync()
 	_, h := tm.Size()
 	return h
 }

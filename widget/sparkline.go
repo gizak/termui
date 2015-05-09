@@ -108,7 +108,7 @@ func (sl *Sparklines) Buffer() []Point {
 		data := l.Data
 
 		if len(data) > sl.innerWidth {
-			data = data[:sl.innerWidth]
+			data = data[len(data)-sl.innerWidth:]
 		}
 
 		if l.Title != "" {
