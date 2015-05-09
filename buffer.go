@@ -15,7 +15,7 @@ type Cell struct {
 
 // Buffer is a renderable rectangle cell data container.
 type Buffer struct {
-	Area    *image.Rectangle // selected drawing area
+	Area    image.Rectangle // selected drawing area
 	CellMap map[image.Point]Cell
 }
 
@@ -50,7 +50,7 @@ func (b Buffer) Bounds() image.Rectangle {
 }
 
 // SetArea assigns a new rect area to Buffer b.
-func (b Buffer) SetArea(r image.Rectangle) {
+func (b *Buffer) SetArea(r image.Rectangle) {
 	b.Area.Max = r.Max
 	b.Area.Min = r.Min
 }
@@ -71,24 +71,15 @@ func (b Buffer) Merge(bs ...Buffer) {
 		for p, v := range buf.CellMap {
 			b.Set(p.X, p.Y, v)
 		}
-		b.SetArea(b.Area.Union(*buf.Area))
+		b.SetArea(b.Area.Union(buf.Area))
 	}
-}
-
-// Point for adapting use, will be removed after resolving bridging.
-type Point struct {
-	X  int
-	Y  int
-	Ch rune
-	Fg Attribute
-	Bg Attribute
 }
 
 // NewBuffer returns a new Buffer
 func NewBuffer() Buffer {
 	return Buffer{
 		CellMap: make(map[image.Point]Cell),
-		Area:    &image.Rectangle{}}
+		Area:    image.Rectangle{}}
 }
 
 // Fill fills the Buffer b with ch,fg and bg.

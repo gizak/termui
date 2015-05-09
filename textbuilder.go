@@ -1,7 +1,6 @@
 package termui
 
 import (
-	"fmt"
 	"regexp"
 	"strings"
 )
@@ -10,6 +9,9 @@ import (
 type TextBuilder interface {
 	Build(s string, fg, bg Attribute) []Cell
 }
+
+// DefaultTxBuilder is set to be MarkdownTxBuilder.
+var DefaultTxBuilder = NewMarkdownTxBuilder()
 
 // MarkdownTxBuilder implements TextBuilder interface, using markdown syntax.
 type MarkdownTxBuilder struct {
@@ -55,10 +57,12 @@ func (mtb MarkdownTxBuilder) readAttr(s string) (Attribute, Attribute) {
 
 	updateAttr := func(a Attribute, attrs []string) Attribute {
 		for _, s := range attrs {
+			// replace the color
 			if c, ok := colorMap[s]; ok {
-				a &= 0xFF00 //erase clr 0 ~ 8 bits
+				a &= 0xFF00 // erase clr 0 ~ 8 bits
 				a |= c      // set clr
 			}
+			// add attrs
 			if c, ok := attrMap[s]; ok {
 				a |= c
 			}
@@ -91,7 +95,7 @@ func (mtb *MarkdownTxBuilder) reset() {
 	mtb.markers = []marker{}
 }
 
-// parse
+// parse streams and parses text into normalized text and render sequence.
 func (mtb *MarkdownTxBuilder) parse(str string) {
 	rs := str2runes(str)
 	normTx := []rune{}
@@ -108,19 +112,14 @@ func (mtb *MarkdownTxBuilder) parse(str string) {
 		accBrackt = false
 		cntSquare = 0
 	}
-
+	// pipe stacks into normTx and clear
 	rollback := func() {
 		normTx = append(normTx, square...)
 		normTx = append(normTx, brackt...)
 		reset()
 	}
-
+	// chop first and last
 	chop := func(s []rune) []rune {
-		defer func() {
-			if r := recover(); r != nil {
-				fmt.Println(string(s))
-			}
-		}()
 		return s[1 : len(s)-1]
 	}
 
@@ -185,6 +184,7 @@ func (mtb *MarkdownTxBuilder) parse(str string) {
 	mtb.plainTx = normTx
 }
 
+// Build implements TextBuilder interface.
 func (mtb MarkdownTxBuilder) Build(s string, fg, bg Attribute) []Cell {
 	mtb.baseFg = fg
 	mtb.baseBg = bg
@@ -204,6 +204,7 @@ func (mtb MarkdownTxBuilder) Build(s string, fg, bg Attribute) []Cell {
 	return cs
 }
 
+// NewMarkdownTxBuilder returns a TextBuilder employing markdown syntax.
 func NewMarkdownTxBuilder() TextBuilder {
 	return MarkdownTxBuilder{}
 }

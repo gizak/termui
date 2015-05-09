@@ -85,7 +85,7 @@ func (b Block) drawBorder(buf Buffer) {
 
 func (b Block) drawBorderLabel(buf Buffer) {
 	maxTxtW := b.area.Dx() - 2
-	tx := DTrimTxCls(TextCells(b.BorderLabel, b.BorderLabelFg, b.BorderLabelBg), maxTxtW)
+	tx := DTrimTxCls(DefaultTxBuilder.Build(b.BorderLabel, b.BorderLabelFg, b.BorderLabelBg), maxTxtW)
 
 	for i, w := 0, 0; i < len(tx); i++ {
 		buf.Set(b.area.Min.X+1+w, b.area.Min.Y, tx[i])

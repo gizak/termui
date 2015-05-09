@@ -18,12 +18,13 @@ func Init() error {
 	Body.X = 0
 	Body.Y = 0
 	Body.BgColor = theme.BodyBg
-	defer func() {
-		w, _ := tm.Size()
-		Body.Width = w
-		evtListen()
-	}()
-	return tm.Init()
+	if err := tm.Init(); err != nil {
+		return err
+	}
+	w, _ := tm.Size()
+	Body.Width = w
+	evtListen()
+	return nil
 }
 
 // Close finalizes termui library,
@@ -53,7 +54,7 @@ func Render(bs ...Bufferer) {
 		buf := b.Buffer()
 		// set cels in buf
 		for p, c := range buf.CellMap {
-			if true { //}p.In(buf.Area) {
+			if p.In(buf.Area) {
 				tm.SetCell(p.X, p.Y, c.Ch, toTmAttr(c.Fg), toTmAttr(c.Bg))
 			}
 		}
