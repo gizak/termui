@@ -13,13 +13,13 @@ import (
 var r *Row
 
 func TestRowWidth(t *testing.T) {
-	p0 := NewPar("p0")
+	p0 := NewBlock()
 	p0.Height = 1
-	p1 := NewPar("p1")
+	p1 := NewBlock()
 	p1.Height = 1
-	p2 := NewPar("p2")
+	p2 := NewBlock()
 	p2.Height = 1
-	p3 := NewPar("p3")
+	p3 := NewBlock()
 	p3.Height = 1
 
 	/* test against tree:
@@ -33,24 +33,6 @@ func TestRowWidth(t *testing.T) {
 	        110:w
 	         /
 	       1100:w
-	*/
-	/*
-		r = &row{
-			Span: 12,
-			Cols: []*row{
-				&row{Widget: p0, Span: 6},
-				&row{
-					Span: 6,
-					Cols: []*row{
-						&row{Widget: p1, Span: 6},
-						&row{
-							Span: 6,
-							Cols: []*row{
-								&row{
-									Span:   12,
-									Widget: p2,
-									Cols: []*row{
-										&row{Span: 12, Widget: p3}}}}}}}}}
 	*/
 
 	r = NewRow(
