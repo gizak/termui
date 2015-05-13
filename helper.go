@@ -17,6 +17,7 @@ import rw "github.com/mattn/go-runewidth"
 // Attribute is printable cell's color and style.
 type Attribute uint16
 
+// 8 basic clolrs
 const (
 	ColorDefault Attribute = iota
 	ColorBlack
@@ -29,7 +30,10 @@ const (
 	ColorWhite
 )
 
-const NumberofColors = 8 //Have a constant that defines number of colors
+//Have a constant that defines number of colors
+const NumberofColors = 8
+
+// Text style
 const (
 	AttrBold Attribute = 1 << (iota + 9)
 	AttrUnderline
