@@ -1,9 +1,7 @@
 package main
 
 import (
-	"github.com/gizak/termui"
-	//"fmt"
-	//"os"
+	"github.com/marigs/termui"
 )
 
 func main() {
