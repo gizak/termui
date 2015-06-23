@@ -1,5 +1,8 @@
 # termui [![Build Status](https://travis-ci.org/gizak/termui.svg?branch=master)](https://travis-ci.org/gizak/termui) [![Doc Status](https://godoc.org/github.com/gizak/termui?status.png)](https://godoc.org/github.com/gizak/termui)
 
+## Update 23/06/2015
+Pull requests and master branch are freezing, waiting for merging from `refactoring` branch.
+
 ## Notice
 termui comes with ABSOLUTELY NO WARRANTY, and there is a breaking change coming up (see refactoring branch) which will change the `Bufferer` interface and many others. These changes reduce calculation overhead and introduce a new drawing buffer with better capacibilities. We will step into the next stage (call it beta) after merging these changes.
 
