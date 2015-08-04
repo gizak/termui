@@ -31,7 +31,7 @@ type Event struct {
 	Err    error     // error in case if input failed
 	MouseX int       // x coord of mouse
 	MouseY int       // y coord of mouse
-	//N      int       // number of bytes written when getting a raw event
+	N      int       // number of bytes written when getting a raw event
 }
 
 const (
@@ -142,7 +142,7 @@ func uiEvt(e termbox.Event) Event {
 	event.Err = e.Err
 	event.MouseX = e.MouseX
 	event.MouseY = e.MouseY
-	//event.N = e.N
+	event.N = e.N
 
 	return event
 }
