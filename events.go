@@ -31,7 +31,7 @@ type Event struct {
 	Err    error     // error in case if input failed
 	MouseX int       // x coord of mouse
 	MouseY int       // y coord of mouse
-	N      int       // number of bytes written when getting a raw event
+	//N      int       // number of bytes written when getting a raw event
 }
 
 const (
@@ -142,7 +142,7 @@ func uiEvt(e termbox.Event) Event {
 	event.Err = e.Err
 	event.MouseX = e.MouseX
 	event.MouseY = e.MouseY
-	event.N = e.N
+	//event.N = e.N
 
 	return event
 }
@@ -171,49 +171,3 @@ func evtListen() {
 		}
 	}()
 }
-
-/*
-// EventHandlers is a handler sequence
-var EventHandlers []func(Event)
-
-var signalQuit = make(chan bool)
-
-// Quit sends quit signal to terminate termui
-func Quit() {
-	signalQuit <- true
-}
-
-// Wait listening to signalQuit, block operation.
-func Wait() {
-	<-signalQuit
-}
-
-// RegEvtHandler register function into TSEventHandler sequence.
-func RegEvtHandler(fn func(Event)) {
-	EventHandlers = append(EventHandlers, fn)
-}
-
-// EventLoop handles all events and
-// redirects every event to callbacks in EventHandlers
-func EventLoop() {
-	evt := make(chan termbox.Event)
-
-	go func() {
-		for {
-			evt <- termbox.PollEvent()
-		}
-	}()
-
-	for {
-		select {
-		case c := <-signalQuit:
-			defer func() { signalQuit <- c }()
-			return
-		case e := <-evt:
-			for _, fn := range EventHandlers {
-				fn(uiEvt(e))
-			}
-		}
-	}
-}
-*/

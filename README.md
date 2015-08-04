@@ -43,7 +43,7 @@ Expressive syntax, using [12 columns grid system](http://www.w3schools.com/boots
 
 ## Installation
 
-	go get github.com/gizak/termui
+	go get -u github.com/gizak/termui
 
 ## Usage
 
