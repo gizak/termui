@@ -8,10 +8,10 @@
 
 package termui
 
-import "github.com/nsf/termbox-go"
+//import "github.com/nsf/termbox-go"
 
 /***********************************termbox-go**************************************/
-
+/*
 type (
 	EventType uint8
 	Modifier  uint8
@@ -127,9 +127,9 @@ const (
 	EventRaw
 	EventNone
 )
-
+*/
 /**************************************end**************************************/
-
+/*
 // convert termbox.Event to termui.Event
 func uiEvt(e termbox.Event) Event {
 	event := Event{}
@@ -171,49 +171,52 @@ func evtListen() {
 		}
 	}()
 }
+*/
+type Event struct {
+	Type  string
+	Uri   string
+	Data  interface{}
+	Time  int
+	Refer string
+}
+
+type evtCtl struct {
+	in      chan Event
+	out     chan Event
+	suspend chan int
+	recover chan int
+	close   chan int
+}
+
+//
+type EvtStream struct {
+	srcMap map[string]evtCtl
+	stream chan Event
+}
+
+func newEvtCtl() evtCtl {
+	ec := evtCtl{}
+	ec.in = make(chan Event)
+	ec.suspend = make(chan int)
+	ec.recover = make(chan int)
+	ec.close = make(chan int)
+	ec.out = make(chan Event)
+	return ec
+}
+
+func NewEvtStream() EvtStream {
+	return EvtStream{
+		srcMap: make(map[string]evtCtl),
+		stream: make(chan Event),
+	}
+}
 
 /*
-// EventHandlers is a handler sequence
-var EventHandlers []func(Event)
+func (es *EvtStream) hookup() {
 
-var signalQuit = make(chan bool)
-
-// Quit sends quit signal to terminate termui
-func Quit() {
-	signalQuit <- true
 }
 
-// Wait listening to signalQuit, block operation.
-func Wait() {
-	<-signalQuit
-}
+func (es EvtStream) Subscribe(uri string) chan Event {
 
-// RegEvtHandler register function into TSEventHandler sequence.
-func RegEvtHandler(fn func(Event)) {
-	EventHandlers = append(EventHandlers, fn)
-}
-
-// EventLoop handles all events and
-// redirects every event to callbacks in EventHandlers
-func EventLoop() {
-	evt := make(chan termbox.Event)
-
-	go func() {
-		for {
-			evt <- termbox.PollEvent()
-		}
-	}()
-
-	for {
-		select {
-		case c := <-signalQuit:
-			defer func() { signalQuit <- c }()
-			return
-		case e := <-evt:
-			for _, fn := range EventHandlers {
-				fn(uiEvt(e))
-			}
-		}
-	}
 }
 */
