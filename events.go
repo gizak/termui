@@ -10,60 +10,54 @@ package termui
 
 import (
 	"strings"
+	"sync"
+	"time"
 
 	"github.com/nsf/termbox-go"
 )
 
-//import "github.com/nsf/termbox-go"
-
-var evtChs = make([]chan Event, 0)
-
-// EventCh returns an output-only event channel.
-// This function can be called many times (multiplexer).
-func EventCh() <-chan Event {
-	out := make(chan Event)
-	evtChs = append(evtChs, out)
-	return out
-}
-
-// turn on event listener
-func evtListen() {
-	go func() {
-		for {
-			e := termbox.PollEvent()
-			// dispatch
-			for _, c := range evtChs {
-				go func(ch chan Event) {
-					ch <- uiEvt(e)
-				}(c)
-			}
-		}
-	}()
-}
-
 type Event struct {
 	Type string
-	Uri  string
+	Path string
 	From string
 	To   string
 	Data interface{}
-	Time int
+	Time int64
 }
 
+var sysevt struct {
+	chs []chan Event
+}
+
+func newSysEvtFromTb(e termbox.Event) Event {
+	ne := Event{From: "/sys", Time: time.Now().Unix()}
+	return ne
+}
+
+func hookSysEvt() {
+	sysevt.chs = make([]chan Event, 0)
+	for {
+		e := termbox.PollEvent()
+		for _, c := range sysevt.chs {
+			// shorten?
+			go func(ch chan Event, ev Event) { ch <- ev }(c, newSysEvtFromTb(e))
+		}
+	}
+}
+
+func NewSysEvtCh() chan Event {
+	ec := make(chan Event)
+	sysevt.chs = append(sysevt.chs, ec)
+	return ec
+}
+
+/*
 type evtCtl struct {
 	in      chan Event
 	out     chan Event
 	suspend chan int
 	recover chan int
 	close   chan int
-}
-
-//
-type EvtStream struct {
-	srcMap   map[string]Event
-	stream   chan Event
-	cache    map[string][]func(Event)
-	Handlers map[string]func(Event)
 }
 
 func newEvtCtl() evtCtl {
@@ -76,11 +70,29 @@ func newEvtCtl() evtCtl {
 	return ec
 }
 
-func NewEvtStream() EvtStream {
-	return EvtStream{
-		srcMap: make(map[string]Event),
+*/
+//
+type EvtStream struct {
+	srcMap   map[string]chan Event
+	stream   chan Event
+	cache    map[string][]func(Event)
+	wg       sync.WaitGroup
+	Handlers map[string]func(Event)
+}
+
+func NewEvtStream() *EvtStream {
+	return &EvtStream{
+		srcMap: make(map[string]chan Event),
 		stream: make(chan Event),
 	}
+}
+
+func (es *EvtStream) Init() {
+
+	go func() {
+		es.wg.Wait()
+		close(es.stream)
+	}()
 }
 
 // a: /sys/bell
@@ -111,6 +123,17 @@ func MatchScore(a, b string) int {
 	}
 
 	return score
+}
+
+func (es *EvtStream) Merge(ec chan Event) {
+	es.wg.Add(1)
+
+	go func(a chan Event) {
+		for n := range ec {
+			es.stream <- n
+		}
+		wg.Done()
+	}(ec)
 }
 
 /*
