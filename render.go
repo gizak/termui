@@ -4,7 +4,11 @@
 
 package termui
 
-import tm "github.com/nsf/termbox-go"
+import (
+	"time"
+
+	tm "github.com/nsf/termbox-go"
+)
 
 // Bufferer should be implemented by all renderable components.
 type Bufferer interface {
@@ -14,16 +18,24 @@ type Bufferer interface {
 // Init initializes termui library. This function should be called before any others.
 // After initialization, the library must be finalized by 'Close' function.
 func Init() error {
-	Body = NewGrid()
-	Body.X = 0
-	Body.Y = 0
-	Body.BgColor = theme.BodyBg
 	if err := tm.Init(); err != nil {
 		return err
 	}
-	w, _ := tm.Size()
-	Body.Width = w
-	evtListen()
+
+	sysEvtChs = make([]chan Event, 0)
+	go hookTermboxEvt()
+	renderJobs = make(chan []Bufferer)
+	go func() {
+		for bs := range renderJobs {
+			Render(bs...)
+		}
+	}()
+
+	DefaultEvtStream.Init()
+	DefaultEvtStream.Merge("termbox", NewSysEvtCh())
+	DefaultEvtStream.Merge("timer", NewTimerCh(time.Second))
+	DefaultEvtStream.Handle("/", DefualtHandler)
+
 	return nil
 }
 
@@ -63,4 +75,10 @@ func Render(bs ...Bufferer) {
 	}
 	// render
 	tm.Flush()
+}
+
+var renderJobs chan []Bufferer
+
+func SendBufferToRender(bs ...Bufferer) {
+	go func() { renderJobs <- bs }()
 }

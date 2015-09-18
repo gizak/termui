@@ -275,6 +275,3 @@ func (g Grid) Buffer() Buffer {
 	}
 	return buf
 }
-
-// Body corresponds to the entire terminal display region.
-var Body *Grid
