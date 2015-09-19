@@ -9,8 +9,8 @@
 package termui
 
 import (
+	"path"
 	"strconv"
-	"strings"
 	"sync"
 	"time"
 
@@ -145,32 +145,12 @@ func NewSysEvtCh() chan Event {
 
 var DefaultEvtStream = NewEvtStream()
 
-/*
-type evtCtl struct {
-	in      chan Event
-	out     chan Event
-	suspend chan int
-	recover chan int
-	close   chan int
-}
-
-func newEvtCtl() evtCtl {
-	ec := evtCtl{}
-	ec.in = make(chan Event)
-	ec.suspend = make(chan int)
-	ec.recover = make(chan int)
-	ec.close = make(chan int)
-	ec.out = make(chan Event)
-	return ec
-}
-
-*/
-//
 type EvtStream struct {
+	sync.RWMutex
 	srcMap      map[string]chan Event
 	stream      chan Event
 	wg          sync.WaitGroup
-	sigStopLoop chan int
+	sigStopLoop chan Event
 	Handlers    map[string]func(Event)
 }
 
@@ -179,69 +159,40 @@ func NewEvtStream() *EvtStream {
 		srcMap:      make(map[string]chan Event),
 		stream:      make(chan Event),
 		Handlers:    make(map[string]func(Event)),
-		sigStopLoop: make(chan int),
+		sigStopLoop: make(chan Event),
 	}
 }
 
 func (es *EvtStream) Init() {
+	es.Merge("internal", es.sigStopLoop)
 	go func() {
 		es.wg.Wait()
 		close(es.stream)
 	}()
 }
 
-// a: /sys/bell
-// b: /sys
-// score: 1
-//
-// a: /sys
-// b: /usr
-// score: -1
-//
-// a: /sys
-// b: /
-// score: 0
-func MatchScore(a, b string) int {
-
-	// divide by "" and rm heading ""
-	sliced := func(s string) []string {
-		ss := strings.Split(s, "/")
-
-		i := 0
-		for j := range ss {
-			if ss[j] == "" {
-				i++
-			} else {
-				break
-			}
-		}
-
-		return ss[i:]
+func cleanPath(p string) string {
+	if p == "" {
+		return "/"
 	}
-
-	sa := sliced(a)
-	sb := sliced(b)
-
-	score := 0
-	if len(sb) > len(sa) {
-		return -1 // sb couldnt be more deeper than sa
+	if p[0] != '/' {
+		p = "/" + p
 	}
+	return path.Clean(p)
+}
 
-	for i, s := range sa {
-		if i >= len(sb) {
-			break // exhaust b
-		}
-
-		if s != sb[i] {
-			return -1 // mismatch
-		}
-		score++
+func isPathMatch(pattern, path string) bool {
+	if len(pattern) == 0 {
+		return false
 	}
-
-	return score
+	n := len(pattern)
+	return len(path) >= n && path[0:n] == pattern
 }
 
 func (es *EvtStream) Merge(name string, ec chan Event) {
+	es.Lock()
+	defer es.Unlock()
+
 	es.wg.Add(1)
 	es.srcMap[name] = ec
 
@@ -255,38 +206,47 @@ func (es *EvtStream) Merge(name string, ec chan Event) {
 }
 
 func (es *EvtStream) Handle(path string, handler func(Event)) {
-	es.Handlers[path] = handler
+	es.Handlers[cleanPath(path)] = handler
 }
 
 func (es *EvtStream) match(path string) string {
-	n := 0
+	n := -1
 	pattern := ""
 	for m := range es.Handlers {
-		if MatchScore(path, m) < 0 {
+		if !isPathMatch(m, path) {
 			continue
 		}
-		if pattern == "" || len(m) > n {
+		if len(m) > n {
 			pattern = m
+			n = len(m)
 		}
 	}
 	return pattern
 }
 
 func (es *EvtStream) Loop() {
-	for {
-		select {
-		case e := <-es.stream:
-			if pattern := es.match(e.Path); pattern != "" {
-				es.Handlers[pattern](e)
-			}
-		case <-es.sigStopLoop:
+	for e := range es.stream {
+		if e.Path == "/sig/stoploop" {
 			return
 		}
+		go func(a Event) {
+			es.RLock()
+			defer es.RUnlock()
+			if pattern := es.match(a.Path); pattern != "" {
+				h := es.Handlers[pattern]
+				h(a)
+			}
+		}(e)
 	}
 }
 
 func (es *EvtStream) StopLoop() {
-	go func() { es.sigStopLoop <- 1 }()
+	go func() {
+		e := Event{
+			Path: "/sig/stoploop",
+		}
+		es.sigStopLoop <- e
+	}()
 }
 
 func Merge(name string, ec chan Event) {
@@ -319,7 +279,6 @@ func NewTimerCh(du time.Duration) chan Event {
 			n++
 			time.Sleep(du)
 			e := Event{}
-			e.From = "timer"
 			e.Type = "timer"
 			e.Path = "/timer/" + du.String()
 			e.Time = time.Now().Unix()
@@ -328,11 +287,11 @@ func NewTimerCh(du time.Duration) chan Event {
 				Count:    n,
 			}
 			t <- e
+
 		}
 	}(t)
 	return t
 }
 
 var DefualtHandler = func(e Event) {
-
 }
