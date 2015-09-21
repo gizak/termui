@@ -63,7 +63,7 @@ func TermHeight() int {
 // right could overlap on left ones.
 func Render(bs ...Bufferer) {
 	// set tm bg
-	tm.Clear(tm.ColorDefault, toTmAttr(theme.BodyBg))
+	tm.Clear(tm.ColorDefault, toTmAttr(ThemeAttr("bg")))
 	for _, b := range bs {
 		buf := b.Buffer()
 		// set cels in buf

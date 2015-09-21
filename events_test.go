@@ -22,18 +22,18 @@ var ps = []string{
 	"/a/b/c/d/"}
 
 func TestMatchScore(t *testing.T) {
-	chk := func(a, b string, s int) {
-		if c := MatchScore(a, b); c != s {
-			t.Errorf("\na:%s\nb:%s\nshould:%d\nscore:%d", a, b, s, c)
+	chk := func(a, b string, s bool) {
+		if c := isPathMatch(a, b); c != s {
+			t.Errorf("\na:%s\nb:%s\nshould:%t\nactual:%t", a, b, s, c)
 		}
 	}
 
-	chk(ps[1], ps[1], 0)
-	chk(ps[1], ps[2], -1)
-	chk(ps[2], ps[1], 0)
-	chk(ps[4], ps[1], 0)
-	chk(ps[6], ps[2], 1)
-	chk(ps[4], ps[5], -1)
+	chk(ps[1], ps[1], true)
+	chk(ps[1], ps[2], true)
+	chk(ps[2], ps[1], false)
+	chk(ps[4], ps[1], false)
+	chk(ps[6], ps[2], false)
+	chk(ps[4], ps[5], false)
 }
 
 func TestCrtEvt(t *testing.T) {

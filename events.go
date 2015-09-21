@@ -233,8 +233,7 @@ func (es *EvtStream) Loop() {
 			es.RLock()
 			defer es.RUnlock()
 			if pattern := es.match(a.Path); pattern != "" {
-				h := es.Handlers[pattern]
-				h(a)
+				es.Handlers[pattern](a)
 			}
 		}(e)
 	}

@@ -125,22 +125,22 @@ type Block struct {
 func NewBlock() *Block {
 	b := Block{}
 	b.Display = true
-	b.Border = theme.HasBorder
+	b.Border = true
 	b.BorderLeft = true
 	b.BorderRight = true
 	b.BorderTop = true
 	b.BorderBottom = true
-	b.BorderBg = theme.BorderBg
-	b.BorderFg = theme.BorderFg
-	b.BorderLabelBg = theme.BorderLabelTextBg
-	b.BorderLabelFg = theme.BorderLabelTextFg
-	b.Bg = theme.BlockBg
+	b.BorderBg = ThemeAttr("border.bg")
+	b.BorderFg = ThemeAttr("border.fg")
+	b.BorderLabelBg = ThemeAttr("label.bg")
+	b.BorderLabelFg = ThemeAttr("label.fg")
+	b.Bg = ThemeAttr("block.bg")
 	b.Width = 2
 	b.Height = 2
 	return &b
 }
 
-// Align computes box mob.l
+// Align computes box model
 func (b *Block) Align() {
 	b.area.Min.X = b.X
 	b.area.Min.Y = b.Y

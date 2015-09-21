@@ -40,7 +40,6 @@ func main() {
 	})
 
 	termui.Handle("/timer/1s", func(e termui.Event) {
-		//debug.Logf("<-%v\n", e)
 		t := e.Data.(termui.EvtTimer)
 
 		if t.Count%2 == 0 {
