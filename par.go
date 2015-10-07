@@ -41,20 +41,20 @@ func (p *Par) Buffer() []Point {
 	runes := []rune(sequence.NormalizedText)
 
 	y, x, n := 0, 0, 0
-	for y < p.innerHeight && n < len(runes) {
-		point, width := sequence.PointAt(n, x+p.innerX, y+p.innerY)
+	for y < p.innerArea.Dy() && n < len(runes) {
+		point, width := sequence.PointAt(n, x+p.innerArea.Min.X, y+p.innerArea.Min.Y)
 
-		if runes[n] == '\n' || x+width > p.innerWidth {
+		if runes[n] == '\n' || x+width > p.innerArea.Dx() {
 			y++
 			x = 0 // set x = 0
 			if runes[n] == '\n' {
 				n++
 			}
 
-			if y >= p.innerHeight {
+			if y >= p.innerArea.Dy() {
 				ps = append(ps, newPointWithAttrs('…',
-					p.innerX+p.innerWidth-1,
-					p.innerY+p.innerHeight-1,
+					p.innerArea.Min.X+p.innerArea.Dx()-1,
+					p.innerArea.Min.Y+p.innerArea.Dy()-1,
 					p.TextFgColor, p.TextBgColor))
 				break
 			}

@@ -119,6 +119,7 @@ type Block struct {
 	PaddingBottom int
 	PaddingLeft   int
 	PaddingRight  int
+	id            string
 }
 
 // NewBlock returns a *Block which inherits styles from current theme.
@@ -137,7 +138,12 @@ func NewBlock() *Block {
 	b.Bg = ThemeAttr("block.bg")
 	b.Width = 2
 	b.Height = 2
+	b.id = GenId()
 	return &b
+}
+
+func (b Block) Id() string {
+	return b.id
 }
 
 // Align computes box model

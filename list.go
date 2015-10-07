@@ -53,7 +53,7 @@ func (l *List) Buffer() []Point {
 	buffer := l.Block.Buffer()
 
 	breakLoop := func(y int) bool {
-		return y+1 > l.innerHeight
+		return y+1 > l.innerArea.Dy()
 	}
 	y := 0
 
@@ -65,9 +65,9 @@ MainLoop:
 		sequence := renderer.Render(bg, fg)
 
 		for n := range []rune(sequence.NormalizedText) {
-			point, width := sequence.PointAt(n, x+l.innerX, y+l.innerY)
+			point, width := sequence.PointAt(n, x+l.innerArea.Min.X, y+l.innerArea.Min.Y)
 
-			if width+x <= l.innerWidth {
+			if width+x <= l.innerArea.Dx() {
 				buffer = append(buffer, point)
 				x += width
 			} else {
@@ -79,8 +79,8 @@ MainLoop:
 					x = 0
 				} else {
 					dotR := []rune(dot)[0]
-					dotX := l.innerWidth + l.innerX - charWidth(dotR)
-					p := newPointWithAttrs(dotR, dotX, y+l.innerY, bg, fg)
+					dotX := l.innerArea.Dx() + l.innerArea.Min.X - charWidth(dotR)
+					p := newPointWithAttrs(dotR, dotX, y+l.innerArea.Min.Y, bg, fg)
 					buffer = append(buffer, p)
 					break
 				}

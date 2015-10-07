@@ -69,13 +69,13 @@ func (sl *Sparklines) update() {
 			sl.Lines[i].displayHeight = v.Height + 1
 		}
 	}
-	sl.displayWidth = sl.innerWidth
+	sl.displayWidth = sl.innerArea.Dx()
 
 	// get how many lines gotta display
 	h := 0
 	sl.displayLines = 0
 	for _, v := range sl.Lines {
-		if h+v.displayHeight <= sl.innerHeight {
+		if h+v.displayHeight <= sl.innerArea.Dy() {
 			sl.displayLines++
 		} else {
 			break
@@ -107,21 +107,21 @@ func (sl *Sparklines) Buffer() []Point {
 		l := sl.Lines[i]
 		data := l.Data
 
-		if len(data) > sl.innerWidth {
-			data = data[len(data)-sl.innerWidth:]
+		if len(data) > sl.innerArea.Dx() {
+			data = data[len(data)-sl.innerArea.Dx():]
 		}
 
 		if l.Title != "" {
-			rs := trimStr2Runes(l.Title, sl.innerWidth)
+			rs := trimStr2Runes(l.Title, sl.innerArea.Dx())
 			oftX := 0
 			for _, v := range rs {
 				w := charWidth(v)
-				p := Point{}
+				c := Cell{}
 				p.Ch = v
 				p.Fg = l.TitleColor
 				p.Bg = sl.BgColor
-				p.X = sl.innerX + oftX
-				p.Y = sl.innerY + oftY
+				p.X = sl.innerArea.Min.X + oftX
+				p.Y = sl.innerArea.Min.Y + oftY
 				ps = append(ps, p)
 				oftX += w
 			}
@@ -132,18 +132,18 @@ func (sl *Sparklines) Buffer() []Point {
 			barCnt := h / 8
 			barMod := h % 8
 			for jj := 0; jj < barCnt; jj++ {
-				p := Point{}
-				p.X = sl.innerX + j
-				p.Y = sl.innerY + oftY + l.Height - jj
+				c := Cell{}
+				p.X = sl.innerArea.Min.X + j
+				p.Y = sl.innerArea.Min.Y + oftY + l.Height - jj
 				p.Ch = ' ' // => sparks[7]
 				p.Bg = l.LineColor
 				//p.Bg = sl.BgColor
 				ps = append(ps, p)
 			}
 			if barMod != 0 {
-				p := Point{}
-				p.X = sl.innerX + j
-				p.Y = sl.innerY + oftY + l.Height - barCnt
+				c := Cell{}
+				p.X = sl.innerArea.Min.X + j
+				p.Y = sl.innerArea.Min.Y + oftY + l.Height - barCnt
 				p.Ch = sparks[barMod-1]
 				p.Fg = l.LineColor
 				p.Bg = sl.BgColor

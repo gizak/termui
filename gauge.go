@@ -44,8 +44,8 @@ type Gauge struct {
 func NewGauge() *Gauge {
 	g := &Gauge{
 		Block:        *NewBlock(),
-		PercentColor: theme.GaugePercent,
-		BarColor:     theme.GaugeBar,
+		PercentColor: ThemeAttr("gauge.percent.fg"),
+		BarColor:     ThemeAttr("gauge.bar.bg"),
 		Label:        "{{percent}}%",
 		LabelAlign:   AlignCenter,
 	}
@@ -56,28 +56,26 @@ func NewGauge() *Gauge {
 }
 
 // Buffer implements Bufferer interface.
-func (g *Gauge) Buffer() []Point {
-	ps := g.Block.Buffer()
+func (g *Gauge) Buffer() Buffer {
+	buf := g.Block.Buffer()
 
 	// plot bar
-	w := g.Percent * g.innerWidth / 100
-	for i := 0; i < g.innerHeight; i++ {
+	w := g.Percent * g.innerArea.Dx() / 100
+	for i := 0; i < g.innerArea.Dy(); i++ {
 		for j := 0; j < w; j++ {
-			p := Point{}
-			p.X = g.innerX + j
-			p.Y = g.innerY + i
-			p.Ch = ' '
-			p.Bg = g.BarColor
-			if p.Bg == ColorDefault {
-				p.Bg |= AttrReverse
+			c := Cell{}
+			c.Ch = ' '
+			c.Bg = g.BarColor
+			if c.Bg == ColorDefault {
+				c.Bg |= AttrReverse
 			}
-			ps = append(ps, p)
+			buf.Set(g.innerArea.Min.X+j, g.innerArea.Min.Y+i, c)
 		}
 	}
 
 	// plot percentage
 	s := strings.Replace(g.Label, "{{percent}}", strconv.Itoa(g.Percent), -1)
-	pry := g.innerY + g.innerHeight/2
+	pry := g.innerArea.Min.Y + g.innerArea.Dy()/2
 	rs := str2runes(s)
 	var pos int
 	switch g.LabelAlign {
@@ -85,29 +83,29 @@ func (g *Gauge) Buffer() []Point {
 		pos = 0
 
 	case AlignCenter:
-		pos = (g.innerWidth - strWidth(s)) / 2
+		pos = (g.innerArea.Dx() - strWidth(s)) / 2
 
 	case AlignRight:
-		pos = g.innerWidth - strWidth(s)
+		pos = g.innerArea.Dx() - strWidth(s)
 	}
 
 	for i, v := range rs {
-		p := Point{}
-		p.X = 1 + pos + i
-		p.Y = pry
-		p.Ch = v
-		p.Fg = g.PercentColor
-		if w+g.innerX > pos+i {
-			p.Bg = g.BarColor
-			if p.Bg == ColorDefault {
-				p.Bg |= AttrReverse
+		c := Cell{
+			Ch: v,
+			Fg: g.PercentColor,
+		}
+
+		if w+g.innerArea.Min.X > pos+i {
+			c.Bg = g.BarColor
+			if c.Bg == ColorDefault {
+				c.Bg |= AttrReverse
 			}
 
 		} else {
-			p.Bg = g.Block.BgColor
+			c.Bg = g.Block.Bg
 		}
 
-		ps = append(ps, p)
+		buf.Set(1+pos+i, pry, c)
 	}
-	return g.Block.chopOverflow(ps)
+	return buf
 }

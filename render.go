@@ -35,7 +35,13 @@ func Init() error {
 	DefaultEvtStream.Merge("termbox", NewSysEvtCh())
 	DefaultEvtStream.Merge("timer", NewTimerCh(time.Second))
 	DefaultEvtStream.Handle("/", DefualtHandler)
+	DefaultEvtStream.Handle("/sys/wnd/resize", func(e Event) {
+		w := e.Data.(EvtWnd)
+		Body.Width = w.Width
+	})
 
+	DefaultWgtMgr = NewWgtMgr()
+	DefaultEvtStream.Hook(DefaultWgtMgr.WgtHandlersHook())
 	return nil
 }
 

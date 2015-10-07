@@ -152,6 +152,7 @@ type EvtStream struct {
 	wg          sync.WaitGroup
 	sigStopLoop chan Event
 	Handlers    map[string]func(Event)
+	hook        func(Event)
 }
 
 func NewEvtStream() *EvtStream {
@@ -209,10 +210,10 @@ func (es *EvtStream) Handle(path string, handler func(Event)) {
 	es.Handlers[cleanPath(path)] = handler
 }
 
-func (es *EvtStream) match(path string) string {
+func findMatch(mux map[string]func(Event), path string) string {
 	n := -1
 	pattern := ""
-	for m := range es.Handlers {
+	for m := range mux {
 		if !isPathMatch(m, path) {
 			continue
 		}
@@ -222,11 +223,28 @@ func (es *EvtStream) match(path string) string {
 		}
 	}
 	return pattern
+
+}
+
+func (es *EvtStream) match(path string) string {
+	return findMatch(es.Handlers, path)
+}
+
+/*
+var internalHandlers = make(map[string]func(Event))
+
+func initInternalHandling() {
+
+}
+*/
+func (es *EvtStream) Hook(f func(Event)) {
+	es.hook = f
 }
 
 func (es *EvtStream) Loop() {
 	for e := range es.stream {
-		if e.Path == "/sig/stoploop" {
+		switch e.Path {
+		case "/sig/stoploop":
 			return
 		}
 		go func(a Event) {
@@ -236,6 +254,9 @@ func (es *EvtStream) Loop() {
 				es.Handlers[pattern](a)
 			}
 		}(e)
+		if es.hook != nil {
+			es.hook(e)
+		}
 	}
 }
 

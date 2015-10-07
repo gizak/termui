@@ -275,3 +275,5 @@ func (g Grid) Buffer() Buffer {
 	}
 	return buf
 }
+
+var Body = NewGrid()

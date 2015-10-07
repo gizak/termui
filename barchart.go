@@ -41,16 +41,16 @@ type BarChart struct {
 // NewBarChart returns a new *BarChart with current theme.
 func NewBarChart() *BarChart {
 	bc := &BarChart{Block: *NewBlock()}
-	bc.BarColor = theme.BarChartBar
-	bc.NumColor = theme.BarChartNum
-	bc.TextColor = theme.BarChartText
+	bc.BarColor = ThemeAttr("barchart.bar.bg")
+	bc.NumColor = ThemeAttr("barchart.num.fg")
+	bc.TextColor = ThemeAttr("barchart.text.fg")
 	bc.BarGap = 1
 	bc.BarWidth = 3
 	return bc
 }
 
 func (bc *BarChart) layout() {
-	bc.numBar = bc.innerWidth / (bc.BarGap + bc.BarWidth)
+	bc.numBar = bc.innerArea.Dx() / (bc.BarGap + bc.BarWidth)
 	bc.labels = make([][]rune, bc.numBar)
 	bc.dataNum = make([][]rune, len(bc.Data))
 
@@ -71,7 +71,7 @@ func (bc *BarChart) layout() {
 			bc.max = bc.Data[i]
 		}
 	}
-	bc.scale = float64(bc.max) / float64(bc.innerHeight-1)
+	bc.scale = float64(bc.max) / float64(bc.innerArea.Dy()-1)
 }
 
 func (bc *BarChart) SetMax(max int) {
@@ -82,8 +82,8 @@ func (bc *BarChart) SetMax(max int) {
 }
 
 // Buffer implements Bufferer interface.
-func (bc *BarChart) Buffer() []Point {
-	ps := bc.Block.Buffer()
+func (bc *BarChart) Buffer() Buffer {
+	buf := bc.Block.Buffer()
 	bc.layout()
 
 	for i := 0; i < bc.numBar && i < len(bc.Data) && i < len(bc.DataLabels); i++ {
@@ -92,46 +92,48 @@ func (bc *BarChart) Buffer() []Point {
 		// plot bar
 		for j := 0; j < bc.BarWidth; j++ {
 			for k := 0; k < h; k++ {
-				p := Point{}
-				p.Ch = ' '
-				p.Bg = bc.BarColor
-				if bc.BarColor == ColorDefault { // when color is default, space char treated as transparent!
-					p.Bg |= AttrReverse
+				c := Cell{
+					Ch: ' ',
+					Bg: bc.BarColor,
 				}
-				p.X = bc.innerX + i*(bc.BarWidth+bc.BarGap) + j
-				p.Y = bc.innerY + bc.innerHeight - 2 - k
-				ps = append(ps, p)
+				if bc.BarColor == ColorDefault { // when color is default, space char treated as transparent!
+					c.Bg |= AttrReverse
+				}
+				x := bc.innerArea.Min.X + i*(bc.BarWidth+bc.BarGap) + j
+				y := bc.innerArea.Min.Y + bc.innerArea.Dy() - 2 - k
+				buf.Set(x, y, c)
 			}
 		}
 		// plot text
 		for j, k := 0, 0; j < len(bc.labels[i]); j++ {
 			w := charWidth(bc.labels[i][j])
-			p := Point{}
+			c := Cell{}
 			p.Ch = bc.labels[i][j]
 			p.Bg = bc.BgColor
 			p.Fg = bc.TextColor
-			p.Y = bc.innerY + bc.innerHeight - 1
-			p.X = bc.innerX + oftX + k
+			p.Y = bc.innerArea.Min.Y + bc.innerArea.Dy() - 1
+			p.X = bc.innerArea.Min.X + oftX + k
 			ps = append(ps, p)
 			k += w
 		}
 		// plot num
 		for j := 0; j < len(bc.dataNum[i]); j++ {
-			p := Point{}
-			p.Ch = bc.dataNum[i][j]
-			p.Fg = bc.NumColor
-			p.Bg = bc.BarColor
+			c := Cell{
+				Ch: bc.dataNum[i][j],
+				Fg: bc.NumColor,
+				Bg: bc.BarColor,
+			}
 			if bc.BarColor == ColorDefault { // the same as above
-				p.Bg |= AttrReverse
+				c.Bg |= AttrReverse
 			}
 			if h == 0 {
-				p.Bg = bc.BgColor
+				c.Bg = bc.BgColor
 			}
-			p.X = bc.innerX + oftX + (bc.BarWidth-len(bc.dataNum[i]))/2 + j
-			p.Y = bc.innerY + bc.innerHeight - 2
-			ps = append(ps, p)
+			x := bc.innerArea.Min.X + oftX + (bc.BarWidth-len(bc.dataNum[i]))/2 + j
+			y := bc.innerArea.Min.Y + bc.innerArea.Dy() - 2
+			buf.Set(x, y, c)
 		}
 	}
 
-	return bc.Block.chopOverflow(ps)
+	return buf
 }
