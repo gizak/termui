@@ -1,5 +1,3 @@
-// +build ignore
-
 // Copyright 2015 Zack Guo <gizak@icloud.com>. All rights reserved.
 // Use of this source code is governed by a MIT license that can
 // be found in the LICENSE file.
@@ -15,57 +13,52 @@ package termui
 */
 type Par struct {
 	Block
-	Text            string
-	TextFgColor     Attribute
-	TextBgColor     Attribute
-	RendererFactory TextRendererFactory
+	Text        string
+	TextFgColor Attribute
+	TextBgColor Attribute
 }
 
 // NewPar returns a new *Par with given text as its content.
 func NewPar(s string) *Par {
 	return &Par{
-		Block:           *NewBlock(),
-		Text:            s,
-		TextFgColor:     theme.ParTextFg,
-		TextBgColor:     theme.ParTextBg,
-		RendererFactory: PlainRendererFactory{},
+		Block:       *NewBlock(),
+		Text:        s,
+		TextFgColor: ThemeAttr("par.text.fg"),
+		TextBgColor: ThemeAttr("par.text.bg"),
 	}
 }
 
 // Buffer implements Bufferer interface.
-func (p *Par) Buffer() []Point {
-	ps := p.Block.Buffer()
+func (p *Par) Buffer() Buffer {
+	buf := p.Block.Buffer()
 
 	fg, bg := p.TextFgColor, p.TextBgColor
-	sequence := p.RendererFactory.TextRenderer(p.Text).Render(fg, bg)
-	runes := []rune(sequence.NormalizedText)
+	cs := DefaultTxBuilder.Build(p.Text, fg, bg)
 
 	y, x, n := 0, 0, 0
-	for y < p.innerArea.Dy() && n < len(runes) {
-		point, width := sequence.PointAt(n, x+p.innerArea.Min.X, y+p.innerArea.Min.Y)
-
-		if runes[n] == '\n' || x+width > p.innerArea.Dx() {
+	for y < p.innerArea.Dy() && n < len(cs) {
+		w := cs[n].Width()
+		if cs[n].Ch == '\n' || x+w > p.innerArea.Dx() {
 			y++
 			x = 0 // set x = 0
-			if runes[n] == '\n' {
+			if cs[n].Ch == '\n' {
 				n++
 			}
 
 			if y >= p.innerArea.Dy() {
-				ps = append(ps, newPointWithAttrs('…',
-					p.innerArea.Min.X+p.innerArea.Dx()-1,
+				buf.Set(p.innerArea.Min.X+p.innerArea.Dx()-1,
 					p.innerArea.Min.Y+p.innerArea.Dy()-1,
-					p.TextFgColor, p.TextBgColor))
+					Cell{Ch: '…', Fg: p.TextFgColor, Bg: p.TextBgColor})
 				break
 			}
-
 			continue
 		}
 
-		ps = append(ps, point)
+		buf.Set(p.innerArea.Min.X+x, p.innerArea.Min.Y+y, cs[n])
+
 		n++
-		x += width
+		x += w
 	}
 
-	return p.Block.chopOverflow(ps)
+	return buf
 }

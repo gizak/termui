@@ -201,10 +201,12 @@ func DTrimTxCls(cs []Cell, w int) []Cell {
 		c := cs[i]
 		cw := c.Width()
 
-		if cw+csw <= w {
+		if cw+csw < w {
 			rt = append(rt, c)
+			csw += cw
 		} else {
 			rt = append(rt, Cell{'…', c.Fg, c.Bg})
+			break
 		}
 	}
 

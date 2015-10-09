@@ -1,10 +1,10 @@
-// +build ignore
-
 // Copyright 2015 Zack Guo <gizak@icloud.com>. All rights reserved.
 // Use of this source code is governed by a MIT license that can
 // be found in the LICENSE file.
 
 package termui
+
+import "strings"
 
 // List displays []string as its items,
 // it has a Overflow option (default is "hidden"), when set to "hidden",
@@ -31,67 +31,59 @@ package termui
 */
 type List struct {
 	Block
-	Items           []string
-	Overflow        string
-	ItemFgColor     Attribute
-	ItemBgColor     Attribute
-	RendererFactory TextRendererFactory
+	Items       []string
+	Overflow    string
+	ItemFgColor Attribute
+	ItemBgColor Attribute
 }
 
 // NewList returns a new *List with current theme.
 func NewList() *List {
 	l := &List{Block: *NewBlock()}
 	l.Overflow = "hidden"
-	l.ItemFgColor = theme.ListItemFg
-	l.ItemBgColor = theme.ListItemBg
-	l.RendererFactory = PlainRendererFactory{}
+	l.ItemFgColor = ThemeAttr("list.item.fg")
+	l.ItemBgColor = ThemeAttr("list.item.bg")
 	return l
 }
 
 // Buffer implements Bufferer interface.
-func (l *List) Buffer() []Point {
-	buffer := l.Block.Buffer()
+func (l *List) Buffer() Buffer {
+	buf := l.Block.Buffer()
 
-	breakLoop := func(y int) bool {
-		return y+1 > l.innerArea.Dy()
-	}
-	y := 0
-
-MainLoop:
-	for _, item := range l.Items {
-		x := 0
-		bg, fg := l.ItemFgColor, l.ItemBgColor
-		renderer := l.RendererFactory.TextRenderer(item)
-		sequence := renderer.Render(bg, fg)
-
-		for n := range []rune(sequence.NormalizedText) {
-			point, width := sequence.PointAt(n, x+l.innerArea.Min.X, y+l.innerArea.Min.Y)
-
-			if width+x <= l.innerArea.Dx() {
-				buffer = append(buffer, point)
-				x += width
-			} else {
-				if l.Overflow == "wrap" {
-					y++
-					if breakLoop(y) {
-						break MainLoop
-					}
-					x = 0
-				} else {
-					dotR := []rune(dot)[0]
-					dotX := l.innerArea.Dx() + l.innerArea.Min.X - charWidth(dotR)
-					p := newPointWithAttrs(dotR, dotX, y+l.innerArea.Min.Y, bg, fg)
-					buffer = append(buffer, p)
-					break
+	switch l.Overflow {
+	case "wrap":
+		cs := DefaultTxBuilder.Build(strings.Join(l.Items, "\n"), l.ItemFgColor, l.ItemBgColor)
+		i, j, k := 0, 0, 0
+		for i < l.innerArea.Dy() && k < len(cs) {
+			w := cs[k].Width()
+			if cs[k].Ch == '\n' || j+w > l.innerArea.Dx() {
+				i++
+				j = 0
+				if cs[k].Ch == '\n' {
+					k++
 				}
+				continue
+			}
+			buf.Set(l.innerArea.Min.X+j, l.innerArea.Min.Y+i, cs[k])
+
+			k++
+			j++
+		}
+
+	case "hidden":
+		trimItems := l.Items
+		if len(trimItems) > l.innerArea.Dy() {
+			trimItems = trimItems[:l.innerArea.Dy()]
+		}
+		for i, v := range trimItems {
+			cs := DTrimTxCls(DefaultTxBuilder.Build(v, l.ItemFgColor, l.ItemBgColor), l.innerArea.Dx())
+			j := 0
+			for _, vv := range cs {
+				w := vv.Width()
+				buf.Set(l.innerArea.Min.X+j, l.innerArea.Min.Y+i, vv)
+				j += w
 			}
 		}
-
-		y++
-		if breakLoop(y) {
-			break MainLoop
-		}
 	}
-
-	return l.Block.chopOverflow(buffer)
+	return buf
 }

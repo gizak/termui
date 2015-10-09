@@ -15,13 +15,13 @@ func main() {
 	}
 	defer termui.Close()
 
-	termui.UseTheme("helloworld")
+	//termui.UseTheme("helloworld")
 
 	strs := []string{
 		"[0] github.com/gizak/termui",
-		"[1] 你好，世界",
-		"[2] こんにちは世界",
-		"[3] keyboard.go",
+		"[1] [你好，世界](fg-blue)",
+		"[2] [こんにちは世界](fg-red)",
+		"[3] [color output](fg-white,bg-green)",
 		"[4] output.go",
 		"[5] random_out.go",
 		"[6] dashboard.go",
@@ -30,12 +30,15 @@ func main() {
 	ls := termui.NewList()
 	ls.Items = strs
 	ls.ItemFgColor = termui.ColorYellow
-	ls.Border.Label = "List"
+	ls.BorderLabel = "List"
 	ls.Height = 7
 	ls.Width = 25
 	ls.Y = 0
 
 	termui.Render(ls)
+	termui.Handle("/sys/kbd/q", func(termui.Event) {
+		termui.StopLoop()
+	})
+	termui.Loop()
 
-	<-termui.EventCh()
 }

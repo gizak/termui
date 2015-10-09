@@ -1,5 +1,3 @@
-// +build ignore
-
 // Copyright 2015 Zack Guo <gizak@icloud.com>. All rights reserved.
 // Use of this source code is governed by a MIT license that can
 // be found in the LICENSE file.
@@ -107,13 +105,14 @@ func (bc *BarChart) Buffer() Buffer {
 		// plot text
 		for j, k := 0, 0; j < len(bc.labels[i]); j++ {
 			w := charWidth(bc.labels[i][j])
-			c := Cell{}
-			p.Ch = bc.labels[i][j]
-			p.Bg = bc.BgColor
-			p.Fg = bc.TextColor
-			p.Y = bc.innerArea.Min.Y + bc.innerArea.Dy() - 1
-			p.X = bc.innerArea.Min.X + oftX + k
-			ps = append(ps, p)
+			c := Cell{
+				Ch: bc.labels[i][j],
+				Bg: bc.Bg,
+				Fg: bc.TextColor,
+			}
+			y := bc.innerArea.Min.Y + bc.innerArea.Dy() - 1
+			x := bc.innerArea.Min.X + oftX + k
+			buf.Set(x, y, c)
 			k += w
 		}
 		// plot num
@@ -127,7 +126,7 @@ func (bc *BarChart) Buffer() Buffer {
 				c.Bg |= AttrReverse
 			}
 			if h == 0 {
-				c.Bg = bc.BgColor
+				c.Bg = bc.Bg
 			}
 			x := bc.innerArea.Min.X + oftX + (bc.BarWidth-len(bc.dataNum[i]))/2 + j
 			y := bc.innerArea.Min.Y + bc.innerArea.Dy() - 2

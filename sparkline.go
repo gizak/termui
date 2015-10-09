@@ -1,5 +1,3 @@
-// +build ignore
-
 // Copyright 2015 Zack Guo <gizak@icloud.com>. All rights reserved.
 // Use of this source code is governed by a MIT license that can
 // be found in the LICENSE file.
@@ -51,8 +49,8 @@ func (s *Sparklines) Add(sl Sparkline) {
 func NewSparkline() Sparkline {
 	return Sparkline{
 		Height:     1,
-		TitleColor: theme.SparklineTitle,
-		LineColor:  theme.SparklineLine}
+		TitleColor: ThemeAttr("sparkline.title.fg"),
+		LineColor:  ThemeAttr("sparkline.line.fg")}
 }
 
 // NewSparklines return a new *Spaklines with given Sparkline(s), you can always add a new Sparkline later.
@@ -98,8 +96,8 @@ func (sl *Sparklines) update() {
 }
 
 // Buffer implements Bufferer interface.
-func (sl *Sparklines) Buffer() []Point {
-	ps := sl.Block.Buffer()
+func (sl *Sparklines) Buffer() Buffer {
+	buf := sl.Block.Buffer()
 	sl.update()
 
 	oftY := 0
@@ -116,13 +114,14 @@ func (sl *Sparklines) Buffer() []Point {
 			oftX := 0
 			for _, v := range rs {
 				w := charWidth(v)
-				c := Cell{}
-				p.Ch = v
-				p.Fg = l.TitleColor
-				p.Bg = sl.BgColor
-				p.X = sl.innerArea.Min.X + oftX
-				p.Y = sl.innerArea.Min.Y + oftY
-				ps = append(ps, p)
+				c := Cell{
+					Ch: v,
+					Fg: l.TitleColor,
+					Bg: sl.Bg,
+				}
+				x := sl.innerArea.Min.X + oftX
+				y := sl.innerArea.Min.Y + oftY
+				buf.Set(x, y, c)
 				oftX += w
 			}
 		}
@@ -132,27 +131,30 @@ func (sl *Sparklines) Buffer() []Point {
 			barCnt := h / 8
 			barMod := h % 8
 			for jj := 0; jj < barCnt; jj++ {
-				c := Cell{}
-				p.X = sl.innerArea.Min.X + j
-				p.Y = sl.innerArea.Min.Y + oftY + l.Height - jj
-				p.Ch = ' ' // => sparks[7]
-				p.Bg = l.LineColor
+				c := Cell{
+					Ch: ' ', // => sparks[7]
+					Bg: l.LineColor,
+				}
+				x := sl.innerArea.Min.X + j
+				y := sl.innerArea.Min.Y + oftY + l.Height - jj
+
 				//p.Bg = sl.BgColor
-				ps = append(ps, p)
+				buf.Set(x, y, c)
 			}
 			if barMod != 0 {
-				c := Cell{}
-				p.X = sl.innerArea.Min.X + j
-				p.Y = sl.innerArea.Min.Y + oftY + l.Height - barCnt
-				p.Ch = sparks[barMod-1]
-				p.Fg = l.LineColor
-				p.Bg = sl.BgColor
-				ps = append(ps, p)
+				c := Cell{
+					Ch: sparks[barMod-1],
+					Fg: l.LineColor,
+					Bg: sl.Bg,
+				}
+				x := sl.innerArea.Min.X + j
+				y := sl.innerArea.Min.Y + oftY + l.Height - barCnt
+				buf.Set(x, y, c)
 			}
 		}
 
 		oftY += l.displayHeight
 	}
 
-	return sl.Block.chopOverflow(ps)
+	return buf
 }

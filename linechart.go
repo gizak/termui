@@ -1,5 +1,3 @@
-// +build ignore
-
 // Copyright 2015 Zack Guo <gizak@icloud.com>. All rights reserved.
 // Use of this source code is governed by a MIT license that can
 // be found in the LICENSE file.
@@ -76,8 +74,8 @@ type LineChart struct {
 // NewLineChart returns a new LineChart with current theme.
 func NewLineChart() *LineChart {
 	lc := &LineChart{Block: *NewBlock()}
-	lc.AxesColor = theme.LineChartAxes
-	lc.LineColor = theme.LineChartLine
+	lc.AxesColor = ThemeAttr("linechart.axes.fg")
+	lc.LineColor = ThemeAttr("linechart.line.fg")
 	lc.Mode = "braille"
 	lc.DotStyle = '•'
 	lc.axisXLebelGap = 2
@@ -108,7 +106,7 @@ func (lc *LineChart) renderBraille() Buffer {
 		if b0 == b1 {
 			c := Cell{
 				Ch: braillePatterns[[2]int{m0, m1}],
-				Bg: lc.BgColor,
+				Bg: lc.Bg,
 				Fg: lc.LineColor,
 			}
 			y := lc.innerArea.Min.Y + lc.innerArea.Dy() - 3 - b0
@@ -117,7 +115,7 @@ func (lc *LineChart) renderBraille() Buffer {
 		} else {
 			c0 := Cell{Ch: lSingleBraille[m0],
 				Fg: lc.LineColor,
-				Bg: lc.BgColor}
+				Bg: lc.Bg}
 			x0 := lc.innerArea.Min.X + lc.labelYSpace + 1 + i
 			y0 := lc.innerArea.Min.Y + lc.innerArea.Dy() - 3 - b0
 			buf.Set(x0, y0, c0)
@@ -140,7 +138,7 @@ func (lc *LineChart) renderDot() Buffer {
 		c := Cell{
 			Ch: lc.DotStyle,
 			Fg: lc.LineColor,
-			Bg: lc.BgColor,
+			Bg: lc.Bg,
 		}
 		x := lc.innerArea.Min.X + lc.labelYSpace + 1 + i
 		y := lc.innerArea.Min.Y + lc.innerArea.Dy() - 3 - int((lc.Data[i]-lc.bottomValue)/lc.scale+0.5)
@@ -289,7 +287,7 @@ func (lc *LineChart) plotAxes() Buffer {
 			c := Cell{
 				Ch: r,
 				Fg: lc.AxesColor,
-				Bg: lc.BgColor,
+				Bg: lc.Bg,
 			}
 			x := origX + oft + j
 			y := lc.innerArea.Min.Y + lc.innerArea.Dy() - 1
@@ -312,11 +310,11 @@ func (lc *LineChart) plotAxes() Buffer {
 }
 
 // Buffer implements Bufferer interface.
-func (lc *LineChart) Buffer() []Point {
+func (lc *LineChart) Buffer() Buffer {
 	buf := lc.Block.Buffer()
 
 	if lc.Data == nil || len(lc.Data) == 0 {
-		return ps
+		return buf
 	}
 	lc.calcLayout()
 	buf.Merge(lc.plotAxes())
@@ -324,7 +322,7 @@ func (lc *LineChart) Buffer() []Point {
 	if lc.Mode == "dot" {
 		buf.Merge(lc.renderDot())
 	} else {
-		buf.Merge(ps, lc.renderBraille())
+		buf.Merge(lc.renderBraille())
 	}
 
 	return buf

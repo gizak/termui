@@ -23,7 +23,7 @@ func main() {
 	}
 	defer termui.Close()
 
-	termui.UseTheme("helloworld")
+	//termui.UseTheme("helloworld")
 	b := termui.NewBlock()
 	b.Width = 20
 	b.Height = 30

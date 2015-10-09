@@ -19,7 +19,7 @@ func main() {
 	}
 	defer termui.Close()
 
-	termui.UseTheme("helloworld")
+	//termui.UseTheme("helloworld")
 
 	sinps := (func() []float64 {
 		n := 220
@@ -31,7 +31,7 @@ func main() {
 	})()
 
 	lc0 := termui.NewLineChart()
-	lc0.Border.Label = "braille-mode Line Chart"
+	lc0.BorderLabel = "braille-mode Line Chart"
 	lc0.Data = sinps
 	lc0.Width = 50
 	lc0.Height = 12
@@ -41,7 +41,7 @@ func main() {
 	lc0.LineColor = termui.ColorGreen | termui.AttrBold
 
 	lc1 := termui.NewLineChart()
-	lc1.Border.Label = "dot-mode Line Chart"
+	lc1.BorderLabel = "dot-mode Line Chart"
 	lc1.Mode = "dot"
 	lc1.Data = sinps
 	lc1.Width = 26
@@ -52,7 +52,7 @@ func main() {
 	lc1.LineColor = termui.ColorYellow | termui.AttrBold
 
 	lc2 := termui.NewLineChart()
-	lc2.Border.Label = "dot-mode Line Chart"
+	lc2.BorderLabel = "dot-mode Line Chart"
 	lc2.Mode = "dot"
 	lc2.Data = sinps[4:]
 	lc2.Width = 77
@@ -63,6 +63,9 @@ func main() {
 	lc2.LineColor = termui.ColorCyan | termui.AttrBold
 
 	termui.Render(lc0, lc1, lc2)
+	termui.Handle("/sys/kbd/q", func(termui.Event) {
+		termui.StopLoop()
+	})
+	termui.Loop()
 
-	<-termui.EventCh()
 }

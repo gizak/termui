@@ -1,5 +1,3 @@
-//+build ignore
-
 package termui
 
 import (
@@ -49,9 +47,5 @@ func TestCanvasBuffer(t *testing.T) {
 	c.Set(8, 1)
 	c.Set(9, 0)
 	bufs := c.Buffer()
-	rs := make([]rune, len(bufs))
-	for i, v := range bufs {
-		rs[i] = v.Ch
-	}
-	spew.Dump(string(rs))
+	spew.Dump(bufs)
 }
