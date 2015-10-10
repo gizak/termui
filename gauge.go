@@ -90,6 +90,7 @@ func (g *Gauge) Buffer() []Point {
 	case AlignRight:
 		pos = g.innerWidth - strWidth(s)
 	}
+	pos += g.innerX
 
 	for i, v := range rs {
 		p := Point{}
