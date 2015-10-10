@@ -24,12 +24,19 @@ func Init() error {
 
 	sysEvtChs = make([]chan Event, 0)
 	go hookTermboxEvt()
+
 	renderJobs = make(chan []Bufferer)
 	go func() {
 		for bs := range renderJobs {
-			Render(bs...)
+			render(bs...)
 		}
 	}()
+
+	Body = NewGrid()
+	Body.X = 0
+	Body.Y = 0
+	Body.BgColor = ThemeAttr("bg")
+	Body.Width = TermWidth()
 
 	DefaultEvtStream.Init()
 	DefaultEvtStream.Merge("termbox", NewSysEvtCh())
@@ -67,7 +74,7 @@ func TermHeight() int {
 
 // Render renders all Bufferer in the given order from left to right,
 // right could overlap on left ones.
-func Render(bs ...Bufferer) {
+func render(bs ...Bufferer) {
 	// set tm bg
 	tm.Clear(tm.ColorDefault, toTmAttr(ThemeAttr("bg")))
 	for _, b := range bs {
@@ -85,6 +92,6 @@ func Render(bs ...Bufferer) {
 
 var renderJobs chan []Bufferer
 
-func SendBufferToRender(bs ...Bufferer) {
+func Render(bs ...Bufferer) {
 	go func() { renderJobs <- bs }()
 }

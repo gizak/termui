@@ -86,8 +86,9 @@ func (g *Gauge) Buffer() Buffer {
 		pos = (g.innerArea.Dx() - strWidth(s)) / 2
 
 	case AlignRight:
-		pos = g.innerArea.Dx() - strWidth(s)
+		pos = g.innerArea.Dx() - strWidth(s) - 1
 	}
+	pos += g.innerArea.Min.X
 
 	for i, v := range rs {
 		c := Cell{

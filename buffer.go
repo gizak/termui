@@ -66,7 +66,7 @@ func NewCell(ch rune, fg, bg Attribute) Cell {
 }
 
 // Merge merges bs Buffers onto b
-func (b Buffer) Merge(bs ...Buffer) {
+func (b *Buffer) Merge(bs ...Buffer) {
 	for _, buf := range bs {
 		for p, v := range buf.CellMap {
 			b.Set(p.X, p.Y, v)
