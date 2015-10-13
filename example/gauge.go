@@ -56,7 +56,18 @@ func main() {
 	g3.Label = "{{percent}}% (100MBs free)"
 	g3.LabelAlign = termui.AlignRight
 
-	termui.Render(g0, g1, g2, g3)
+	g4 := termui.NewGauge()
+	g4.Percent = 50
+	g4.Width = 50
+	g4.Height = 3
+	g4.Y = 14
+	g4.Border.Label = "Gauge"
+	g4.Label = "Gauge with custom highlighted label"
+	g4.PercentColor = termui.ColorYellow
+	g4.BarColor = termui.ColorGreen
+	g4.PercentColorHighlighted = termui.ColorBlack
+
+	termui.Render(g0, g1, g2, g3, g4)
 
 	<-termui.EventCh()
 }

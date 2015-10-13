@@ -31,23 +31,27 @@ const (
 	AlignRight
 )
 
+const uint16max = ^uint16(0)
+
 type Gauge struct {
 	Block
-	Percent      int
-	BarColor     Attribute
-	PercentColor Attribute
-	Label        string
-	LabelAlign   Align
+	Percent                 int
+	BarColor                Attribute
+	PercentColor            Attribute
+	PercentColorHighlighted Attribute
+	Label                   string
+	LabelAlign              Align
 }
 
 // NewGauge return a new gauge with current theme.
 func NewGauge() *Gauge {
 	g := &Gauge{
-		Block:        *NewBlock(),
-		PercentColor: theme.GaugePercent,
-		BarColor:     theme.GaugeBar,
-		Label:        "{{percent}}%",
-		LabelAlign:   AlignCenter,
+		Block:                   *NewBlock(),
+		PercentColor:            theme.GaugePercent,
+		BarColor:                theme.GaugeBar,
+		Label:                   "{{percent}}%",
+		LabelAlign:              AlignCenter,
+		PercentColorHighlighted: Attribute(uint16max),
 	}
 
 	g.Width = 12
@@ -104,6 +108,9 @@ func (g *Gauge) Buffer() []Point {
 				p.Bg |= AttrReverse
 			}
 
+			if g.PercentColorHighlighted != Attribute(uint16max) {
+				p.Fg = g.PercentColorHighlighted
+			}
 		} else {
 			p.Bg = g.Block.BgColor
 		}
