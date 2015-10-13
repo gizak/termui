@@ -21,6 +21,14 @@ func main() {
 	p.TextFgColor = ui.ColorWhite
 	p.BorderLabel = "Text Box"
 	p.BorderFg = ui.ColorCyan
+	p.Handle("/timer/1s", func(e ui.Event) {
+		cnt := e.Data.(ui.EvtTimer)
+		if cnt.Count%2 == 0 {
+			p.TextFgColor = ui.ColorRed
+		} else {
+			p.TextFgColor = ui.ColorWhite
+		}
+	})
 
 	strs := []string{"[0] gizak/termui", "[1] editbox.go", "[2] iterrupt.go", "[3] keyboard.go", "[4] output.go", "[5] random_out.go", "[6] dashboard.go", "[7] nsf/termbox-go"}
 	list := ui.NewList()

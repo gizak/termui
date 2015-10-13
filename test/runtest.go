@@ -40,8 +40,13 @@ func main() {
 		}
 	})
 
+	termui.Handle(("/usr"), func(e termui.Event) {
+		debug.Logf("->%v\n", e)
+	})
+
 	termui.Handle("/timer/1s", func(e termui.Event) {
 		t := e.Data.(termui.EvtTimer)
+		termui.SendCustomEvt("/usr/t", t.Count)
 
 		if t.Count%2 == 0 {
 			b.BorderLabel = "[HELLO](fg-red,bg-green) [WORLD](fg-blue,bg-white)"
@@ -52,5 +57,6 @@ func main() {
 		termui.Render(b)
 
 	})
+
 	termui.Loop()
 }

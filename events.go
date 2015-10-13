@@ -315,3 +315,13 @@ func NewTimerCh(du time.Duration) chan Event {
 
 var DefualtHandler = func(e Event) {
 }
+
+var usrEvtCh = make(chan Event)
+
+func SendCustomEvt(path string, data interface{}) {
+	e := Event{}
+	e.Path = path
+	e.Data = data
+	e.Time = time.Now().Unix()
+	usrEvtCh <- e
+}

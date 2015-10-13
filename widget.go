@@ -80,3 +80,11 @@ func (wm WgtMgr) WgtHandlersHook() func(Event) {
 }
 
 var DefaultWgtMgr WgtMgr
+
+func (b *Block) Handle(path string, handler func(Event)) {
+	if _, ok := DefaultWgtMgr[b.Id()]; !ok {
+		DefaultWgtMgr.AddWgt(b)
+	}
+
+	DefaultWgtMgr.AddWgtHandler(b.Id(), path, handler)
+}

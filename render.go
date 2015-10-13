@@ -41,6 +41,8 @@ func Init() error {
 	DefaultEvtStream.Init()
 	DefaultEvtStream.Merge("termbox", NewSysEvtCh())
 	DefaultEvtStream.Merge("timer", NewTimerCh(time.Second))
+	DefaultEvtStream.Merge("custom", usrEvtCh)
+
 	DefaultEvtStream.Handle("/", DefualtHandler)
 	DefaultEvtStream.Handle("/sys/wnd/resize", func(e Event) {
 		w := e.Data.(EvtWnd)
