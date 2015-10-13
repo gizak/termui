@@ -1,8 +1,25 @@
 package termui
 
-import "testing"
+import (
+	"testing"
+)
 
-func TestBlock_InnerBounds(t *testing.T) {
+func TestBlockFloat(t *testing.T) {
+	Init()
+	defer Close()
+
+	b := NewBlock()
+	b.X = 10
+	b.Y = 20
+
+	b.Float = AlignCenter
+	b.Align()
+}
+
+func TestBlockInnerBounds(t *testing.T) {
+	Init()
+	defer Close()
+
 	b := NewBlock()
 	b.X = 10
 	b.Y = 11
@@ -16,11 +33,12 @@ func TestBlock_InnerBounds(t *testing.T) {
 		cy := area.Min.Y
 		cw := area.Dx()
 		ch := area.Dy()
+
 		if cx != x {
 			t.Errorf("expected x to be %d but got %d", x, cx)
 		}
 		if cy != y {
-			t.Errorf("expected y to be %d but got %d", y, cy)
+			t.Errorf("expected y to be %d but got %d\n%+v", y, cy, area)
 		}
 		if cw != w {
 			t.Errorf("expected width to be %d but got %d", w, cw)

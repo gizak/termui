@@ -26,10 +26,11 @@ func main() {
 	//termui.UseTheme("helloworld")
 	b := termui.NewBlock()
 	b.Width = 20
-	b.Height = 30
+	b.Height = 20
+	b.Float = termui.AlignCenter
 	b.BorderLabel = "[HELLO](fg-red,bg-white) [WORLD](fg-blue,bg-green)"
 
-	termui.SendBufferToRender(b)
+	termui.Render(b)
 
 	termui.Handle("/sys", func(e termui.Event) {
 		k, ok := e.Data.(termui.EvtKbd)
@@ -48,7 +49,7 @@ func main() {
 			b.BorderLabel = "[HELLO](fg-blue,bg-white) [WORLD](fg-red,bg-green)"
 		}
 
-		termui.SendBufferToRender(b)
+		termui.Render(b)
 
 	})
 	termui.Loop()

@@ -120,6 +120,7 @@ type Block struct {
 	PaddingLeft   int
 	PaddingRight  int
 	id            string
+	Float         Align
 }
 
 // NewBlock returns a *Block which inherits styles from current theme.
@@ -139,6 +140,7 @@ func NewBlock() *Block {
 	b.Width = 2
 	b.Height = 2
 	b.id = GenId()
+	b.Float = AlignNone
 	return &b
 }
 
@@ -148,13 +150,19 @@ func (b Block) Id() string {
 
 // Align computes box model
 func (b *Block) Align() {
-	b.area.Min.X = b.X
-	b.area.Min.Y = b.Y
-	b.area.Max.X = b.X + b.Width
-	b.area.Max.Y = b.Y + b.Height
+	// outer
+	b.area.Min.X = 0
+	b.area.Min.Y = 0
+	b.area.Max.X = b.Width
+	b.area.Max.Y = b.Height
 
-	b.innerArea.Min.X = b.X + b.PaddingLeft
-	b.innerArea.Min.Y = b.Y + b.PaddingTop
+	// float
+	b.area = AlignArea(TermRect(), b.area, b.Float)
+	b.area = MoveArea(b.area, b.X, b.Y)
+
+	// inner
+	b.innerArea.Min.X = b.area.Min.X + b.PaddingLeft
+	b.innerArea.Min.Y = b.area.Min.Y + b.PaddingTop
 	b.innerArea.Max.X = b.area.Max.X - b.PaddingRight
 	b.innerArea.Max.Y = b.area.Max.Y - b.PaddingBottom
 

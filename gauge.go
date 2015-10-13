@@ -21,16 +21,6 @@ import (
   g.PercentColor = termui.ColorBlue
 */
 
-// Align is the position of the gauge's label.
-type Align int
-
-// All supported positions.
-const (
-	AlignLeft Align = iota
-	AlignCenter
-	AlignRight
-)
-
 type Gauge struct {
 	Block
 	Percent      int
