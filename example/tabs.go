@@ -1,15 +1,16 @@
 package main
 
 import (
-	"github.com/marigs/termui"
+	"github.com/gizak/termui"
+	"github.com/gizak/termui/extra"
 )
 
 func main() {
-    err := termui.Init()
-    if err != nil {
-	panic(err)
-    }
-    defer termui.Close()
+	err := termui.Init()
+	if err != nil {
+		panic(err)
+	}
+	defer termui.Close()
 
 	termui.UseTheme("helloworld")
 
@@ -19,7 +20,7 @@ func main() {
 	header.HasBorder = false
 	header.TextBgColor = termui.ColorBlue
 
-    tab1 := termui.NewTab("pierwszy")
+	tab1 := extra.NewTab("pierwszy")
 	par2 := termui.NewPar("Press q to quit\nPress j or k to switch tabs\n")
 	par2.Height = 5
 	par2.Width = 37
@@ -28,7 +29,7 @@ func main() {
 	par2.Border.FgColor = termui.ColorYellow
 	tab1.AddBlocks(par2)
 
-    tab2 := termui.NewTab("drugi")
+	tab2 := extra.NewTab("drugi")
 	bc := termui.NewBarChart()
 	data := []int{3, 2, 5, 3, 9, 5, 3, 2, 5, 8, 3, 2, 4, 5, 3, 2, 5, 7, 5, 3, 2, 6, 7, 4, 6, 3, 6, 7, 8, 3, 6, 4, 5, 3, 2, 4, 6, 4, 8, 5, 9, 4, 3, 6, 5, 3, 6}
 	bclabels := []string{"S0", "S1", "S2", "S3", "S4", "S5"}
@@ -42,24 +43,25 @@ func main() {
 	bc.NumColor = termui.ColorYellow
 	tab2.AddBlocks(bc)
 
-    tab3 := termui.NewTab("trzeci")
-    tab4 := termui.NewTab("żółw")
-    tab5 := termui.NewTab("four")
-    tab6 := termui.NewTab("five")
+	tab3 := extra.NewTab("trzeci")
+	tab4 := extra.NewTab("żółw")
+	tab5 := extra.NewTab("four")
+	tab6 := extra.NewTab("five")
 
-    tabpane := termui.NewTabpane()
+	tabpane := extra.NewTabpane()
 	tabpane.Y = 1
-    tabpane.Width = 30
-    tabpane.HasBorder = true
+	tabpane.Width = 30
+	tabpane.HasBorder = true
 
-    tabpane.SetTabs(*tab1, *tab2, *tab3, *tab4, *tab5, *tab6)
-
-    termui.Render(header, tabpane)
+	tabpane.SetTabs(*tab1, *tab2, *tab3, *tab4, *tab5, *tab6)
 
 	evt := termui.EventCh()
+
+	termui.Render(header, tabpane)
+
 	for {
 		select {
-		case e := <- evt:
+		case e := <-evt:
 			if e.Type == termui.EventKey {
 				switch e.Ch {
 				case 'q':
