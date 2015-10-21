@@ -140,3 +140,23 @@ func (d *Block) chopOverflow(ps []Point) []Point {
 	}
 	return nps
 }
+
+func (b Block) InnerWidth() int {
+	return b.innerWidth
+}
+
+func (b Block) InnerHeight() int {
+	return b.innerHeight
+}
+
+func (b Block) InnerX() int {
+	return b.innerX
+}
+
+func (b Block) InnerY() int {
+	return b.innerY
+}
+
+func (b *Block) Align() {
+	b.align()
+}
