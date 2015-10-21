@@ -92,8 +92,12 @@ func (d *Block) Buffer() []Point {
 	for i := 0; i < d.innerWidth; i++ {
 		for j := 0; j < d.innerHeight; j++ {
 			p := Point{}
-			p.X = d.X + 1 + i
-			p.Y = d.Y + 1 + j
+			p.X = d.X + i
+			p.Y = d.Y + j
+			if d.HasBorder {
+				p.X++
+				p.Y++
+			}
 			p.Ch = ' '
 			p.Bg = d.BgColor
 			ps = append(ps, p)
