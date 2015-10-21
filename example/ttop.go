@@ -3,33 +3,35 @@
 package main
 
 import (
-	"fmt"
 	"bufio"
-	"os"
+	"errors"
+	"fmt"
 	"io"
+	"os"
 	"regexp"
-	"strings"
+	"runtime"
 	"sort"
 	"strconv"
+	"strings"
 	"time"
-	"errors"
-	"runtime"
-	"github.com/marigs/termui"
+
+	"github.com/gizak/termui"
+	"github.com/gizak/termui/extra"
 )
 
 const statFilePath = "/proc/stat"
 const meminfoFilePath = "/proc/meminfo"
 
 type CpuStat struct {
-	user	float32
-	nice	float32
-	system	float32
-	idle	float32
+	user   float32
+	nice   float32
+	system float32
+	idle   float32
 }
 
 type CpusStats struct {
-	stat	map[string]CpuStat
-	proc	map[string]CpuStat
+	stat map[string]CpuStat
+	proc map[string]CpuStat
 }
 
 func NewCpusStats(s map[string]CpuStat) *CpusStats {
@@ -45,17 +47,17 @@ func (cs *CpusStats) String() (ret string) {
 
 func subCpuStat(m CpuStat, s CpuStat) CpuStat {
 	return CpuStat{user: m.user - s.user,
-					nice: m.nice - s.nice,
-					system: m.system - s.system,
-					idle: m.idle - s.idle}
+		nice:   m.nice - s.nice,
+		system: m.system - s.system,
+		idle:   m.idle - s.idle}
 }
 
 func procCpuStat(c CpuStat) CpuStat {
 	sum := c.user + c.nice + c.system + c.idle
-	return CpuStat{user: c.user/sum*100,
-					nice: c.nice/sum*100,
-					system: c.system/sum*100,
-					idle: c.idle/sum*100}
+	return CpuStat{user: c.user / sum * 100,
+		nice:   c.nice / sum * 100,
+		system: c.system / sum * 100,
+		idle:   c.idle / sum * 100}
 }
 
 func (cs *CpusStats) tick(ns map[string]CpuStat) {
@@ -80,7 +82,7 @@ func (eip *errIntParser) parse(s string) (ret int64) {
 
 type LineProcessor interface {
 	process(string) error
-	finalize() interface {}
+	finalize() interface{}
 }
 
 type CpuLineProcessor struct {
@@ -98,9 +100,9 @@ func (clp *CpuLineProcessor) process(line string) (err error) {
 		}
 		parser := errIntParser{}
 		cs := CpuStat{user: float32(parser.parse(tab[1])),
-				nice: float32(parser.parse(tab[2])),
-				system: float32(parser.parse(tab[3])),
-				idle: float32(parser.parse(tab[4]))}
+			nice:   float32(parser.parse(tab[2])),
+			system: float32(parser.parse(tab[3])),
+			idle:   float32(parser.parse(tab[4]))}
 		clp.m[tab[0]] = cs
 		err = parser.err
 		if err != nil {
@@ -110,13 +112,13 @@ func (clp *CpuLineProcessor) process(line string) (err error) {
 	return
 }
 
-func (clp *CpuLineProcessor) finalize() interface {} {
+func (clp *CpuLineProcessor) finalize() interface{} {
 	return clp.m
 }
 
 type MemStat struct {
-	total	int64
-	free	int64
+	total int64
+	free  int64
 }
 
 func (ms MemStat) String() (ret string) {
@@ -149,11 +151,11 @@ func (ms *MemStat) process(line string) (err error) {
 	return
 }
 
-func (ms *MemStat) finalize() interface {} {
+func (ms *MemStat) finalize() interface{} {
 	return *ms
 }
 
-func processFileLines(filePath string, lp LineProcessor) (ret interface {}, err error) {
+func processFileLines(filePath string, lp LineProcessor) (ret interface{}, err error) {
 	var statFile *os.File
 	statFile, err = os.Open(filePath)
 	if err != nil {
@@ -184,19 +186,19 @@ func processFileLines(filePath string, lp LineProcessor) (ret interface {}, err 
 }
 
 func getCpusStatsMap() (m map[string]CpuStat, err error) {
-	var aux interface {}
+	var aux interface{}
 	aux, err = processFileLines(statFilePath, &CpuLineProcessor{m: make(map[string]CpuStat)})
 	return aux.(map[string]CpuStat), err
 }
 
 func getMemStats() (ms MemStat, err error) {
-	var aux interface {}
+	var aux interface{}
 	aux, err = processFileLines(meminfoFilePath, &MemStat{})
 	return aux.(MemStat), err
 }
 
 type CpuTabElems struct {
-	GMap map[string]*termui.Gauge
+	GMap   map[string]*termui.Gauge
 	LChart *termui.LineChart
 }
 
@@ -208,9 +210,8 @@ func NewCpuTabElems(width int) *CpuTabElems {
 	lc.Mode = "dot"
 	lc.Border.Label = "CPU"
 	return &CpuTabElems{GMap: make(map[string]*termui.Gauge),
-						LChart: lc}
+		LChart: lc}
 }
-
 
 func (cte *CpuTabElems) AddGauge(key string, Y int, width int) *termui.Gauge {
 	cte.GMap[key] = termui.NewGauge()
@@ -218,7 +219,7 @@ func (cte *CpuTabElems) AddGauge(key string, Y int, width int) *termui.Gauge {
 	cte.GMap[key].Height = 3
 	cte.GMap[key].Y = Y
 	cte.GMap[key].Border.Label = key
-	cte.GMap[key].Percent = 0//int(val.user + val.nice + val.system)
+	cte.GMap[key].Percent = 0 //int(val.user + val.nice + val.system)
 	return cte.GMap[key]
 }
 
@@ -235,7 +236,7 @@ func (cte *CpuTabElems) Update(cs CpusStats) {
 }
 
 type MemTabElems struct {
-	Gauge *termui.Gauge
+	Gauge  *termui.Gauge
 	SLines *termui.Sparklines
 }
 
@@ -263,7 +264,7 @@ func (mte *MemTabElems) Update(ms MemStat) {
 	copy(mte.SLines.Lines[0].Data[1:], mte.SLines.Lines[0].Data[0:])
 	mte.SLines.Lines[0].Data[0] = used
 	if len(mte.SLines.Lines[0].Data) > mte.SLines.Width-2 {
-		mte.SLines.Lines[0].Data = mte.SLines.Lines[0].Data[0:mte.SLines.Width-2]
+		mte.SLines.Lines[0].Data = mte.SLines.Lines[0].Data[0 : mte.SLines.Width-2]
 	}
 }
 
@@ -271,11 +272,11 @@ func main() {
 	if runtime.GOOS != "linux" {
 		panic("Currently works only on Linux")
 	}
-    err := termui.Init()
-    if err != nil {
+	err := termui.Init()
+	if err != nil {
 		panic(err)
 	}
-    defer termui.Close()
+	defer termui.Close()
 
 	termWidth := 70
 
@@ -287,13 +288,13 @@ func main() {
 	header.HasBorder = false
 	header.TextBgColor = termui.ColorBlue
 
-    tabCpu := termui.NewTab("CPU")
-    tabMem := termui.NewTab("MEM")
+	tabCpu := extra.NewTab("CPU")
+	tabMem := extra.NewTab("MEM")
 
-    tabpane := termui.NewTabpane()
+	tabpane := extra.NewTabpane()
 	tabpane.Y = 1
-    tabpane.Width = 30
-    tabpane.HasBorder = false
+	tabpane.Width = 30
+	tabpane.HasBorder = false
 
 	cs, errcs := getCpusStatsMap()
 	cpusStats := NewCpusStats(cs)
@@ -327,9 +328,9 @@ func main() {
 	tabMem.AddBlocks(memTabElems.Gauge)
 	tabMem.AddBlocks(memTabElems.SLines)
 
-    tabpane.SetTabs(*tabCpu, *tabMem)
+	tabpane.SetTabs(*tabCpu, *tabMem)
 
-    termui.Render(header, tabpane)
+	termui.Render(header, tabpane)
 
 	evt := termui.EventCh()
 	for {
@@ -365,4 +366,3 @@ func main() {
 		}
 	}
 }
-
