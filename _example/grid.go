@@ -7,12 +7,11 @@
 package main
 
 import ui "github.com/gizak/termui"
+
 import "math"
-import "time"
 
 func main() {
-	err := ui.Init()
-	if err != nil {
+	if err := ui.Init(); err != nil {
 		panic(err)
 	}
 	defer ui.Close()
@@ -33,8 +32,6 @@ func main() {
 		return ps
 	})()
 
-	ui.UseTheme("helloworld")
-
 	spark := ui.Sparkline{}
 	spark.Height = 8
 	spdata := sinpsint
@@ -44,10 +41,10 @@ func main() {
 
 	sp := ui.NewSparklines(spark)
 	sp.Height = 11
-	sp.Border.Label = "Sparkline"
+	sp.BorderLabel = "Sparkline"
 
 	lc := ui.NewLineChart()
-	lc.Border.Label = "braille-mode Line Chart"
+	lc.BorderLabel = "braille-mode Line Chart"
 	lc.Data = sinps
 	lc.Height = 11
 	lc.AxesColor = ui.ColorWhite
@@ -56,15 +53,16 @@ func main() {
 	gs := make([]*ui.Gauge, 3)
 	for i := range gs {
 		gs[i] = ui.NewGauge()
+		//gs[i].LabelAlign = ui.AlignCenter
 		gs[i].Height = 2
-		gs[i].HasBorder = false
+		gs[i].Border = false
 		gs[i].Percent = i * 10
 		gs[i].PaddingBottom = 1
 		gs[i].BarColor = ui.ColorRed
 	}
 
 	ls := ui.NewList()
-	ls.HasBorder = false
+	ls.Border = false
 	ls.Items = []string{
 		"[1] Downloading File 1",
 		"", // == \newline
@@ -76,7 +74,7 @@ func main() {
 
 	par := ui.NewPar("<> This row has 3 columns\n<- Widgets can be stacked up like left side\n<- Stacked widgets are treated as a single widget")
 	par.Height = 5
-	par.Border.Label = "Demonstration"
+	par.BorderLabel = "Demonstration"
 
 	// build layout
 	ui.Body.AddRows(
@@ -91,44 +89,33 @@ func main() {
 	// calculate layout
 	ui.Body.Align()
 
-	done := make(chan bool)
-	redraw := make(chan bool)
-
-	update := func() {
-		for i := 0; i < 103; i++ {
-			for _, g := range gs {
-				g.Percent = (g.Percent + 3) % 100
-			}
-
-			sp.Lines[0].Data = spdata[:100+i]
-			lc.Data = sinps[2*i:]
-
-			time.Sleep(time.Second / 2)
-			redraw <- true
-		}
-		done <- true
-	}
-
-	evt := ui.EventCh()
-
 	ui.Render(ui.Body)
-	go update()
 
-	for {
-		select {
-		case e := <-evt:
-			if e.Type == ui.EventKey && e.Ch == 'q' {
-				return
-			}
-			if e.Type == ui.EventResize {
-				ui.Body.Width = ui.TermWidth()
-				ui.Body.Align()
-				go func() { redraw <- true }()
-			}
-		case <-done:
+	ui.Handle("/sys/kbd/q", func(ui.Event) {
+		ui.StopLoop()
+	})
+	ui.Handle("/timer/1s", func(e ui.Event) {
+		t := e.Data.(ui.EvtTimer)
+		i := t.Count
+		if i > 103 {
+			ui.StopLoop()
 			return
-		case <-redraw:
-			ui.Render(ui.Body)
 		}
-	}
+
+		for _, g := range gs {
+			g.Percent = (g.Percent + 3) % 100
+		}
+
+		sp.Lines[0].Data = spdata[:100+i]
+		lc.Data = sinps[2*i:]
+		ui.Render(ui.Body)
+	})
+
+	ui.Handle("/sys/wnd/resize", func(e ui.Event) {
+		ui.Body.Width = ui.TermWidth()
+		ui.Body.Align()
+		ui.Render(ui.Body)
+	})
+
+	ui.Loop()
 }

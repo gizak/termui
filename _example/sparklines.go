@@ -15,7 +15,7 @@ func main() {
 	}
 	defer termui.Close()
 
-	termui.UseTheme("helloworld")
+	//termui.UseTheme("helloworld")
 
 	data := []int{4, 2, 1, 6, 3, 9, 1, 4, 2, 15, 14, 9, 8, 6, 10, 13, 15, 12, 10, 5, 3, 6, 1, 7, 10, 10, 14, 13, 6}
 	spl0 := termui.NewSparkline()
@@ -27,7 +27,7 @@ func main() {
 	spls0 := termui.NewSparklines(spl0)
 	spls0.Height = 2
 	spls0.Width = 20
-	spls0.HasBorder = false
+	spls0.Border = false
 
 	spl1 := termui.NewSparkline()
 	spl1.Data = data
@@ -44,7 +44,7 @@ func main() {
 	spls1.Height = 8
 	spls1.Width = 20
 	spls1.Y = 3
-	spls1.Border.Label = "Group Sparklines"
+	spls1.BorderLabel = "Group Sparklines"
 
 	spl3 := termui.NewSparkline()
 	spl3.Data = data
@@ -55,11 +55,15 @@ func main() {
 	spls2 := termui.NewSparklines(spl3)
 	spls2.Height = 11
 	spls2.Width = 30
-	spls2.Border.FgColor = termui.ColorCyan
+	spls2.BorderFg = termui.ColorCyan
 	spls2.X = 21
-	spls2.Border.Label = "Tweeked Sparkline"
+	spls2.BorderLabel = "Tweeked Sparkline"
 
 	termui.Render(spls0, spls1, spls2)
 
-	<-termui.EventCh()
+	termui.Handle("/sys/kbd/q", func(termui.Event) {
+		termui.StopLoop()
+	})
+	termui.Loop()
+
 }

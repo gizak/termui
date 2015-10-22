@@ -15,16 +15,23 @@ func main() {
 	}
 	defer termui.Close()
 
-	termui.UseTheme("helloworld")
+	//termui.UseTheme("helloworld")
 
 	g0 := termui.NewGauge()
 	g0.Percent = 40
 	g0.Width = 50
 	g0.Height = 3
-	g0.Border.Label = "Slim Gauge"
+	g0.BorderLabel = "Slim Gauge"
 	g0.BarColor = termui.ColorRed
-	g0.Border.FgColor = termui.ColorWhite
-	g0.Border.LabelFgColor = termui.ColorCyan
+	g0.BorderFg = termui.ColorWhite
+	g0.BorderLabelFg = termui.ColorCyan
+
+	gg := termui.NewBlock()
+	gg.Width = 50
+	gg.Height = 5
+	gg.Y = 12
+	gg.BorderLabel = "TEST"
+	gg.Align()
 
 	g2 := termui.NewGauge()
 	g2.Percent = 60
@@ -32,27 +39,27 @@ func main() {
 	g2.Height = 3
 	g2.PercentColor = termui.ColorBlue
 	g2.Y = 3
-	g2.Border.Label = "Slim Gauge"
+	g2.BorderLabel = "Slim Gauge"
 	g2.BarColor = termui.ColorYellow
-	g2.Border.FgColor = termui.ColorWhite
+	g2.BorderFg = termui.ColorWhite
 
 	g1 := termui.NewGauge()
 	g1.Percent = 30
 	g1.Width = 50
 	g1.Height = 5
 	g1.Y = 6
-	g1.Border.Label = "Big Gauge"
+	g1.BorderLabel = "Big Gauge"
 	g1.PercentColor = termui.ColorYellow
 	g1.BarColor = termui.ColorGreen
-	g1.Border.FgColor = termui.ColorWhite
-	g1.Border.LabelFgColor = termui.ColorMagenta
+	g1.BorderFg = termui.ColorWhite
+	g1.BorderLabelFg = termui.ColorMagenta
 
 	g3 := termui.NewGauge()
 	g3.Percent = 50
 	g3.Width = 50
 	g3.Height = 3
 	g3.Y = 11
-	g3.Border.Label = "Gauge with custom label"
+	g3.BorderLabel = "Gauge with custom label"
 	g3.Label = "{{percent}}% (100MBs free)"
 	g3.LabelAlign = termui.AlignRight
 
@@ -69,5 +76,9 @@ func main() {
 
 	termui.Render(g0, g1, g2, g3, g4)
 
-	<-termui.EventCh()
+	termui.Handle("/sys/kbd/q", func(termui.Event) {
+		termui.StopLoop()
+	})
+
+	termui.Loop()
 }
