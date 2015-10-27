@@ -1,6 +1,6 @@
 # termui [![Build Status](https://travis-ci.org/gizak/termui.svg?branch=master)](https://travis-ci.org/gizak/termui) [![Doc Status](https://godoc.org/github.com/gizak/termui?status.png)](https://godoc.org/github.com/gizak/termui)
 
-<img src="./example/dashboard.gif" alt="demo cast under osx 10.10; Terminal.app; Menlo Regular 12pt.)" width="80%">
+<img src="./_example/dashboard.gif" alt="demo cast under osx 10.10; Terminal.app; Menlo Regular 12pt.)" width="80%">
 
 `termui` is a cross-platform, easy-to-compile, and fully-customizable terminal dashboard. It is inspired by [blessed-contrib](https://github.com/yaronn/blessed-contrib), but purely in Go.
 
@@ -63,6 +63,8 @@ Note that components can be overlapped (I'd rather call this a feature...), `Ren
 
 __Grid layout:__
 
+<img src="./_example/grid.gif" alt="grid" width="60%">
+
 Grid layout uses [12 columns grid system](http://www.w3schools.com/bootstrap/bootstrap_grid_system.asp) with expressive syntax. To use `Grid`, all we need to do is build a widget tree consisting of `Row`s and Cols (Actually a Col is also a `Row` but with a widget endpoint attached).
 
 ```go
@@ -120,13 +122,13 @@ Grid layout uses [12 columns grid system](http://www.w3schools.com/bootstrap/boo
 
 Click image to see the corresponding demo codes.
 
-[<img src="./example/par.png" alt="par" type="image/png" width="45%">](https://github.com/gizak/termui/blob/master/example/par.go)
-[<img src="./example/list.png" alt="list" type="image/png" width="45%">](https://github.com/gizak/termui/blob/master/example/list.go)
-[<img src="./example/gauge.png" alt="gauge" type="image/png" width="45%">](https://github.com/gizak/termui/blob/master/example/gauge.go)
-[<img src="./example/linechart.png" alt="linechart" type="image/png" width="45%">](https://github.com/gizak/termui/blob/master/example/linechart.go)
-[<img src="./example/barchart.png" alt="barchart" type="image/png" width="45%">](https://github.com/gizak/termui/blob/master/example/barchart.go)
-[<img src="./example/mbarchart.png" alt="barchart" type="image/png" width="45%">](https://github.com/gizak/termui/blob/master/example/mbarchart.go)
-[<img src="./example/sparklines.png" alt="sparklines" type="image/png" width="45%">](https://github.com/gizak/termui/blob/master/example/sparklines.go)
+[<img src="./_example/par.png" alt="par" type="image/png" width="45%">](https://github.com/gizak/termui/blob/master/example/par.go)
+[<img src="./_example/list.png" alt="list" type="image/png" width="45%">](https://github.com/gizak/termui/blob/master/example/list.go)
+[<img src="./_example/gauge.png" alt="gauge" type="image/png" width="45%">](https://github.com/gizak/termui/blob/master/example/gauge.go)
+[<img src="./_example/linechart.png" alt="linechart" type="image/png" width="45%">](https://github.com/gizak/termui/blob/master/example/linechart.go)
+[<img src="./_example/barchart.png" alt="barchart" type="image/png" width="45%">](https://github.com/gizak/termui/blob/master/example/barchart.go)
+[<img src="./_example/mbarchart.png" alt="barchart" type="image/png" width="45%">](https://github.com/gizak/termui/blob/master/example/mbarchart.go)
+[<img src="./_example/sparklines.png" alt="sparklines" type="image/png" width="45%">](https://github.com/gizak/termui/blob/master/example/sparklines.go)
 
 ## GoDoc
 
