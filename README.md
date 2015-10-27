@@ -122,13 +122,13 @@ Grid layout uses [12 columns grid system](http://www.w3schools.com/bootstrap/boo
 
 Click image to see the corresponding demo codes.
 
-[<img src="./_example/par.png" alt="par" type="image/png" width="45%">](https://github.com/gizak/termui/blob/master/example/par.go)
-[<img src="./_example/list.png" alt="list" type="image/png" width="45%">](https://github.com/gizak/termui/blob/master/example/list.go)
-[<img src="./_example/gauge.png" alt="gauge" type="image/png" width="45%">](https://github.com/gizak/termui/blob/master/example/gauge.go)
-[<img src="./_example/linechart.png" alt="linechart" type="image/png" width="45%">](https://github.com/gizak/termui/blob/master/example/linechart.go)
-[<img src="./_example/barchart.png" alt="barchart" type="image/png" width="45%">](https://github.com/gizak/termui/blob/master/example/barchart.go)
-[<img src="./_example/mbarchart.png" alt="barchart" type="image/png" width="45%">](https://github.com/gizak/termui/blob/master/example/mbarchart.go)
-[<img src="./_example/sparklines.png" alt="sparklines" type="image/png" width="45%">](https://github.com/gizak/termui/blob/master/example/sparklines.go)
+[<img src="./_example/par.png" alt="par" type="image/png" width="45%">](https://github.com/gizak/termui/blob/master/_example/par.go)
+[<img src="./_example/list.png" alt="list" type="image/png" width="45%">](https://github.com/gizak/termui/blob/master/_example/list.go)
+[<img src="./_example/gauge.png" alt="gauge" type="image/png" width="45%">](https://github.com/gizak/termui/blob/master/_example/gauge.go)
+[<img src="./_example/linechart.png" alt="linechart" type="image/png" width="45%">](https://github.com/gizak/termui/blob/master/_example/linechart.go)
+[<img src="./_example/barchart.png" alt="barchart" type="image/png" width="45%">](https://github.com/gizak/termui/blob/master/_example/barchart.go)
+[<img src="./_example/mbarchart.png" alt="barchart" type="image/png" width="45%">](https://github.com/gizak/termui/blob/master/_example/mbarchart.go)
+[<img src="./_example/sparklines.png" alt="sparklines" type="image/png" width="45%">](https://github.com/gizak/termui/blob/master/_example/sparklines.go)
 
 ## GoDoc
 
