@@ -9,7 +9,7 @@ package main
 import "github.com/gizak/termui"
 
 func main() {
-	if termui.Init() != nil {
+	if err := termui.Init(); err != nil {
 		panic(err)
 	}
 	defer termui.Close()

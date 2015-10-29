@@ -68,7 +68,7 @@ func main() {
 	g4.Width = 50
 	g4.Height = 3
 	g4.Y = 14
-	g4.Border.Label = "Gauge"
+	g4.BorderLabel = "Gauge"
 	g4.Label = "Gauge with custom highlighted label"
 	g4.PercentColor = termui.ColorYellow
 	g4.BarColor = termui.ColorGreen

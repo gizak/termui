@@ -4,7 +4,7 @@
 
 `termui` is a cross-platform, easy-to-compile, and fully-customizable terminal dashboard. It is inspired by [blessed-contrib](https://github.com/yaronn/blessed-contrib), but purely in Go.
 
-Now version v2 has arrived! It brings new event system, new theme system, new `Buffer` interface and specific colour text rendering.
+Now version v2 has arrived! It brings new event system, new theme system, new `Buffer` interface and specific colour text rendering. (some docs are missing, but it will be completed soon!)
 
 ## Installation
 
