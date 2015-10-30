@@ -217,16 +217,15 @@ func (mtb MarkdownTxBuilder) BuildWrap(s string, fg, bg Attribute, wl uint) []Ce
 			} else if plainRune[i] != plainWrappedRune[i] && plainWrappedRune[i] == 10 {
 				trigger = "go"
 				cell := Cell{10, 0, 0}
+				j := i - 0
 
 				// insert a cell into the []Cell in correct position
-				tmpCell = append(tmpCell, Cell{0, 0, 0})
-				copy(tmpCell[i+1:], tmpCell[i:])
 				tmpCell[i] = cell
 
 				// insert the newline into plain so we avoid indexing errors
 				plainRuneNew = append(plainRune, 10)
-				copy(plainRuneNew[i+1:], plainRuneNew[i:])
-				plainRuneNew[i] = plainWrappedRune[i]
+				copy(plainRuneNew[j+1:], plainRuneNew[j:])
+				plainRuneNew[j] = plainWrappedRune[j]
 
 				// restart the inner for loop until plain and plain wrapped are
 				// the same; yeah, it's inefficient, but the text amounts
