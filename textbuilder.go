@@ -2,14 +2,15 @@ package termui
 
 import (
 	"fmt"                              // for debugging; REMOVE ME BEFORE PULL REQUEST
-	"github.com/mitchellh/go-wordwrap" // LEFT UP TO PKG MAINTAINER TO DECIDE HOW TO VENDOR
+	"github.com/mitchellh/go-wordwrap" // LEFT UP TO PKG MAINTAINER TO DECIDE HOW TO VENDOR; is MIT LICENSED
 	"regexp"
 	"strings"
 )
 
-// TextBuilder is a minial interface to produce text []Cell using sepcific syntax (markdown).
+// TextBuilder is a minimal interface to produce text []Cell using specific syntax (markdown).
 type TextBuilder interface {
 	Build(s string, fg, bg Attribute) []Cell
+	BuildWrap(s string, fg, bg Attribute, wl uint) []Cell
 }
 
 // DefaultTxBuilder is set to be MarkdownTxBuilder.
