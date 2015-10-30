@@ -1,7 +1,6 @@
 package termui
 
 import (
-	"fmt"                              // for debugging; REMOVE ME BEFORE PULL REQUEST
 	"github.com/mitchellh/go-wordwrap" // LEFT UP TO PKG MAINTAINER TO DECIDE HOW TO VENDOR; is MIT LICENSED
 	"regexp"
 	"strings"
@@ -185,7 +184,6 @@ func (mtb *MarkdownTxBuilder) parse(str string) {
 	}
 
 	mtb.plainTx = normTx
-	fmt.Printf("DEBUG: printing mtb.plainTx during parse func: %+v\n", string(mtb.plainTx)) // TODO delete me
 }
 
 // BuildWrap implements TextBuilder interface and will naively wrap the plain
@@ -199,11 +197,9 @@ func (mtb MarkdownTxBuilder) BuildWrap(s string, fg, bg Attribute, wl uint) []Ce
 	// get the plaintext
 	mtb.parse(s)
 	plain := string(mtb.plainTx)
-	fmt.Printf("DEBUG: %v\n", plain) // TODO delete me when working
 
 	// wrap
 	plainWrapped := wordwrap.WrapString(plain, wl)
-	fmt.Printf("DEBUG: wrapped plain string\n %s\n", plainWrapped) // TODO delete me when working
 
 	// find differences and insert
 	finalCell := tmpCell // finalcell will get the inserts and is what is returned
@@ -217,7 +213,6 @@ func (mtb MarkdownTxBuilder) BuildWrap(s string, fg, bg Attribute, wl uint) []Ce
 		plainRune = plainRuneNew
 		for i, _ := range plainRune {
 			if plainRune[i] == plainWrappedRune[i] {
-				fmt.Println("DEBUG: compy ", plainRune[i], plainWrappedRune[i]) // TODO delete me when working
 				trigger = "stop"
 			} else if plainRune[i] != plainWrappedRune[i] && plainWrappedRune[i] == 10 {
 				trigger = "go"
@@ -236,9 +231,7 @@ func (mtb MarkdownTxBuilder) BuildWrap(s string, fg, bg Attribute, wl uint) []Ce
 				// restart the inner for loop until plain and plain wrapped are
 				// the same; yeah, it's inefficient, but the text amounts
 				// should be small
-				fmt.Println("Inserted a new line character")
 				break
-				fmt.Println("Breaking")
 
 			} else if plainRune[i] != plainWrappedRune[i] &&
 				plainWrappedRune[i-1] == 10 && // if the prior rune is a newline
@@ -247,13 +240,10 @@ func (mtb MarkdownTxBuilder) BuildWrap(s string, fg, bg Attribute, wl uint) []Ce
 				// need to delete plainRune[i] because it gets rid of an extra
 				// space
 				plainRuneNew = append(plainRune[:i], plainRune[i+1:]...)
-				fmt.Println("Deleting extra space")
 				break
-				fmt.Println("Breaking")
 
 			} else {
 				trigger = "stop" // stops the outer for loop
-				fmt.Println("Stopping: ", plainRune[i], plainWrappedRune[i])
 			}
 		}
 	}
