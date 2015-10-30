@@ -1,6 +1,8 @@
 package termui
 
 import (
+	"fmt"                              // for debugging; REMOVE ME BEFORE PULL REQUEST
+	"github.com/mitchellh/go-wordwrap" // LEFT UP TO PKG MAINTAINER TO DECIDE HOW TO VENDOR
 	"regexp"
 	"strings"
 )
@@ -182,6 +184,82 @@ func (mtb *MarkdownTxBuilder) parse(str string) {
 	}
 
 	mtb.plainTx = normTx
+	fmt.Printf("DEBUG: printing mtb.plainTx during parse func: %+v\n", string(mtb.plainTx)) // TODO delete me
+}
+
+// BuildWrap implements TextBuilder interface and will naively wrap the plain
+// text string to length specified by wl while preserving the fg and bg
+// attributes
+func (mtb MarkdownTxBuilder) BuildWrap(s string, fg, bg Attribute, wl uint) []Cell {
+
+	// get the []Cell from plain Build
+	tmpCell := mtb.Build(s, fg, bg)
+
+	// get the plaintext
+	mtb.parse(s)
+	plain := string(mtb.plainTx)
+	fmt.Printf("DEBUG: %v\n", plain) // TODO delete me when working
+
+	// wrap
+	plainWrapped := wordwrap.WrapString(plain, wl)
+	fmt.Printf("DEBUG: wrapped plain string\n %s\n", plainWrapped) // TODO delete me when working
+
+	// find differences and insert
+	finalCell := tmpCell // finalcell will get the inserts and is what is returned
+
+	plainRune := []rune(plain)
+	plainWrappedRune := []rune(plainWrapped)
+	trigger := "go"
+	plainRuneNew := plainRune
+
+	for trigger != "stop" {
+		plainRune = plainRuneNew
+		for i, _ := range plainRune {
+			if plainRune[i] == plainWrappedRune[i] {
+				fmt.Println("DEBUG: compy ", plainRune[i], plainWrappedRune[i]) // TODO delete me when working
+				trigger = "stop"
+			} else if plainRune[i] != plainWrappedRune[i] && plainWrappedRune[i] == 10 {
+				trigger = "go"
+				cell := Cell{10, 0, 0}
+
+				// insert a cell into the []Cell in correct position
+				tmpCell = append(tmpCell, Cell{0, 0, 0})
+				copy(tmpCell[i+1:], tmpCell[i:])
+				tmpCell[i] = cell
+
+				// insert the newline into plain so we avoid indexing errors
+				plainRuneNew = append(plainRune, 10)
+				copy(plainRuneNew[i+1:], plainRuneNew[i:])
+				plainRuneNew[i] = plainWrappedRune[i]
+
+				// restart the inner for loop until plain and plain wrapped are
+				// the same; yeah, it's inefficient, but the text amounts
+				// should be small
+				fmt.Println("Inserted a new line character")
+				break
+				fmt.Println("Breaking")
+
+			} else if plainRune[i] != plainWrappedRune[i] &&
+				plainWrappedRune[i-1] == 10 && // if the prior rune is a newline
+				plainRune[i] == 32 { // and this rune is a space
+				trigger = "go"
+				// need to delete plainRune[i] because it gets rid of an extra
+				// space
+				plainRuneNew = append(plainRune[:i], plainRune[i+1:]...)
+				fmt.Println("Deleting extra space")
+				break
+				fmt.Println("Breaking")
+
+			} else {
+				trigger = "stop" // stops the outer for loop
+				fmt.Println("Stopping: ", plainRune[i], plainWrappedRune[i])
+			}
+		}
+	}
+
+	finalCell = tmpCell
+
+	return finalCell
 }
 
 // Build implements TextBuilder interface.
