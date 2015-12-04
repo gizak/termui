@@ -48,7 +48,7 @@ Each widget has an underlying block structure which basically is a box model. It
 		g.Width = 50
 		g.Height = 3
 		g.Y = 11
-		g.Border.Label = "Gauge"
+		g.BorderLabel = "Gauge"
 		g.BarColor = ui.ColorRed
 		g.BorderFg = ui.ColorWhite
 		g.BorderLabelFg = ui.ColorCyan
