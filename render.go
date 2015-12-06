@@ -5,6 +5,8 @@
 package termui
 
 import (
+	"image"
+	"sync"
 	"time"
 
 	tm "github.com/nsf/termbox-go"
@@ -26,11 +28,7 @@ func Init() error {
 	go hookTermboxEvt()
 
 	renderJobs = make(chan []Bufferer)
-	go func() {
-		for bs := range renderJobs {
-			render(bs...)
-		}
-	}()
+	//renderLock = new(sync.RWMutex)
 
 	Body = NewGrid()
 	Body.X = 0
@@ -51,6 +49,13 @@ func Init() error {
 
 	DefaultWgtMgr = NewWgtMgr()
 	DefaultEvtStream.Hook(DefaultWgtMgr.WgtHandlersHook())
+
+	go func() {
+		for bs := range renderJobs {
+			render(bs...)
+		}
+	}()
+
 	return nil
 }
 
@@ -60,16 +65,24 @@ func Close() {
 	tm.Close()
 }
 
+var renderLock sync.Mutex
+
+func termSync() {
+	renderLock.Lock()
+	tm.Sync()
+	renderLock.Unlock()
+}
+
 // TermWidth returns the current terminal's width.
 func TermWidth() int {
-	tm.Sync()
+	termSync()
 	w, _ := tm.Size()
 	return w
 }
 
 // TermHeight returns the current terminal's height.
 func TermHeight() int {
-	tm.Sync()
+	termSync()
 	_, h := tm.Size()
 	return h
 }
@@ -77,8 +90,7 @@ func TermHeight() int {
 // Render renders all Bufferer in the given order from left to right,
 // right could overlap on left ones.
 func render(bs ...Bufferer) {
-	// set tm bg
-	tm.Clear(tm.ColorDefault, toTmAttr(ThemeAttr("bg")))
+
 	for _, b := range bs {
 		buf := b.Buffer()
 		// set cels in buf
@@ -88,12 +100,34 @@ func render(bs ...Bufferer) {
 			}
 		}
 	}
+
+	renderLock.Lock()
 	// render
+	tm.Flush()
+
+	renderLock.Unlock()
+}
+
+func Clear() {
+	tm.Clear(tm.ColorDefault, toTmAttr(ThemeAttr("bg")))
+}
+
+func clearArea(r image.Rectangle, bg Attribute) {
+	for i := r.Min.X; i < r.Max.X; i++ {
+		for j := r.Min.Y; j < r.Max.Y; j++ {
+			tm.SetCell(i, j, ' ', tm.ColorDefault, toTmAttr(bg))
+		}
+	}
+}
+
+func ClearArea(r image.Rectangle, bg Attribute) {
+	clearArea(r, bg)
 	tm.Flush()
 }
 
 var renderJobs chan []Bufferer
 
 func Render(bs ...Bufferer) {
-	go func() { renderJobs <- bs }()
+	//go func() { renderJobs <- bs }()
+	renderJobs <- bs
 }
