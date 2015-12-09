@@ -70,21 +70,20 @@ var renderLock sync.Mutex
 func termSync() {
 	renderLock.Lock()
 	tm.Sync()
+	termWidth, termHeight = tm.Size()
 	renderLock.Unlock()
 }
 
 // TermWidth returns the current terminal's width.
 func TermWidth() int {
 	termSync()
-	w, _ := tm.Size()
-	return w
+	return termWidth
 }
 
 // TermHeight returns the current terminal's height.
 func TermHeight() int {
 	termSync()
-	_, h := tm.Size()
-	return h
+	return termHeight
 }
 
 // Render renders all Bufferer in the given order from left to right,
@@ -92,19 +91,22 @@ func TermHeight() int {
 func render(bs ...Bufferer) {
 
 	for _, b := range bs {
+
 		buf := b.Buffer()
 		// set cels in buf
 		for p, c := range buf.CellMap {
 			if p.In(buf.Area) {
+
 				tm.SetCell(p.X, p.Y, c.Ch, toTmAttr(c.Fg), toTmAttr(c.Bg))
+
 			}
 		}
+
 	}
 
 	renderLock.Lock()
 	// render
 	tm.Flush()
-
 	renderLock.Unlock()
 }
 

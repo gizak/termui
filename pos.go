@@ -66,6 +66,9 @@ func MoveArea(a image.Rectangle, dx, dy int) image.Rectangle {
 	return a
 }
 
+var termWidth int
+var termHeight int
+
 func TermRect() image.Rectangle {
-	return image.Rect(0, 0, TermWidth(), TermHeight())
+	return image.Rect(0, 0, termWidth, termHeight)
 }
