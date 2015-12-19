@@ -33,6 +33,7 @@ var colorMap = map[string]Attribute{
 	"blue":    ColorBlue,
 	"black":   ColorBlack,
 	"cyan":    ColorCyan,
+	"yellow":  ColorYellow,
 	"white":   ColorWhite,
 	"default": ColorDefault,
 	"green":   ColorGreen,
