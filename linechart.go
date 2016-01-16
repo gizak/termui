@@ -46,6 +46,12 @@ var rSingleBraille = [4]rune{'\u2880', '⠠', '⠐', '⠈'}
   lc.AxesColor = termui.ColorWhite
   lc.LineColor = termui.ColorGreen | termui.AttrBold
   // termui.Render(lc)...
+
+  If you want to use XS chart, you need to add
+  lc.IsXS = true
+  lc.XS = [2, 3, 6, 8, 10, 12, 16, 20]
+  Note that numbers should be non-negative integers.
+  Setting XS not in increasing order may lead to unexpected results.
 */
 type LineChart struct {
 	Block
@@ -362,16 +368,19 @@ func (lc *LineChart) recalData() {
 	prevX := 0
 	nextX := 1
 
-	for x := xMin; x < xMax; x++ {
+	for x := 0; x < size; x++ {
 		if x == lc.XS[prevX] {
 			lc.data[x] = lc.Data[prevX]
-			lc.xs[x] = x
+
+			lc.xs[x] = x + xMin
 			continue
 		}
 
 		if x == lc.XS[nextX] {
 			lc.data[x] = lc.Data[nextX]
-			lc.xs[x] = x
+
+			lc.xs[x] = x + xMin
+
 			prevX += 1
 			nextX += 1
 			continue
@@ -380,7 +389,7 @@ func (lc *LineChart) recalData() {
 		k := (lc.Data[nextX] - lc.Data[prevX]) / float64((lc.XS[nextX] - lc.XS[prevX]))
 		lc.data[x] = lc.Data[prevX] + k*float64(x-lc.XS[prevX])
 
-		lc.xs[x] = x
+		lc.xs[x] = x + xMin
 	}
 }
 
