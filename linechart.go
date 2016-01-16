@@ -358,7 +358,7 @@ func (lc *LineChart) recalData() {
 	xMin := lc.XS[0]
 	xMax := lc.XS[len(lc.XS)-1]
 
-	size := xMax - xMin
+	size := xMax - xMin + 1
 
 	if len(lc.data) != size {
 		lc.data = make([]float64, size)
