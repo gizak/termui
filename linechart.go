@@ -60,6 +60,7 @@ type LineChart struct {
 	AxesColor     Attribute
 	drawingX      int
 	drawingY      int
+	data          []float64
 	axisYHeight   int
 	axisXWidth    int
 	axisYLebelGap int
@@ -69,6 +70,7 @@ type LineChart struct {
 	labelX        [][]rune
 	labelY        [][]rune
 	labelYSpace   int
+	xs            []int
 	maxY          float64
 	minY          float64
 }
@@ -102,9 +104,9 @@ func (lc *LineChart) renderBraille() Buffer {
 		return
 	}
 	// plot points
-	for i := 0; 2*i+1 < len(lc.Data) && i < lc.axisXWidth; i++ {
-		b0, m0 := getPos(lc.Data[2*i])
-		b1, m1 := getPos(lc.Data[2*i+1])
+	for i := 0; 2*i+1 < len(lc.data) && i < lc.axisXWidth; i++ {
+		b0, m0 := getPos(lc.data[2*i])
+		b1, m1 := getPos(lc.data[2*i+1])
 
 		if b0 == b1 {
 			c := Cell{
@@ -116,7 +118,7 @@ func (lc *LineChart) renderBraille() Buffer {
 			x := lc.innerArea.Min.X + lc.labelYSpace + 1
 
 			if lc.IsXS {
-				x += lc.XS[i]
+				x += lc.xs[i]
 			} else {
 				x += i
 			}
@@ -127,7 +129,7 @@ func (lc *LineChart) renderBraille() Buffer {
 				Bg: lc.Bg}
 			x0 := lc.innerArea.Min.X + lc.labelYSpace + 1
 			if lc.IsXS {
-				x0 += lc.XS[i]
+				x0 += lc.xs[i]
 			} else {
 				x0 += i
 			}
@@ -141,7 +143,7 @@ func (lc *LineChart) renderBraille() Buffer {
 			x1 := lc.innerArea.Min.X + lc.labelYSpace + 1
 
 			if lc.IsXS {
-				x1 += lc.XS[i]
+				x1 += lc.xs[i]
 			} else {
 				x1 += i
 			}
@@ -156,7 +158,7 @@ func (lc *LineChart) renderBraille() Buffer {
 
 func (lc *LineChart) renderDot() Buffer {
 	buf := NewBuffer()
-	for i := 0; i < len(lc.Data) && i < lc.axisXWidth; i++ {
+	for i := 0; i < len(lc.data) && i < lc.axisXWidth; i++ {
 		c := Cell{
 			Ch: lc.DotStyle,
 			Fg: lc.LineColor,
@@ -166,12 +168,12 @@ func (lc *LineChart) renderDot() Buffer {
 		x := lc.innerArea.Min.X + lc.labelYSpace + 1
 
 		if lc.IsXS {
-			x += lc.XS[i]
+			x += lc.xs[i]
 		} else {
 			x += i
 		}
 
-		y := lc.innerArea.Min.Y + lc.innerArea.Dy() - 3 - int((lc.Data[i]-lc.bottomValue)/lc.scale+0.5)
+		y := lc.innerArea.Min.Y + lc.innerArea.Dy() - 3 - int((lc.data[i]-lc.bottomValue)/lc.scale+0.5)
 		buf.Set(x, y, c)
 	}
 
@@ -242,27 +244,27 @@ func (lc *LineChart) calcLabelY() {
 func (lc *LineChart) calcLayout() {
 	// set datalabels if it is not provided
 	if lc.DataLabels == nil || len(lc.DataLabels) == 0 {
-		lc.DataLabels = make([]string, len(lc.Data))
-		for i := range lc.Data {
+		lc.DataLabels = make([]string, len(lc.data))
+		for i := range lc.data {
 			lc.DataLabels[i] = fmt.Sprint(i)
 		}
 	}
 
 	// lazy increase, to avoid y shaking frequently
 	// update bound Y when drawing is gonna overflow
-	lc.minY = lc.Data[0]
-	lc.maxY = lc.Data[0]
+	lc.minY = lc.data[0]
+	lc.maxY = lc.data[0]
 
 	// valid visible range
 	vrange := lc.innerArea.Dx()
 	if lc.Mode == "braille" {
 		vrange = 2 * lc.innerArea.Dx()
 	}
-	if vrange > len(lc.Data) {
-		vrange = len(lc.Data)
+	if vrange > len(lc.data) {
+		vrange = len(lc.data)
 	}
 
-	for _, v := range lc.Data[:vrange] {
+	for _, v := range lc.data[:vrange] {
 		if v > lc.maxY {
 			lc.maxY = v
 		}
@@ -339,6 +341,49 @@ func (lc *LineChart) plotAxes() Buffer {
 	return buf
 }
 
+// Recalculates the data to fill gaps when using XS chart.
+func (lc *LineChart) recalData() {
+
+	if !lc.IsXS {
+		lc.data = lc.Data
+		return
+	}
+
+	xMin := lc.XS[0]
+	xMax := lc.XS[len(lc.XS)-1]
+
+	size := xMax - xMin
+
+	if len(lc.data) != size {
+		lc.data = make([]float64, size)
+		lc.xs = make([]int, size)
+	}
+
+	prevX := 0
+	nextX := 1
+
+	for x := xMin; x < xMax; x++ {
+		if x == lc.XS[prevX] {
+			lc.data[x] = lc.Data[prevX]
+			lc.xs[x] = x
+			continue
+		}
+
+		if x == lc.XS[nextX] {
+			lc.data[x] = lc.Data[nextX]
+			lc.xs[x] = x
+			prevX += 1
+			nextX += 1
+			continue
+		}
+
+		k := (lc.Data[nextX] - lc.Data[prevX]) / float64((lc.XS[nextX] - lc.XS[prevX]))
+		lc.data[x] = lc.Data[prevX] + k*float64(x-lc.XS[prevX])
+
+		lc.xs[x] = x
+	}
+}
+
 // Buffer implements Bufferer interface.
 func (lc *LineChart) Buffer() Buffer {
 	buf := lc.Block.Buffer()
@@ -346,6 +391,9 @@ func (lc *LineChart) Buffer() Buffer {
 	if lc.Data == nil || len(lc.Data) == 0 {
 		return buf
 	}
+
+	lc.recalData()
+
 	lc.calcLayout()
 	buf.Merge(lc.plotAxes())
 
