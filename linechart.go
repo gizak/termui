@@ -50,6 +50,8 @@ var rSingleBraille = [4]rune{'\u2880', '⠠', '⠐', '⠈'}
 type LineChart struct {
 	Block
 	Data          []float64
+	IsXS          bool
+	XS            []int
 	DataLabels    []string // if unset, the data indices will be used
 	Mode          string   // braille | dot
 	DotStyle      rune
@@ -78,6 +80,7 @@ func NewLineChart() *LineChart {
 	lc.LineColor = ThemeAttr("linechart.line.fg")
 	lc.Mode = "braille"
 	lc.DotStyle = '•'
+	lc.IsXS = false
 	lc.axisXLebelGap = 2
 	lc.axisYLebelGap = 1
 	lc.bottomValue = math.Inf(1)
@@ -110,20 +113,39 @@ func (lc *LineChart) renderBraille() Buffer {
 				Fg: lc.LineColor,
 			}
 			y := lc.innerArea.Min.Y + lc.innerArea.Dy() - 3 - b0
-			x := lc.innerArea.Min.X + lc.labelYSpace + 1 + i
+			x := lc.innerArea.Min.X + lc.labelYSpace + 1
+
+			if lc.IsXS {
+				x += lc.XS[i]
+			} else {
+				x += i
+			}
 			buf.Set(x, y, c)
 		} else {
 			c0 := Cell{Ch: lSingleBraille[m0],
 				Fg: lc.LineColor,
 				Bg: lc.Bg}
-			x0 := lc.innerArea.Min.X + lc.labelYSpace + 1 + i
+			x0 := lc.innerArea.Min.X + lc.labelYSpace + 1
+			if lc.IsXS {
+				x0 += lc.XS[i]
+			} else {
+				x0 += i
+			}
+
 			y0 := lc.innerArea.Min.Y + lc.innerArea.Dy() - 3 - b0
 			buf.Set(x0, y0, c0)
 
 			c1 := Cell{Ch: rSingleBraille[m1],
 				Fg: lc.LineColor,
 				Bg: lc.Bg}
-			x1 := lc.innerArea.Min.X + lc.labelYSpace + 1 + i
+			x1 := lc.innerArea.Min.X + lc.labelYSpace + 1
+
+			if lc.IsXS {
+				x1 += lc.XS[i]
+			} else {
+				x1 += i
+			}
+
 			y1 := lc.innerArea.Min.Y + lc.innerArea.Dy() - 3 - b1
 			buf.Set(x1, y1, c1)
 		}
@@ -140,7 +162,15 @@ func (lc *LineChart) renderDot() Buffer {
 			Fg: lc.LineColor,
 			Bg: lc.Bg,
 		}
-		x := lc.innerArea.Min.X + lc.labelYSpace + 1 + i
+
+		x := lc.innerArea.Min.X + lc.labelYSpace + 1
+
+		if lc.IsXS {
+			x += lc.XS[i]
+		} else {
+			x += i
+		}
+
 		y := lc.innerArea.Min.Y + lc.innerArea.Dy() - 3 - int((lc.Data[i]-lc.bottomValue)/lc.scale+0.5)
 		buf.Set(x, y, c)
 	}
