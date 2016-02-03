@@ -20,7 +20,7 @@ import (
 	"time"
 
 	"github.com/gizak/termui"
-	"github.com/gizak/termui/extra"
+	"github.com/gizak/termui/_extra"
 )
 
 const statFilePath = "/proc/stat"

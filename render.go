@@ -63,6 +63,9 @@ func Init() error {
 // should be called after successful initialization when termui's functionality isn't required anymore.
 func Close() {
 	tm.Close()
+	if debugFile != nil {
+		debugFile.Close()
+	}
 }
 
 var renderLock sync.Mutex
