@@ -7,9 +7,7 @@ package termui
 import (
 	"fmt"
 	"math"
-	"os"
 	"sort"
-	"time"
 )
 
 // only 16 possible combinations, why bother
@@ -38,39 +36,9 @@ var braillePatterns = map[[2]int]rune{
 var lSingleBraille = [4]rune{'\u2840', '⠄', '⠂', '⠁'}
 var rSingleBraille = [4]rune{'\u2880', '⠠', '⠐', '⠈'}
 
-// set this filename to have debug logging written here
-var DebugFilename string
-var debugFile *os.File
-
-func debugLog(str string) {
-	if DebugFilename == "" {
-		return
-	}
-	var err error
-	if debugFile == nil {
-		debugFile, err = os.OpenFile(DebugFilename, os.O_CREATE|os.O_TRUNC|os.O_WRONLY, 0666)
-		if err != nil {
-			panic(err)
-		}
-	}
-
-	stamp := time.Now().Format(time.StampMilli)
-	_, err = fmt.Fprintln(debugFile, stamp, str)
-	if err != nil {
-		panic(err)
-	}
-}
-
-func Debug(a ...interface{}) {
-	debugLog(fmt.Sprint(a))
-}
-
-func Debugf(format string, a ...interface{}) {
-	debugLog(fmt.Sprintf(format, a...))
-}
-
-// LineChart has two modes: braille(default) and dot. Using braille gives 2x capicity as dot mode,
-// because one braille char can represent two data points.
+// LineChart has two modes: braille(default) and dot.
+// A single braille character is a 2x4 grid of dots, so Using braille
+// gives 2x X resolution and 4x Y resolution over dot mode.
 /*
   lc := termui.NewLineChart()
   lc.Border.Label = "braille-mode Line Chart"
@@ -95,8 +63,8 @@ type LineChart struct {
 	drawingY         int
 	axisYHeight      int
 	axisXWidth       int
-	axisYLebelGap    int
-	axisXLebelGap    int
+	axisYLabelGap    int
+	axisXLabelGap    int
 	topValue         float64
 	bottomValue      float64
 	labelX           [][]rune
@@ -118,8 +86,8 @@ func NewLineChart() *LineChart {
 	lc.DotStyle = '•'
 	lc.Data = make(map[string][]float64)
 	lc.LineColor = make(map[string]Attribute)
-	lc.axisXLebelGap = 2
-	lc.axisYLebelGap = 1
+	lc.axisXLabelGap = 2
+	lc.axisYLabelGap = 1
 	lc.bottomValue = math.Inf(1)
 	lc.topValue = math.Inf(-1)
 	lc.YPadding = 0.2
@@ -222,7 +190,6 @@ func (lc *LineChart) renderDot() Buffer {
 		minCell := lc.innerArea.Min.X + lc.labelYSpace
 		cellPos := lc.innerArea.Max.X - 1
 		for dataPos := len(seriesData) - 1; dataPos >= 0 && cellPos > minCell; {
-			Debug(seriesName, " ", dataPos, cellPos, seriesData[dataPos])
 			c := Cell{
 				Ch: lc.DotStyle,
 				Fg: thisLineColor,
@@ -254,7 +221,7 @@ func (lc *LineChart) calcLabelX() {
 			if l+w <= lc.axisXWidth {
 				lc.labelX = append(lc.labelX, s)
 			}
-			l += w + lc.axisXLebelGap
+			l += w + lc.axisXLabelGap
 		} else { // braille
 			if 2*l >= len(lc.DataLabels) {
 				break
@@ -265,7 +232,7 @@ func (lc *LineChart) calcLabelX() {
 			if l+w <= lc.axisXWidth {
 				lc.labelX = append(lc.labelX, s)
 			}
-			l += w + lc.axisXLebelGap
+			l += w + lc.axisXLabelGap
 
 		}
 	}
@@ -285,9 +252,10 @@ func shortenFloatVal(x float64) string {
 
 func (lc *LineChart) calcLabelY() {
 	span := lc.topValue - lc.bottomValue
-	lc.scale = span / float64(lc.axisYHeight)
+	// where does -2 come from? Without it, we might draw on the top border or past the block
+	lc.scale = span / float64(lc.axisYHeight-2)
 
-	n := (1 + lc.axisYHeight) / (lc.axisYLebelGap + 1)
+	n := (1 + lc.axisYHeight) / (lc.axisYLabelGap + 1)
 	lc.labelY = make([][]rune, n)
 	maxLen := 0
 	for i := 0; i < n; i++ {
@@ -354,7 +322,7 @@ func (lc *LineChart) calcLayout() {
 		}
 	}
 
-	lc.axisYHeight = lc.innerArea.Dy() - 2
+	lc.axisYHeight = lc.innerArea.Dy() - 1
 	lc.calcLabelY()
 
 	lc.axisXWidth = lc.innerArea.Dx() - 1 - lc.labelYSpace
@@ -362,8 +330,6 @@ func (lc *LineChart) calcLayout() {
 
 	lc.drawingX = lc.innerArea.Min.X + 1 + lc.labelYSpace
 	lc.drawingY = lc.innerArea.Min.Y
-
-	Debugf("calcLayout bottom=%f top=%f min=%f max=%f axisYHeight=%d", lc.bottomValue, lc.topValue, lc.minY, lc.maxY, lc.axisYHeight)
 }
 
 func (lc *LineChart) plotAxes() Buffer {
@@ -378,8 +344,8 @@ func (lc *LineChart) plotAxes() Buffer {
 		buf.Set(x, origY, Cell{Ch: HDASH, Fg: lc.AxesColor, Bg: lc.Bg})
 	}
 
-	for dy := 1; dy <= lc.axisYHeight; dy++ {
-		buf.Set(origX, origY-dy, Cell{Ch: VDASH, Fg: lc.AxesColor, Bg: lc.Bg})
+	for y := origY - 1; y > origY-lc.axisYHeight; y-- {
+		buf.Set(origX, y, Cell{Ch: VDASH, Fg: lc.AxesColor, Bg: lc.Bg})
 	}
 
 	// x label
@@ -398,7 +364,7 @@ func (lc *LineChart) plotAxes() Buffer {
 			y := lc.innerArea.Min.Y + lc.innerArea.Dy() - 1
 			buf.Set(x, y, c)
 		}
-		oft += len(rs) + lc.axisXLebelGap
+		oft += len(rs) + lc.axisXLabelGap
 	}
 
 	// y labels
@@ -406,7 +372,7 @@ func (lc *LineChart) plotAxes() Buffer {
 		for j, r := range rs {
 			buf.Set(
 				lc.innerArea.Min.X+j,
-				origY-i*(lc.axisYLebelGap+1),
+				origY-i*(lc.axisYLabelGap+1),
 				Cell{Ch: r, Fg: lc.AxesColor, Bg: lc.Bg})
 		}
 	}
@@ -425,17 +391,14 @@ func (lc *LineChart) Buffer() Buffer {
 		}
 	}
 	if seriesCount == 0 {
-		Debug("lc render no data")
 		return buf
 	}
 	lc.calcLayout()
 	buf.Merge(lc.plotAxes())
 
 	if lc.Mode == "dot" {
-		Debug("lc render start dot")
 		buf.Merge(lc.renderDot())
 	} else {
-		Debug("lc render start braille")
 		buf.Merge(lc.renderBraille())
 	}
 
