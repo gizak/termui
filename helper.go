@@ -30,7 +30,7 @@ const (
 	ColorWhite
 )
 
-//Have a constant that defines number of colors
+// Have a constant that defines number of colors
 const NumberofColors = 8
 
 // Text style
@@ -43,6 +43,18 @@ const (
 var (
 	dot  = "…"
 	dotw = rw.StringWidth(dot)
+)
+
+// termbox passthrough
+type OutputMode int
+
+// termbox passthrough
+const (
+	OutputCurrent OutputMode = iota
+	OutputNormal
+	Output256
+	Output216
+	OutputGrayscale
 )
 
 /* ----------------------- End ----------------------------- */
@@ -211,4 +223,20 @@ func DTrimTxCls(cs []Cell, w int) []Cell {
 	}
 
 	return rt
+}
+
+// Passthrough to termbox using termbox constants above
+func SetOutputMode(mode OutputMode) {
+	switch mode {
+	case OutputCurrent:
+		tm.SetOutputMode(tm.OutputCurrent)
+	case OutputNormal:
+		tm.SetOutputMode(tm.OutputNormal)
+	case Output256:
+		tm.SetOutputMode(tm.Output256)
+	case Output216:
+		tm.SetOutputMode(tm.Output216)
+	case OutputGrayscale:
+		tm.SetOutputMode(tm.OutputGrayscale)
+	}
 }
