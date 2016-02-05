@@ -52,6 +52,11 @@ var attrMap = map[string]Attribute{
 	"reverse":   AttrReverse,
 }
 
+// Allow users to add/override the string to attribute mapping
+func AddColorMap(str string, attr Attribute) {
+	colorMap[str] = attr
+}
+
 func rmSpc(s string) string {
 	reg := regexp.MustCompile(`\s+`)
 	return reg.ReplaceAllString(s, "")
@@ -85,10 +90,10 @@ func (mtb MarkdownTxBuilder) readAttr(s string) (Attribute, Attribute) {
 		if len(subs) > 1 {
 			if subs[0] == "fg" {
 				fgs = append(fgs, subs[1])
-			}
-			if subs[0] == "bg" {
+			} else if subs[0] == "bg" {
 				bgs = append(bgs, subs[1])
 			}
+			// else maybe error somehow?
 		}
 	}
 

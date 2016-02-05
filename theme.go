@@ -138,3 +138,8 @@ func ColorRGB(r, g, b int) Attribute {
 	r, b, g = within(r), within(b), within(g)
 	return Attribute(0x0f + 36*r + 6*g + b)
 }
+
+// Convert from familiar 24 bit colors into 6 bit terminal colors
+func ColorRGB24(r, g, b int) Attribute {
+	return ColorRGB(r/51, g/51, b/51)
+}
