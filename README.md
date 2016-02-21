@@ -65,7 +65,7 @@ __Grid layout:__
 
 <img src="./_example/grid.gif" alt="grid" width="60%">
 
-Grid layout uses [12 columns grid system](http://www.w3schools.com/bootstrap/bootstrap_grid_system.asp) with expressive syntax. To use `Grid`, all we need to do is build a widget tree consisting of `Row`s and Cols (Actually a Col is also a `Row` but with a widget endpoint attached).
+Grid layout uses [12 columns grid system](http://www.w3schools.com/bootstrap/bootstrap_grid_system.asp) with expressive syntax. To use `Grid`, all we need to do is build a widget tree consisting of `Row`s and `Col`s (Actually a `Col` is also a `Row` but with a widget endpoint attached).
 
 ```go
 	import ui "github.com/gizak/termui"
