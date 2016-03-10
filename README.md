@@ -24,7 +24,7 @@ To use `termui`, the very first thing you may want to know is how to manage layo
 
 __Absolute layout__
 
-Each widget has an underlying block structure which basically is a box model. It has border, label and padding properties. A border of a widget can be chosen to hide or display (with its border label), you can pick a different front/back colour for the border as well. To display such a widget at a specific location in terminal window, you need to assign `.X`, `.Y`, `.Height`, `.Width` values for each widget before send it to `.Render`. Let's demonstrate these by a code snippet:
+Each widget has an underlying block structure which basically is a box model. It has border, label and padding properties. A border of a widget can be chosen to hide or display (with its border label), you can pick a different front/back colour for the border as well. To display such a widget at a specific location in terminal window, you need to assign `.X`, `.Y`, `.Height`, `.Width` values for each widget before sending it to `.Render`. Let's demonstrate these by a code snippet:
 
 `````go
 	import ui "github.com/gizak/termui" // <- ui shortcut, optional
@@ -65,7 +65,7 @@ __Grid layout:__
 
 <img src="./_example/grid.gif" alt="grid" width="60%">
 
-Grid layout uses [12 columns grid system](http://www.w3schools.com/bootstrap/bootstrap_grid_system.asp) with expressive syntax. To use `Grid`, all we need to do is build a widget tree consisting of `Row`s and Cols (Actually a Col is also a `Row` but with a widget endpoint attached).
+Grid layout uses [12 columns grid system](http://www.w3schools.com/bootstrap/bootstrap_grid_system.asp) with expressive syntax. To use `Grid`, all we need to do is build a widget tree consisting of `Row`s and `Col`s (Actually a `Col` is also a `Row` but with a widget endpoint attached).
 
 ```go
 	import ui "github.com/gizak/termui"

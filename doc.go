@@ -19,7 +19,7 @@ A simplest example:
         g := ui.NewGauge()
         g.Percent = 50
         g.Width = 50
-        g.Border.Label = "Gauge"
+        g.BorderLabel = "Gauge"
 
         ui.Render(g)
     }
