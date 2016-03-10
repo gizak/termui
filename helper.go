@@ -212,3 +212,11 @@ func DTrimTxCls(cs []Cell, w int) []Cell {
 
 	return rt
 }
+
+func CellsToStr(cs []Cell) string {
+	str := ""
+	for _, c := range cs {
+		str += string(c.Ch)
+	}
+	return str
+}

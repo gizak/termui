@@ -1,15 +1,15 @@
 package termui
 
 import (
-	"github.com/mitchellh/go-wordwrap" // LEFT UP TO PKG MAINTAINER TO DECIDE HOW TO VENDOR; is MIT LICENSED
 	"regexp"
 	"strings"
+
+	"github.com/mitchellh/go-wordwrap"
 )
 
 // TextBuilder is a minimal interface to produce text []Cell using specific syntax (markdown).
 type TextBuilder interface {
 	Build(s string, fg, bg Attribute) []Cell
-	BuildWrap(s string, fg, bg Attribute, wl uint) []Cell
 }
 
 // DefaultTxBuilder is set to be MarkdownTxBuilder.
@@ -186,20 +186,15 @@ func (mtb *MarkdownTxBuilder) parse(str string) {
 	mtb.plainTx = normTx
 }
 
-// BuildWrap implements TextBuilder interface and will naively wrap the plain
-// text string to length specified by wl while preserving the fg and bg
-// attributes
-func (mtb MarkdownTxBuilder) BuildWrap(s string, fg, bg Attribute, wl uint) []Cell {
-
-	// get the []Cell from plain Build
-	tmpCell := mtb.Build(s, fg, bg)
+func wrapTx(cs []Cell, wl int) []Cell {
+	tmpCell := make([]Cell, len(cs))
+	copy(tmpCell, cs)
 
 	// get the plaintext
-	mtb.parse(s)
-	plain := string(mtb.plainTx)
+	plain := CellsToStr(cs)
 
 	// wrap
-	plainWrapped := wordwrap.WrapString(plain, wl)
+	plainWrapped := wordwrap.WrapString(plain, uint(wl))
 
 	// find differences and insert
 	finalCell := tmpCell // finalcell will get the inserts and is what is returned
@@ -211,7 +206,7 @@ func (mtb MarkdownTxBuilder) BuildWrap(s string, fg, bg Attribute, wl uint) []Ce
 
 	for trigger != "stop" {
 		plainRune = plainRuneNew
-		for i, _ := range plainRune {
+		for i := range plainRune {
 			if plainRune[i] == plainWrappedRune[i] {
 				trigger = "stop"
 			} else if plainRune[i] != plainWrappedRune[i] && plainWrappedRune[i] == 10 {

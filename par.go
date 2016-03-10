@@ -16,7 +16,7 @@ type Par struct {
 	Text        string
 	TextFgColor Attribute
 	TextBgColor Attribute
-	WrapLength  uint
+	WrapLength  int // words wrap limit. Note it may not work properly with multi-width char
 }
 
 // NewPar returns a new *Par with given text as its content.
@@ -35,11 +35,13 @@ func (p *Par) Buffer() Buffer {
 	buf := p.Block.Buffer()
 
 	fg, bg := p.TextFgColor, p.TextBgColor
-	cs := []Cell{}
-	if p.WrapLength < 1 {
-		cs = DefaultTxBuilder.Build(p.Text, fg, bg)
-	} else {
-		cs = DefaultTxBuilder.BuildWrap(p.Text, fg, bg, p.WrapLength)
+	cs := DefaultTxBuilder.Build(p.Text, fg, bg)
+
+	// wrap if WrapLength set
+	if p.WrapLength < 0 {
+		cs = wrapTx(cs, p.Width-2)
+	} else if p.WrapLength > 0 {
+		cs = wrapTx(cs, p.WrapLength)
 	}
 
 	y, x, n := 0, 0, 0
