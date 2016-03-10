@@ -1,10 +1,6 @@
-// Copyright 2015 Zack Guo <gizak@icloud.com>. All rights reserved.
+// Copyright 2016 Zack Guo <gizak@icloud.com>. All rights reserved.
 // Use of this source code is governed by a MIT license that can
 // be found in the LICENSE file.
-//
-// Portions of this file uses [termbox-go](https://github.com/nsf/termbox-go/blob/54b74d087b7c397c402d0e3b66d2ccb6eaf5c2b4/api_common.go)
-// by [authors](https://github.com/nsf/termbox-go/blob/master/AUTHORS)
-// under [license](https://github.com/nsf/termbox-go/blob/master/LICENSE)
 
 package termui
 

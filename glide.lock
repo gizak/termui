@@ -1,0 +1,16 @@
+hash: caa6fb85a72e1b1874b8d7261d8389c4a27a5c4ad85888eb647fae248bbb9862
+updated: 2016-02-15T11:19:55.10760639-05:00
+imports:
+- name: github.com/mattn/go-runewidth
+  version: e882a96ec18dd43fa283187b66af74497c9101c0
+- name: github.com/nsf/termbox-go
+  version: 362329b0aa6447eadd52edd8d660ec1dff470295
+- name: golang.org/x/crypto
+  version: 1f22c0103821b9390939b6776727195525381532
+- name: golang.org/x/net
+  version: cbbbe2bc0f2efdd2afb318d93f1eadb19350e4a3
+  subpackages:
+  - /websocket
+- name: golang.org/x/text
+  version: 07b9a78963006a15c538ec5175243979025fa7a8
+devImports: []

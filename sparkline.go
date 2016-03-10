@@ -1,12 +1,10 @@
-// Copyright 2015 Zack Guo <gizak@icloud.com>. All rights reserved.
+// Copyright 2016 Zack Guo <gizak@icloud.com>. All rights reserved.
 // Use of this source code is governed by a MIT license that can
 // be found in the LICENSE file.
 
 package termui
 
-import "math"
-
-// Sparkline is like: ▅▆▂▂▅▇▂▂▃▆▆▆▅▃
+// Sparkline is like: ▅▆▂▂▅▇▂▂▃▆▆▆▅▃. The data points should be non-negative integers.
 /*
   data := []int{4, 2, 1, 6, 3, 9, 1, 4, 2, 15, 14, 9, 8, 6, 10, 13, 15, 12, 10, 5, 3, 6, 1}
   spl := termui.NewSparkline()
@@ -84,14 +82,18 @@ func (sl *Sparklines) update() {
 	for i := 0; i < sl.displayLines; i++ {
 		data := sl.Lines[i].Data
 
-		max := math.MinInt32
+		max := 0
 		for _, v := range data {
 			if max < v {
 				max = v
 			}
 		}
 		sl.Lines[i].max = max
-		sl.Lines[i].scale = float32(8*sl.Lines[i].Height) / float32(max)
+		if max != 0 {
+			sl.Lines[i].scale = float32(8*sl.Lines[i].Height) / float32(max)
+		} else { // when all negative
+			sl.Lines[i].scale = 0
+		}
 	}
 }
 
@@ -127,7 +129,12 @@ func (sl *Sparklines) Buffer() Buffer {
 		}
 
 		for j, v := range data {
+			// display height of the data point, zero when data is negative
 			h := int(float32(v)*l.scale + 0.5)
+			if v < 0 {
+				h = 0
+			}
+
 			barCnt := h / 8
 			barMod := h % 8
 			for jj := 0; jj < barCnt; jj++ {

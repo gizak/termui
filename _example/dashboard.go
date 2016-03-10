@@ -1,4 +1,4 @@
-// Copyright 2015 Zack Guo <gizak@icloud.com>. All rights reserved.
+// Copyright 2016 Zack Guo <gizak@icloud.com>. All rights reserved.
 // Use of this source code is governed by a MIT license that can
 // be found in the LICENSE file.
 
@@ -126,8 +126,8 @@ func main() {
 		list.Items = strs[t%9:]
 		sp.Lines[0].Data = spdata[:30+t%50]
 		sp.Lines[1].Data = spdata[:35+t%50]
-		lc.Data = sinps[t/2:]
-		lc1.Data = sinps[2*t:]
+		lc.Data = sinps[t/2%220:]
+		lc1.Data = sinps[2*t%220:]
 		bc.Data = bcdata[t/2%10:]
 		ui.Render(p, list, g, sp, lc, bc, lc1, p1)
 	}
