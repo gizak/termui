@@ -72,7 +72,7 @@ func (bc *MBarChart) layout() {
 	}
 	bc.numStack = DataLen
 
-	//We need to know what is the mimimum size of data array data[0] could have 10 elements data[1] could have only 5, so we plot only 5 bar graphs
+	//We need to know what is the minimum size of data array data[0] could have 10 elements data[1] could have only 5, so we plot only 5 bar graphs
 
 	for i := 0; i < DataLen; i++ {
 		if bc.minDataLen > len(bc.Data[i]) {
