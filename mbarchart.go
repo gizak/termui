@@ -8,7 +8,7 @@ import (
 	"fmt"
 )
 
-// This is the implemetation of multi-colored or stacked bar graph.  This is different from default barGraph which is implemented in bar.go
+// This is the implementation of multi-colored or stacked bar graph.  This is different from default barGraph which is implemented in bar.go
 // Multi-Colored-BarChart creates multiple bars in a widget:
 /*
    bc := termui.NewMBarChart()
