@@ -90,7 +90,7 @@ func (bc *MBarChart) layout() {
 
 	for i := 0; i < bc.numStack; i++ {
 		bc.dataNum[i] = make([][]rune, len(bc.Data[i]))
-		//For each stack of bar calcualte the rune
+		//For each stack of bar calculate the rune
 		for j := 0; j < LabelLen && i < bc.numBar; j++ {
 			n := bc.Data[i][j]
 			s := fmt.Sprint(n)
