@@ -266,7 +266,7 @@ func (g *Grid) Align() {
 	}
 }
 
-// Buffer implments Bufferer interface.
+// Buffer implements Bufferer interface.
 func (g Grid) Buffer() Buffer {
 	buf := NewBuffer()
 
