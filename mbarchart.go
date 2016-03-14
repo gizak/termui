@@ -96,7 +96,7 @@ func (bc *MBarChart) layout() {
 			s := fmt.Sprint(n)
 			bc.dataNum[i][j] = trimStr2Runes(s, bc.BarWidth)
 		}
-		//If color is not defined by default then populate a color that is different from the prevous bar
+		//If color is not defined by default then populate a color that is different from the previous bar
 		if bc.BarColor[i] == ColorDefault && bc.NumColor[i] == ColorDefault {
 			if i == 0 {
 				bc.BarColor[i] = ColorBlack
