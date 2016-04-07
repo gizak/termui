@@ -12,6 +12,8 @@ Now version v2 has arrived! It brings new event system, new theme system, new `B
 
 	go get -u github.com/gizak/termui
 
+It is recommanded to use locked deps by using [glide](https://glide.sh): move to `termui` src directory then run `glide up`.
+
 For the compatible reason, you can choose to install the legacy version of `termui`:
 
 	go get gopkg.in/gizak/termui.v1
