@@ -60,8 +60,8 @@ type LineChart struct {
 	drawingY      int
 	axisYHeight   int
 	axisXWidth    int
-	axisYLebelGap int
-	axisXLebelGap int
+	axisYLabelGap int
+	axisXLabelGap int
 	topValue      float64
 	bottomValue   float64
 	labelX        [][]rune
@@ -78,8 +78,8 @@ func NewLineChart() *LineChart {
 	lc.LineColor = ThemeAttr("linechart.line.fg")
 	lc.Mode = "braille"
 	lc.DotStyle = '•'
-	lc.axisXLebelGap = 2
-	lc.axisYLebelGap = 1
+	lc.axisXLabelGap = 2
+	lc.axisYLabelGap = 1
 	lc.bottomValue = math.Inf(1)
 	lc.topValue = math.Inf(-1)
 	return lc
@@ -162,7 +162,7 @@ func (lc *LineChart) calcLabelX() {
 			if l+w <= lc.axisXWidth {
 				lc.labelX = append(lc.labelX, s)
 			}
-			l += w + lc.axisXLebelGap
+			l += w + lc.axisXLabelGap
 		} else { // braille
 			if 2*l >= len(lc.DataLabels) {
 				break
@@ -173,7 +173,7 @@ func (lc *LineChart) calcLabelX() {
 			if l+w <= lc.axisXWidth {
 				lc.labelX = append(lc.labelX, s)
 			}
-			l += w + lc.axisXLebelGap
+			l += w + lc.axisXLabelGap
 
 		}
 	}
@@ -195,7 +195,7 @@ func (lc *LineChart) calcLabelY() {
 	span := lc.topValue - lc.bottomValue
 	lc.scale = span / float64(lc.axisYHeight)
 
-	n := (1 + lc.axisYHeight) / (lc.axisYLebelGap + 1)
+	n := (1 + lc.axisYHeight) / (lc.axisYLabelGap + 1)
 	lc.labelY = make([][]rune, n)
 	maxLen := 0
 	for i := 0; i < n; i++ {
@@ -293,7 +293,7 @@ func (lc *LineChart) plotAxes() Buffer {
 			y := lc.innerArea.Min.Y + lc.innerArea.Dy() - 1
 			buf.Set(x, y, c)
 		}
-		oft += len(rs) + lc.axisXLebelGap
+		oft += len(rs) + lc.axisXLabelGap
 	}
 
 	// y labels
@@ -301,7 +301,7 @@ func (lc *LineChart) plotAxes() Buffer {
 		for j, r := range rs {
 			buf.Set(
 				lc.innerArea.Min.X+j,
-				origY-i*(lc.axisYLebelGap+1),
+				origY-i*(lc.axisYLabelGap+1),
 				Cell{Ch: r, Fg: lc.AxesColor, Bg: lc.Bg})
 		}
 	}
