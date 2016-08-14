@@ -89,16 +89,27 @@ func (bc *BarChart) Buffer() Buffer {
 	for i := 0; i < bc.numBar && i < len(bc.Data) && i < len(bc.DataLabels); i++ {
 		h := int(float64(bc.Data[i]) / bc.scale)
 		oftX := i * (bc.BarWidth + bc.BarGap)
+
+		barBg := bc.Bg
+		barFg := bc.BarColor
+
+		if bc.CellChar == ' ' {
+			barBg = bc.BarColor
+			barFg = ColorDefault
+			if bc.BarColor == ColorDefault { // the same as above
+				barBg |= AttrReverse
+			}
+		}
+
 		// plot bar
 		for j := 0; j < bc.BarWidth; j++ {
 			for k := 0; k < h; k++ {
 				c := Cell{
 					Ch: bc.CellChar,
-					Bg: bc.BarColor,
+					Bg: barBg,
+					Fg: barFg,
 				}
-				if bc.BarColor == ColorDefault { // when color is default, space char treated as transparent!
-					c.Bg |= AttrReverse
-				}
+
 				x := bc.innerArea.Min.X + i*(bc.BarWidth+bc.BarGap) + j
 				y := bc.innerArea.Min.Y + bc.innerArea.Dy() - 2 - k
 				buf.Set(x, y, c)
@@ -122,11 +133,9 @@ func (bc *BarChart) Buffer() Buffer {
 			c := Cell{
 				Ch: bc.dataNum[i][j],
 				Fg: bc.NumColor,
-				Bg: bc.BarColor,
+				Bg: barBg,
 			}
-			if bc.BarColor == ColorDefault { // the same as above
-				c.Bg |= AttrReverse
-			}
+
 			if h == 0 {
 				c.Bg = bc.Bg
 			}
