@@ -223,6 +223,9 @@ func (lc *LineChart) calcLayout() {
 	lc.minY = lc.Data[0]
 	lc.maxY = lc.Data[0]
 
+	lc.bottomValue = lc.minY
+	lc.topValue = lc.maxY
+
 	// valid visible range
 	vrange := lc.innerArea.Dx()
 	if lc.Mode == "braille" {
