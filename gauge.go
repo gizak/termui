@@ -16,7 +16,7 @@ import (
   g.Percent = 40
   g.Width = 50
   g.Height = 3
-  g.Border.Label = "Slim Gauge"
+  g.BorderLabel = "Slim Gauge"
   g.BarColor = termui.ColorRed
   g.PercentColor = termui.ColorBlue
 */

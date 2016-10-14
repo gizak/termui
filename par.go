@@ -9,7 +9,7 @@ package termui
   par := termui.NewPar("Simple Text")
   par.Height = 3
   par.Width = 17
-  par.Border.Label = "Label"
+  par.BorderLabel = "Label"
 */
 type Par struct {
 	Block

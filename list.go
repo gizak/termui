@@ -24,7 +24,7 @@ import "strings"
   ls := termui.NewList()
   ls.Items = strs
   ls.ItemFgColor = termui.ColorYellow
-  ls.Border.Label = "List"
+  ls.BorderLabel = "List"
   ls.Height = 7
   ls.Width = 25
   ls.Y = 0

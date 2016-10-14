@@ -212,7 +212,7 @@ func NewCpuTabElems(width int) *CpuTabElems {
 	lc.Height = 12
 	lc.X = 0
 	lc.Mode = "dot"
-	lc.Border.Label = "CPU"
+	lc.BorderLabel = "CPU"
 	return &CpuTabElems{GMap: make(map[string]*termui.Gauge),
 		LChart: lc}
 }
@@ -222,7 +222,7 @@ func (cte *CpuTabElems) AddGauge(key string, Y int, width int) *termui.Gauge {
 	cte.GMap[key].Width = width
 	cte.GMap[key].Height = 3
 	cte.GMap[key].Y = Y
-	cte.GMap[key].Border.Label = key
+	cte.GMap[key].BorderLabel = key
 	cte.GMap[key].Percent = 0 //int(val.user + val.nice + val.system)
 	return cte.GMap[key]
 }

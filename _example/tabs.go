@@ -31,7 +31,7 @@ func main() {
 	par2.Height = 5
 	par2.Width = 37
 	par2.Y = 0
-	par2.Border.Label = "Keys"
+	par2.BorderLabel = "Keys"
 	par2.Border.FgColor = termui.ColorYellow
 	tab1.AddBlocks(par2)
 
@@ -39,7 +39,7 @@ func main() {
 	bc := termui.NewBarChart()
 	data := []int{3, 2, 5, 3, 9, 5, 3, 2, 5, 8, 3, 2, 4, 5, 3, 2, 5, 7, 5, 3, 2, 6, 7, 4, 6, 3, 6, 7, 8, 3, 6, 4, 5, 3, 2, 4, 6, 4, 8, 5, 9, 4, 3, 6, 5, 3, 6}
 	bclabels := []string{"S0", "S1", "S2", "S3", "S4", "S5"}
-	bc.Border.Label = "Bar Chart"
+	bc.BorderLabel = "Bar Chart"
 	bc.Data = data
 	bc.Width = 26
 	bc.Height = 10
