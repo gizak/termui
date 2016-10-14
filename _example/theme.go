@@ -23,12 +23,12 @@ func main() {
 	p := ui.NewPar(":PRESS q TO QUIT DEMO")
 	p.Height = 3
 	p.Width = 50
-	p.Border.Label = "Text Box"
+	p.BorderLabel = "Text Box"
 
 	strs := []string{"[0] gizak/termui", "[1] editbox.go", "[2] iterrupt.go", "[3] keyboard.go", "[4] output.go", "[5] random_out.go", "[6] dashboard.go", "[7] nsf/termbox-go"}
 	list := ui.NewList()
 	list.Items = strs
-	list.Border.Label = "List"
+	list.BorderLabel = "List"
 	list.Height = 7
 	list.Width = 25
 	list.Y = 4
@@ -38,7 +38,7 @@ func main() {
 	g.Width = 50
 	g.Height = 3
 	g.Y = 11
-	g.Border.Label = "Gauge"
+	g.BorderLabel = "Gauge"
 
 	spark := ui.NewSparkline()
 	spark.Title = "srv 0:"
@@ -52,7 +52,7 @@ func main() {
 	sp := ui.NewSparklines(spark, spark1)
 	sp.Width = 25
 	sp.Height = 7
-	sp.Border.Label = "Sparkline"
+	sp.BorderLabel = "Sparkline"
 	sp.Y = 4
 	sp.X = 25
 
@@ -66,7 +66,7 @@ func main() {
 		return ps
 	})()
 
-	lc.Border.Label = "Line Chart"
+	lc.BorderLabel = "Line Chart"
 	lc.Data = sinps
 	lc.Width = 50
 	lc.Height = 11
@@ -77,7 +77,7 @@ func main() {
 	bc := ui.NewBarChart()
 	bcdata := []int{3, 2, 5, 3, 9, 5, 3, 2, 5, 8, 3, 2, 4, 5, 3, 2, 5, 7, 5, 3, 2, 6, 7, 4, 6, 3, 6, 7, 8, 3, 6, 4, 5, 3, 2, 4, 6, 4, 8, 5, 9, 4, 3, 6, 5, 3, 6}
 	bclabels := []string{"S0", "S1", "S2", "S3", "S4", "S5"}
-	bc.Border.Label = "Bar Chart"
+	bc.BorderLabel = "Bar Chart"
 	bc.Width = 26
 	bc.Height = 10
 	bc.X = 51
@@ -85,7 +85,7 @@ func main() {
 	bc.DataLabels = bclabels
 
 	lc1 := ui.NewLineChart()
-	lc1.Border.Label = "Line Chart"
+	lc1.BorderLabel = "Line Chart"
 	rndwalk := (func() []float64 {
 		n := 150
 		d := make([]float64, n)

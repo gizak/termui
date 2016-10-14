@@ -11,7 +11,7 @@ import "fmt"
    bc := termui.NewBarChart()
    data := []int{3, 2, 5, 3, 9, 5}
    bclabels := []string{"S0", "S1", "S2", "S3", "S4", "S5"}
-   bc.Border.Label = "Bar Chart"
+   bc.BorderLabel = "Bar Chart"
    bc.Data = data
    bc.Width = 26
    bc.Height = 10

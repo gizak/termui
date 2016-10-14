@@ -39,7 +39,7 @@ var rSingleBraille = [4]rune{'\u2880', '⠠', '⠐', '⠈'}
 // because one braille char can represent two data points.
 /*
   lc := termui.NewLineChart()
-  lc.Border.Label = "braille-mode Line Chart"
+  lc.BorderLabel = "braille-mode Line Chart"
   lc.Data = [1.2, 1.3, 1.5, 1.7, 1.5, 1.6, 1.8, 2.0]
   lc.Width = 50
   lc.Height = 12
