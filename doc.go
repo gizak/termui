@@ -22,6 +22,8 @@ A simplest example:
         g.BorderLabel = "Gauge"
 
         ui.Render(g)
+
+        ui.Loop()
     }
 */
 package termui
