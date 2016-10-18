@@ -49,7 +49,8 @@ func NewList() *List {
 // Buffer implements Bufferer interface.
 func (l *List) Buffer() Buffer {
 	buf := l.Block.Buffer()
-
+	l.RLock()
+	defer l.RUnlock()
 	switch l.Overflow {
 	case "wrap":
 		cs := DefaultTxBuilder.Build(strings.Join(l.Items, "\n"), l.ItemFgColor, l.ItemBgColor)

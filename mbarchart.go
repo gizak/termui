@@ -57,6 +57,9 @@ func NewMBarChart() *MBarChart {
 }
 
 func (bc *MBarChart) layout() {
+	bc.Lock()
+	defer bc.Unlock()
+
 	bc.numBar = bc.innerArea.Dx() / (bc.BarGap + bc.BarWidth)
 	bc.labels = make([][]rune, bc.numBar)
 	DataLen := 0
@@ -137,6 +140,8 @@ func (bc *MBarChart) layout() {
 }
 
 func (bc *MBarChart) SetMax(max int) {
+	bc.Lock()
+	defer bc.Unlock()
 
 	if max > 0 {
 		bc.max = max
@@ -147,6 +152,9 @@ func (bc *MBarChart) SetMax(max int) {
 func (bc *MBarChart) Buffer() Buffer {
 	buf := bc.Block.Buffer()
 	bc.layout()
+	bc.RLock()
+	defer bc.RUnlock()
+
 	var oftX int
 
 	for i := 0; i < bc.numBar && i < bc.minDataLen && i < len(bc.DataLabels); i++ {

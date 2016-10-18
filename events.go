@@ -23,6 +23,7 @@ type Event struct {
 }
 
 var sysEvtChs []chan Event
+var sysEvtChsLock sync.Mutex
 
 type EvtKbd struct {
 	KeyStr string
@@ -125,15 +126,23 @@ func hookTermboxEvt() {
 	for {
 		e := termbox.PollEvent()
 
-		for _, c := range sysEvtChs {
-			go func(ch chan Event) {
-				ch <- crtTermboxEvt(e)
-			}(c)
-		}
+		func() {
+			sysEvtChsLock.Lock()
+			defer sysEvtChsLock.Unlock()
+			for _, c := range sysEvtChs {
+				c <- crtTermboxEvt(e)
+				/*			go func(ch chan Event) {
+								ch <- crtTermboxEvt(e)
+							}(c)
+				*/
+			}
+		}()
 	}
 }
 
 func NewSysEvtCh() chan Event {
+	sysEvtChsLock.Lock()
+	defer sysEvtChsLock.Unlock()
 	ec := make(chan Event)
 	sysEvtChs = append(sysEvtChs, ec)
 	return ec
@@ -236,16 +245,20 @@ func (es *EvtStream) Loop() {
 		case "/sig/stoploop":
 			return
 		}
-		go func(a Event) {
+		func(a Event) {
 			es.RLock()
 			defer es.RUnlock()
 			if pattern := es.match(a.Path); pattern != "" {
 				es.Handlers[pattern](a)
 			}
 		}(e)
-		if es.hook != nil {
-			es.hook(e)
-		}
+		func() {
+			es.RLock()
+			defer es.RUnlock()
+			if es.hook != nil {
+				es.hook(e)
+			}
+		}()
 	}
 }
 

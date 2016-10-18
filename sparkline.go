@@ -58,6 +58,8 @@ func NewSparklines(ss ...Sparkline) *Sparklines {
 }
 
 func (sl *Sparklines) update() {
+	sl.Lock()
+	defer sl.Unlock()
 	for i, v := range sl.Lines {
 		if v.Title == "" {
 			sl.Lines[i].displayHeight = v.Height
@@ -101,6 +103,8 @@ func (sl *Sparklines) update() {
 func (sl *Sparklines) Buffer() Buffer {
 	buf := sl.Block.Buffer()
 	sl.update()
+	sl.RLock()
+	defer sl.RUnlock()
 
 	oftY := 0
 	for i := 0; i < sl.displayLines; i++ {

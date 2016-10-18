@@ -33,6 +33,8 @@ func NewPar(s string) *Par {
 // Buffer implements Bufferer interface.
 func (p *Par) Buffer() Buffer {
 	buf := p.Block.Buffer()
+	p.RLock()
+	defer p.RUnlock()
 
 	fg, bg := p.TextFgColor, p.TextBgColor
 	cs := DefaultTxBuilder.Build(p.Text, fg, bg)

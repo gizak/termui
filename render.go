@@ -28,7 +28,6 @@ func Init() error {
 	go hookTermboxEvt()
 
 	renderJobs = make(chan []Bufferer)
-	//renderLock = new(sync.RWMutex)
 
 	Body = NewGrid()
 	Body.X = 0
@@ -62,16 +61,17 @@ func Init() error {
 // Close finalizes termui library,
 // should be called after successful initialization when termui's functionality isn't required anymore.
 func Close() {
-	tm.Close()
+	once.Do(tm.Close)
 }
 
 var renderLock sync.Mutex
+var once sync.Once
 
 func termSync() {
 	renderLock.Lock()
+	defer renderLock.Unlock()
 	tm.Sync()
 	termWidth, termHeight = tm.Size()
-	renderLock.Unlock()
 }
 
 // TermWidth returns the current terminal's width.
@@ -90,6 +90,8 @@ func TermHeight() int {
 // right could overlap on left ones.
 func render(bs ...Bufferer) {
 
+	renderLock.Lock()
+	defer renderLock.Unlock()
 	for _, b := range bs {
 
 		buf := b.Buffer()
@@ -104,13 +106,13 @@ func render(bs ...Bufferer) {
 
 	}
 
-	renderLock.Lock()
 	// render
 	tm.Flush()
-	renderLock.Unlock()
 }
 
 func Clear() {
+	renderLock.Lock()
+	defer renderLock.Unlock()
 	tm.Clear(tm.ColorDefault, toTmAttr(ThemeAttr("bg")))
 }
 
@@ -131,5 +133,8 @@ var renderJobs chan []Bufferer
 
 func Render(bs ...Bufferer) {
 	//go func() { renderJobs <- bs }()
-	renderJobs <- bs
+	//	renderJobs <- bs
+	for _, b := range bs {
+		render(b)
+	}
 }
