@@ -22,6 +22,8 @@ func main() {
 	p.BorderLabel = "Text Box"
 	p.BorderFg = ui.ColorCyan
 	p.Handle("/timer/1s", func(e ui.Event) {
+		p.Lock()
+		defer p.Unlock()
 		cnt := e.Data.(ui.EvtTimer)
 		if cnt.Count%2 == 0 {
 			p.TextFgColor = ui.ColorRed
@@ -122,13 +124,27 @@ func main() {
 	p1.Y = 11
 
 	draw := func(t int) {
-		g.Percent = t % 101
-		list.Items = strs[t%9:]
-		sp.Lines[0].Data = spdata[:30+t%50]
-		sp.Lines[1].Data = spdata[:35+t%50]
-		lc.Data = sinps[t/2%220:]
-		lc1.Data = sinps[2*t%220:]
-		bc.Data = bcdata[t/2%10:]
+		func() {
+			g.Lock()
+			defer g.Unlock()
+			list.Lock()
+			defer list.Unlock()
+			sp.Lock()
+			defer sp.Unlock()
+			lc.Lock()
+			defer lc.Unlock()
+			lc1.Lock()
+			defer lc1.Unlock()
+			bc.Lock()
+			defer bc.Unlock()
+			g.Percent = t % 101
+			list.Items = strs[t%9:]
+			sp.Lines[0].Data = spdata[:30+t%50]
+			sp.Lines[1].Data = spdata[:35+t%50]
+			lc.Data = sinps[t/2%220:]
+			lc1.Data = sinps[2*t%220:]
+			bc.Data = bcdata[t/2%10:]
+		}()
 		ui.Render(p, list, g, sp, lc, bc, lc1, p1)
 	}
 	ui.Handle("/sys/kbd/q", func(ui.Event) {
