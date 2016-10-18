@@ -61,10 +61,11 @@ func Init() error {
 // Close finalizes termui library,
 // should be called after successful initialization when termui's functionality isn't required anymore.
 func Close() {
-	tm.Close()
+	once.Do(tm.Close)
 }
 
 var renderLock sync.Mutex
+var once sync.Once
 
 func termSync() {
 	renderLock.Lock()
@@ -110,6 +111,8 @@ func render(bs ...Bufferer) {
 }
 
 func Clear() {
+	renderLock.Lock()
+	defer renderLock.Unlock()
 	tm.Clear(tm.ColorDefault, toTmAttr(ThemeAttr("bg")))
 }
 

@@ -6,14 +6,19 @@
 
 package main
 
-import ui "github.com/gizak/termui"
-import "math"
+import (
+	"math"
+	"sync"
+
+	ui "github.com/gizak/termui"
+)
 
 func main() {
+	var once sync.Once
 	if err := ui.Init(); err != nil {
 		panic(err)
 	}
-	defer ui.Close()
+	defer once.Do(ui.Close)
 
 	p := ui.NewPar(":PRESS q TO QUIT DEMO")
 	p.Height = 3
