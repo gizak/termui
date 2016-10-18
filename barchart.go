@@ -50,6 +50,8 @@ func NewBarChart() *BarChart {
 }
 
 func (bc *BarChart) layout() {
+	bc.Lock()
+	defer bc.Unlock()
 	bc.numBar = bc.innerArea.Dx() / (bc.BarGap + bc.BarWidth)
 	bc.labels = make([][]rune, bc.numBar)
 	bc.dataNum = make([][]rune, len(bc.Data))
@@ -75,7 +77,8 @@ func (bc *BarChart) layout() {
 }
 
 func (bc *BarChart) SetMax(max int) {
-
+	bc.Lock()
+	defer bc.Unlock()
 	if max > 0 {
 		bc.max = max
 	}
@@ -85,6 +88,8 @@ func (bc *BarChart) SetMax(max int) {
 func (bc *BarChart) Buffer() Buffer {
 	buf := bc.Block.Buffer()
 	bc.layout()
+	bc.RLock()
+	defer bc.RUnlock()
 
 	for i := 0; i < bc.numBar && i < len(bc.Data) && i < len(bc.DataLabels); i++ {
 		h := int(float64(bc.Data[i]) / bc.scale)

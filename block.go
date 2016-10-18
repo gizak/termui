@@ -4,28 +4,35 @@
 
 package termui
 
-import "image"
+import (
+	"image"
+	"sync"
+)
 
 // Hline is a horizontal line.
 type Hline struct {
-	X   int
-	Y   int
-	Len int
-	Fg  Attribute
-	Bg  Attribute
+	lock sync.RWMutex
+	X    int
+	Y    int
+	Len  int
+	Fg   Attribute
+	Bg   Attribute
 }
 
 // Vline is a vertical line.
 type Vline struct {
-	X   int
-	Y   int
-	Len int
-	Fg  Attribute
-	Bg  Attribute
+	lock sync.RWMutex
+	X    int
+	Y    int
+	Len  int
+	Fg   Attribute
+	Bg   Attribute
 }
 
 // Buffer draws a horizontal line.
-func (l Hline) Buffer() Buffer {
+func (l *Hline) Buffer() Buffer {
+	l.lock.RLock()
+	defer l.lock.RUnlock()
 	if l.Len <= 0 {
 		return NewBuffer()
 	}
@@ -33,15 +40,59 @@ func (l Hline) Buffer() Buffer {
 }
 
 // Buffer draws a vertical line.
-func (l Vline) Buffer() Buffer {
+func (l *Vline) Buffer() Buffer {
+	l.lock.RLock()
+	defer l.lock.RUnlock()
 	if l.Len <= 0 {
 		return NewBuffer()
 	}
 	return NewFilledBuffer(l.X, l.Y, l.X+1, l.Y+l.Len, VERTICAL_LINE, l.Fg, l.Bg)
 }
 
+func NewVline(x, y, l int, borderFg, borderBg Attribute) *Vline {
+	return &Vline{
+		X:   x,
+		Y:   y,
+		Len: l,
+		Fg:  borderFg,
+		Bg:  borderBg,
+	}
+}
+
+func NewHline(x, y, l int, borderFg, borderBg Attribute) *Hline {
+	return &Hline{
+		X:   x,
+		Y:   y,
+		Len: l,
+		Fg:  borderFg,
+		Bg:  borderBg,
+	}
+}
+
+// Lock the Block
+func (b *Block) Lock() {
+	b.lock.Lock()
+}
+
+// Read lock the Block
+func (b *Block) RLock() {
+	b.lock.RLock()
+}
+
+// Unlock the Block
+func (b *Block) Unlock() {
+	b.lock.Unlock()
+}
+
+// Read unlock the Block
+func (b *Block) RUnlock() {
+	b.lock.RUnlock()
+}
+
 // Buffer draws a box border.
-func (b Block) drawBorder(buf Buffer) {
+func (b *Block) drawBorder(buf Buffer) {
+	b.lock.RLock()
+	defer b.lock.RUnlock()
 	if !b.Border {
 		return
 	}
@@ -56,16 +107,16 @@ func (b Block) drawBorder(buf Buffer) {
 
 	// draw lines
 	if b.BorderTop {
-		buf.Merge(Hline{x0, y0, x1 - x0, b.BorderFg, b.BorderBg}.Buffer())
+		buf.Merge(NewHline(x0, y0, x1-x0, b.BorderFg, b.BorderBg).Buffer())
 	}
 	if b.BorderBottom {
-		buf.Merge(Hline{x0, y1, x1 - x0, b.BorderFg, b.BorderBg}.Buffer())
+		buf.Merge(NewHline(x0, y1, x1-x0, b.BorderFg, b.BorderBg).Buffer())
 	}
 	if b.BorderLeft {
-		buf.Merge(Vline{x0, y0, y1 - y0, b.BorderFg, b.BorderBg}.Buffer())
+		buf.Merge(NewVline(x0, y0, y1-y0, b.BorderFg, b.BorderBg).Buffer())
 	}
 	if b.BorderRight {
-		buf.Merge(Vline{x1, y0, y1 - y0, b.BorderFg, b.BorderBg}.Buffer())
+		buf.Merge(NewVline(x1, y0, y1-y0, b.BorderFg, b.BorderBg).Buffer())
 	}
 
 	// draw corners
@@ -83,7 +134,9 @@ func (b Block) drawBorder(buf Buffer) {
 	}
 }
 
-func (b Block) drawBorderLabel(buf Buffer) {
+func (b *Block) drawBorderLabel(buf Buffer) {
+	b.lock.RLock()
+	defer b.lock.RUnlock()
 	maxTxtW := b.area.Dx() - 2
 	tx := DTrimTxCls(DefaultTxBuilder.Build(b.BorderLabel, b.BorderLabelFg, b.BorderLabelBg), maxTxtW)
 
@@ -97,6 +150,7 @@ func (b Block) drawBorderLabel(buf Buffer) {
 // consider it as css: display:block.
 // Normally you do not need to create it manually.
 type Block struct {
+	lock          sync.RWMutex
 	area          image.Rectangle
 	innerArea     image.Rectangle
 	X             int
@@ -144,12 +198,14 @@ func NewBlock() *Block {
 	return &b
 }
 
-func (b Block) Id() string {
+func (b *Block) Id() string {
 	return b.id
 }
 
 // Align computes box model
 func (b *Block) Align() {
+	b.lock.Lock()
+	defer b.lock.Unlock()
 	// outer
 	b.area.Min.X = 0
 	b.area.Min.Y = 0
@@ -186,6 +242,8 @@ func (b *Block) Align() {
 // calculating the padding and border, if any.
 func (b *Block) InnerBounds() image.Rectangle {
 	b.Align()
+	b.lock.RLock()
+	defer b.lock.RUnlock()
 	return b.innerArea
 }
 
@@ -193,6 +251,8 @@ func (b *Block) InnerBounds() image.Rectangle {
 // Draw background and border (if any).
 func (b *Block) Buffer() Buffer {
 	b.Align()
+	b.lock.RLock()
+	defer b.lock.RUnlock()
 
 	buf := NewBuffer()
 	buf.SetArea(b.area)
@@ -206,35 +266,53 @@ func (b *Block) Buffer() Buffer {
 
 // GetHeight implements GridBufferer.
 // It returns current height of the block.
-func (b Block) GetHeight() int {
+func (b *Block) GetHeight() int {
+	b.lock.RLock()
+	defer b.lock.RUnlock()
 	return b.Height
 }
 
 // SetX implements GridBufferer interface, which sets block's x position.
 func (b *Block) SetX(x int) {
+	b.lock.Lock()
+	defer b.lock.Unlock()
 	b.X = x
 }
 
 // SetY implements GridBufferer interface, it sets y position for block.
 func (b *Block) SetY(y int) {
+	b.lock.Lock()
+	defer b.lock.Unlock()
 	b.Y = y
 }
 
 // SetWidth implements GridBuffer interface, it sets block's width.
 func (b *Block) SetWidth(w int) {
+	b.lock.Lock()
+	defer b.lock.Unlock()
 	b.Width = w
 }
 
-func (b Block) InnerWidth() int {
+func (b *Block) InnerWidth() int {
+	b.lock.RLock()
+	defer b.lock.RUnlock()
 	return b.innerArea.Dx()
 }
 
-func (b Block) InnerHeight() int {
+func (b *Block) InnerHeight() int {
+	b.lock.RLock()
+	defer b.lock.RUnlock()
 	return b.innerArea.Dy()
 }
 
-func (b Block) InnerX() int {
+func (b *Block) InnerX() int {
+	b.lock.RLock()
+	defer b.lock.RUnlock()
 	return b.innerArea.Min.X
 }
 
-func (b Block) InnerY() int { return b.innerArea.Min.Y }
+func (b *Block) InnerY() int {
+	b.lock.RLock()
+	defer b.lock.RUnlock()
+	return b.innerArea.Min.Y
+}

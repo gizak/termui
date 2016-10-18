@@ -312,6 +312,8 @@ func (lc *LineChart) plotAxes() Buffer {
 // Buffer implements Bufferer interface.
 func (lc *LineChart) Buffer() Buffer {
 	buf := lc.Block.Buffer()
+	lc.RLock()
+	defer lc.RUnlock()
 
 	if lc.Data == nil || len(lc.Data) == 0 {
 		return buf

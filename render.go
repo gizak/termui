@@ -28,7 +28,6 @@ func Init() error {
 	go hookTermboxEvt()
 
 	renderJobs = make(chan []Bufferer)
-	//renderLock = new(sync.RWMutex)
 
 	Body = NewGrid()
 	Body.X = 0
@@ -69,9 +68,9 @@ var renderLock sync.Mutex
 
 func termSync() {
 	renderLock.Lock()
+	defer renderLock.Unlock()
 	tm.Sync()
 	termWidth, termHeight = tm.Size()
-	renderLock.Unlock()
 }
 
 // TermWidth returns the current terminal's width.
@@ -90,6 +89,8 @@ func TermHeight() int {
 // right could overlap on left ones.
 func render(bs ...Bufferer) {
 
+	renderLock.Lock()
+	defer renderLock.Unlock()
 	for _, b := range bs {
 
 		buf := b.Buffer()
@@ -104,10 +105,8 @@ func render(bs ...Bufferer) {
 
 	}
 
-	renderLock.Lock()
 	// render
 	tm.Flush()
-	renderLock.Unlock()
 }
 
 func Clear() {
@@ -131,5 +130,8 @@ var renderJobs chan []Bufferer
 
 func Render(bs ...Bufferer) {
 	//go func() { renderJobs <- bs }()
-	renderJobs <- bs
+	//	renderJobs <- bs
+	for _, b := range bs {
+		render(b)
+	}
 }

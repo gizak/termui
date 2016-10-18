@@ -52,6 +52,8 @@ func NewGauge() *Gauge {
 // Buffer implements Bufferer interface.
 func (g *Gauge) Buffer() Buffer {
 	buf := g.Block.Buffer()
+	g.RLock()
+	defer g.RUnlock()
 
 	// plot bar
 	w := g.Percent * g.innerArea.Dx() / 100
