@@ -122,8 +122,8 @@ type point struct {
 	X  int
 	Y  int
 	Ch rune
-	Bg Attribute
 	Fg Attribute
+	Bg Attribute
 }
 
 func buf2pt(b Buffer) []point {
@@ -179,7 +179,8 @@ func (tp *Tabpane) Buffer() Buffer {
 		tp.Width = tp.posTabText[len(tp.Tabs)] + 2
 	}
 	buf := tp.Block.Buffer()
-	ps := buf2pt(buf)
+	ps := []point{}
+
 	tp.align()
 	if tp.InnerHeight() <= 0 || tp.InnerWidth() <= 0 {
 		return NewBuffer()
@@ -249,7 +250,6 @@ func (tp *Tabpane) Buffer() Buffer {
 		//draw tab content below the Tabpane
 		if i == tp.activeTabIndex {
 			blockPoints := buf2pt(tab.Buffer())
-			panic(len(blockPoints))
 			for i := 0; i < len(blockPoints); i++ {
 				blockPoints[i].Y += tp.Height + tp.Y
 			}
@@ -260,6 +260,6 @@ func (tp *Tabpane) Buffer() Buffer {
 	for _, v := range ps {
 		buf.Set(v.X, v.Y, NewCell(v.Ch, v.Fg, v.Bg))
 	}
-
+	buf.Sync()
 	return buf
 }

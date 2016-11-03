@@ -69,11 +69,13 @@ func main() {
 
 	termui.Handle("/sys/kbd/j", func(termui.Event) {
 		tabpane.SetActiveLeft()
+		termui.Clear()
 		termui.Render(header, tabpane)
 	})
 
 	termui.Handle("/sys/kbd/k", func(termui.Event) {
 		tabpane.SetActiveRight()
+		termui.Clear()
 		termui.Render(header, tabpane)
 	})
 
