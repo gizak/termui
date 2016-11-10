@@ -1,6 +1,6 @@
 package main
 
-import "termui"
+import "github.com/gizak/termui"
 
 func main() {
 	err := termui.Init()
