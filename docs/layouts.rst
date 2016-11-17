@@ -1,5 +1,6 @@
-Overview
---------
+=======
+Layouts
+=======
 
 termui offers two layout system: `Absolute <>`__ and `Grid <>`__. The
 two concept actually spawned from Web:
@@ -16,9 +17,10 @@ two concept actually spawned from Web:
    properties, these values will be synced up according to their
    containers.
 
-!!! note ``Align`` property can help you set your component position
-based on terminal window. Find more at `Magic
-Variables <#magic-variables>`__
+.. note:: 
+    ``Align`` property can help you set your component position
+    based on terminal window. Find more at `Magic
+    Variables <#magic-variables>`__
 
 **Cons and pros:**
 

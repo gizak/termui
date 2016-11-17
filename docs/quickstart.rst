@@ -1,3 +1,7 @@
+==========
+Quickstart
+==========
+
 Installation
 ------------
 
@@ -17,9 +21,10 @@ always go back to v1 version by:
 
 ``go get gopkg.in/gizak/termui.v1``
 
-!!! note v2 has many features implemented which you can not find in v1,
-such as new event system and asynchronous rendering. To find more about
-versions difference in section `Versions <versions.md>`__.
+.. note::
+    v2 has many features implemented which you can not find in v1,
+    such as new event system and asynchronous rendering. To find more about
+    versions difference in section `Versions <versions>`__.
 
 Usage
 -----
