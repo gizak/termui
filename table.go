@@ -1,9 +1,6 @@
 package termui
 
-import (
-	"fmt"
-	"strings"
-)
+import "strings"
 
 /*
 	table := termui.NewTable()
@@ -20,6 +17,7 @@ import (
 type Table struct {
 	Block
 	Rows      [][]string
+	CellWidth []int
 	FgColor   Attribute
 	BgColor   Attribute
 	FgColors  []Attribute
@@ -69,26 +67,28 @@ func (table *Table) Analysis() {
 		}
 	}
 
-	width_sum := 2
-	for i, width := range cellWidthes {
-		width_sum += (width + 2)
-		for u, row := range table.Rows {
-			switch table.TextAlign {
-			case "right":
-				row[i] = fmt.Sprintf(" %*s ", width, table.Rows[u][i])
-			case "center":
-				word_width := len(table.Rows[u][i])
-				offset := (width - word_width) / 2
-				row[i] = fmt.Sprintf(" %*s ", width, fmt.Sprintf("%-*s", offset+word_width, table.Rows[u][i]))
-			default: // left
-				row[i] = fmt.Sprintf(" %-*s ", width, table.Rows[u][i])
-			}
-		}
-	}
+	table.CellWidth = cellWidthes
 
-	if table.Width == 0 {
-		table.Width = width_sum
-	}
+	//width_sum := 2
+	//for i, width := range cellWidthes {
+	//	width_sum += (width + 2)
+	//	for u, row := range table.Rows {
+	//		switch table.TextAlign {
+	//		case "right":
+	//			row[i] = fmt.Sprintf(" %*s ", width, table.Rows[u][i])
+	//		case "center":
+	//			word_width := len(table.Rows[u][i])
+	//			offset := (width - word_width) / 2
+	//			row[i] = fmt.Sprintf(" %*s ", width, fmt.Sprintf("%-*s", offset+word_width, table.Rows[u][i]))
+	//		default: // left
+	//			row[i] = fmt.Sprintf(" %-*s ", width, table.Rows[u][i])
+	//		}
+	//	}
+	//}
+
+	//if table.Width == 0 {
+	//	table.Width = width_sum
+	//}
 }
 
 func (table *Table) SetSize() {
@@ -100,31 +100,71 @@ func (table *Table) SetSize() {
 	}
 	table.Width = 2
 	if length != 0 {
-		for _, str := range table.Rows[0] {
-			table.Width += len(str) + 2 + 1
+		for _, cell_width := range table.CellWidth {
+			table.Width += cell_width + 3
 		}
+	}
+}
+
+func (table *Table) CalculatePosition(x int, y int, x_coordinate *int, y_coordibate *int, cell_beginning *int) {
+	if table.Seperator {
+		*y_coordibate = table.innerArea.Min.Y + y*2
+	} else {
+		*y_coordibate = table.innerArea.Min.Y + y
+	}
+	if x == 0 {
+		*cell_beginning = table.innerArea.Min.X
+	} else {
+		*cell_beginning += table.CellWidth[x-1] + 3
+	}
+
+	if table.TextAlign == "right" {
+		*x_coordinate = *cell_beginning + (table.CellWidth[x] - len(table.Rows[y][x])) + 2
+	} else if table.TextAlign == "center" {
+		*x_coordinate = *cell_beginning + (table.CellWidth[x]-len(table.Rows[y][x]))/2 + 2
+	} else {
+		*x_coordinate = *cell_beginning + 2
 	}
 }
 
 func (table *Table) Buffer() Buffer {
 	buffer := table.Block.Buffer()
 	table.Analysis()
-	for i, row := range table.Rows {
-		cells := DefaultTxBuilder.Build(strings.Join(row, "|"), table.FgColors[i], table.BgColors[i])
-		if table.Seperator {
-			border := DefaultTxBuilder.Build(strings.Repeat("─", table.Width-2), table.FgColor, table.BgColor)
-			for x, cell := range cells {
-				buffer.Set(table.innerArea.Min.X+x, table.innerArea.Min.Y+i*2, cell)
+
+	pointer_x := table.innerArea.Min.X + 2
+	pointer_y := table.innerArea.Min.Y
+	border_pointer_x := table.innerArea.Min.X
+	for y, row := range table.Rows {
+		for x, cell := range row {
+			table.CalculatePosition(x, y, &pointer_x, &pointer_y, &border_pointer_x)
+			backgraound := DefaultTxBuilder.Build(strings.Repeat(" ", table.CellWidth[x]+2), table.BgColors[y], table.BgColors[y])
+			cells := DefaultTxBuilder.Build(cell, table.FgColors[y], table.BgColors[y])
+
+			for i, back := range backgraound {
+				buffer.Set(border_pointer_x+i, pointer_y, back)
 			}
 
-			for x, cell := range border {
-				buffer.Set(table.innerArea.Min.X+x, table.innerArea.Min.Y+i*2+1, cell)
+			coordinate_x := pointer_x
+			for _, printer := range cells {
+				buffer.Set(coordinate_x, pointer_y, printer)
+				coordinate_x += printer.Width()
 			}
-		} else {
-			for x, cell := range cells {
-				buffer.Set(table.innerArea.Min.X+x, table.innerArea.Min.Y+i, cell)
+
+			if x != 0 {
+				devidors := DefaultTxBuilder.Build("|", table.FgColors[y], table.BgColors[y])
+				for _, devidor := range devidors {
+					buffer.Set(border_pointer_x, pointer_y, devidor)
+				}
+			}
+		}
+
+		if table.Seperator {
+			border := DefaultTxBuilder.Build(strings.Repeat("─", table.Width-2), table.FgColor, table.BgColor)
+			for i, cell := range border {
+				buffer.Set(i+1, pointer_y+1, cell)
 			}
 		}
 	}
+
 	return buffer
 }

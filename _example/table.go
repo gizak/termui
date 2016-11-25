@@ -10,8 +10,8 @@ func main() {
 	defer termui.Close()
 	rows_1 := [][]string{
 		[]string{"header1", "header2", "header3"},
-		[]string{"I love Veronica", "Go-lang is so cool", "Im working on Ruby"},
-		[]string{"2016", "11", "11"},
+		[]string{"孙嘉你好吗", "Go-lang is so cool", "Im working on Ruby"},
+		[]string{"2016", "10", "11"},
 	}
 
 	table_1 := termui.NewTable()
@@ -27,7 +27,7 @@ func main() {
 
 	rows := [][]string{
 		[]string{"header1", "header2", "header3"},
-		[]string{"I love Veronica", "Go-lang is so cool", "Im working on Ruby"},
+		[]string{"Foundations", "Go-lang is so cool", "Im working on Ruby"},
 		[]string{"2016", "11", "11"},
 	}
 
