@@ -23,14 +23,13 @@ type Table struct {
 	FgColors  []Attribute
 	BgColors  []Attribute
 	Seperator bool
-	TextAlign string
+	TextAlign Align
 }
 
 func NewTable() *Table {
 	table := &Table{Block: *NewBlock()}
 	table.FgColor = ColorWhite
 	table.BgColor = ColorDefault
-	table.TextAlign = "left"
 	table.Seperator = true
 	return table
 }
@@ -118,11 +117,12 @@ func (table *Table) CalculatePosition(x int, y int, x_coordinate *int, y_coordib
 		*cell_beginning += table.CellWidth[x-1] + 3
 	}
 
-	if table.TextAlign == "right" {
+	switch table.TextAlign {
+	case AlignRight:
 		*x_coordinate = *cell_beginning + (table.CellWidth[x] - len(table.Rows[y][x])) + 2
-	} else if table.TextAlign == "center" {
+	case AlignCenter:
 		*x_coordinate = *cell_beginning + (table.CellWidth[x]-len(table.Rows[y][x]))/2 + 2
-	} else {
+	default:
 		*x_coordinate = *cell_beginning + 2
 	}
 }
@@ -137,7 +137,7 @@ func (table *Table) Buffer() Buffer {
 	for y, row := range table.Rows {
 		for x, cell := range row {
 			table.CalculatePosition(x, y, &pointer_x, &pointer_y, &border_pointer_x)
-			backgraound := DefaultTxBuilder.Build(strings.Repeat(" ", table.CellWidth[x]+2), table.BgColors[y], table.BgColors[y])
+			backgraound := DefaultTxBuilder.Build(strings.Repeat(" ", table.CellWidth[x]+3), table.BgColors[y], table.BgColors[y])
 			cells := DefaultTxBuilder.Build(cell, table.FgColors[y], table.BgColors[y])
 
 			for i, back := range backgraound {

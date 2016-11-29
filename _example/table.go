@@ -1,6 +1,6 @@
 package main
 
-import "termui"
+import "github.com/gizak/termui"
 
 func main() {
 	err := termui.Init()
@@ -35,7 +35,7 @@ func main() {
 	table.Rows = rows
 	table.FgColor = termui.ColorWhite
 	table.BgColor = termui.ColorDefault
-	table.TextAlign = "center"
+	table.TextAlign = termui.AlignCenter
 	table.Seperator = false
 	table.Analysis()
 	table.SetSize()
