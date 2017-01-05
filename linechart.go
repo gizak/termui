@@ -154,6 +154,7 @@ func (lc *LineChart) renderDot() Buffer {
 				buf.Set(x, i, c)
 			}
 		}
+		oy = y
 		
 		buf.Set(x, y, c)
 	}
