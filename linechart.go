@@ -151,7 +151,11 @@ func (lc *LineChart) renderDot() Buffer {
 				u = -1
 			}
 			for i := oy + u; i != y; i += u {
-				buf.Set(x, i, c)
+				dx := -1
+				if u*(i-oy) >= u*(y-oy)/2 {
+					dx = 0
+				}
+				buf.Set(x+dx, i, c)
 			}
 		}
 		oy = y
