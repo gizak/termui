@@ -145,12 +145,12 @@ func (lc *LineChart) renderDot() Buffer {
 		x := lc.innerArea.Min.X + lc.labelYSpace + 1 + i
 		y := lc.innerArea.Min.Y + lc.innerArea.Dy() - 3 - int((lc.Data[i]-lc.bottomValue)/lc.scale+0.5)
 		
-		if oy != -1 {
+		if oy != -1 && oy != y{
 			u := 1
 			if oy > y {
 				u = -1
 			}
-			for i := oy; i != y; i += u {
+			for i := oy + u; i != y; i += u {
 				buf.Set(x, i, c)
 			}
 		}
