@@ -36,7 +36,7 @@ func main() {
 	table.FgColor = termui.ColorWhite
 	table.BgColor = termui.ColorDefault
 	table.TextAlign = termui.AlignCenter
-	table.Seperator = false
+	table.Separator = false
 	table.Analysis()
 	table.SetSize()
 	table.BgColors[2] = termui.ColorRed
