@@ -51,7 +51,7 @@ func Init() error {
 	DefaultEvtStream.Merge("timer", NewTimerCh(time.Second))
 	DefaultEvtStream.Merge("custom", usrEvtCh)
 
-	DefaultEvtStream.Handle("/", DefualtHandler)
+	DefaultEvtStream.Handle("/", DefaultHandler)
 	DefaultEvtStream.Handle("/sys/wnd/resize", func(e Event) {
 		w := e.Data.(EvtWnd)
 		Body.Width = w.Width
