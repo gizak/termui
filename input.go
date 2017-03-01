@@ -1,7 +1,6 @@
 package termui
 
 import (
-	"github.com/gizak/termui"
 	"github.com/nsf/termbox-go"
 	"strconv"
 	"strings"
@@ -36,14 +35,15 @@ type EvtInput struct {
 	LineIndex      int
 }
 
-// Input is the main object for a text input. The object exposes the following public properties
-// TextFgColor: color for the text
-// TextBgColor: background color for the text box
+// Input is the main object for a text input. The object exposes the following public properties:
+// TextFgColor: color for the text.
+// TextBgColor: background color for the text box.
 // IsCapturing: true if the input is currently capturing keyboard events, this is controlled by the StartCapture and
-//              StopCapture methods
-// IsMultiline: Whether we should accept multiple lines of input or this is a singe line form field
-// TextBuilder: An implementation of the TextBuilder interface to customize the look of the text on the screen
-// SpecialChars: a map[string]string of characters from the /sys/kbd events to actual strings in the content
+//              StopCapture methods.
+// IsMultiline: Whether we should accept multiple lines of input or this is a singe line form field.
+// TextBuilder: An implementation of the TextBuilder interface to customize the look of the text on the screen.
+// SpecialChars: a map[string]string of characters from the /sys/kbd events to actual strings in the content.
+// Name: When specified, the Input uses its name to propagate events, for example /input/<name>/kbd.
 type Input struct {
 	Block
 	TextFgColor  Attribute
@@ -53,6 +53,9 @@ type Input struct {
 	TextBuilder  TextBuilder
 	SpecialChars map[string]string
 	ShowLineNo   bool
+	Name         string
+	CursorX      int
+	CursorY      int
 
 	//DebugMode				bool
 	//debugMessage		string
@@ -118,7 +121,11 @@ func (i *Input) StartCapture() {
 				newString := i.getCharString(key)
 				i.addString(newString)
 			}
-			SendCustomEvt("/input/kbd", i.getInputEvt(key))
+			if i.Name == "" {
+				SendCustomEvt("/input/kbd", i.getInputEvt(key))
+			} else {
+				SendCustomEvt("/input/" + i.Name + "/kbd", i.getInputEvt(key))
+			}
 
 			Render(i)
 		}
@@ -383,28 +390,25 @@ func (i *Input) Buffer() Buffer {
 		x += w
 	}
 
-	xOffset := termui.TermWidth() - i.innerArea.Dx() + textXOffset + 1
+	cursorXOffset := i.X + textXOffset
 	if i.BorderLeft {
-		xOffset--
-	}
-	if i.BorderRight {
-		xOffset--
+		cursorXOffset++
 	}
 
-	yOffset := termui.TermHeight() - i.innerArea.Dy()
+	cursorYOffset := i.Y//   termui.TermHeight() - i.innerArea.Dy()
 	if i.BorderTop {
-		yOffset--
-	}
-	if i.BorderBottom {
-		yOffset--
+		cursorYOffset++
 	}
 	if lastLine > i.innerArea.Dy() {
-		yOffset += i.innerArea.Dy() - 1
+		cursorYOffset += i.innerArea.Dy() - 1
 	} else {
-		yOffset += i.cursorLineIndex
+		cursorYOffset += i.cursorLineIndex
 	}
-
-	termbox.SetCursor(i.cursorLinePos+xOffset, yOffset)
+	if i.IsCapturing {
+		i.CursorX = i.cursorLinePos+cursorXOffset
+		i.CursorY = cursorYOffset
+		termbox.SetCursor(i.cursorLinePos+cursorXOffset, cursorYOffset)
+	}
 
 	/*
 		if i.DebugMode {
