@@ -1,8 +1,8 @@
 package termui
 
 import (
-	"testing"
 	"strings"
+	"testing"
 )
 
 // TODO: More tests!

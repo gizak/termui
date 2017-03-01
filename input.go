@@ -1,24 +1,24 @@
 package termui
 
 import (
-	"strings"
 	"github.com/nsf/termbox-go"
+	"strings"
 	//"fmt"
 )
 
 // default mappings between /sys/kbd events and multi-line inputs
 var multiLineCharMap = map[string]string{
-	"<space>": " ",
-	"<tab>": "\t",
-	"<enter>": "\n",
+	"<space>":  " ",
+	"<tab>":    "\t",
+	"<enter>":  "\n",
 	"<escape>": "",
 }
 
 // default mappings between /sys/kbd events and single line inputs
 var singleLineCharMap = map[string]string{
-	"<space>": " ",
-	"<tab>": "\t",
-	"<enter>": "",
+	"<space>":  " ",
+	"<tab>":    "\t",
+	"<enter>":  "",
 	"<escape>": "",
 }
 
@@ -28,10 +28,10 @@ const NEW_LINE = "\n"
 // for the current line, and the position of the cursor in the current line as well as the index of the current
 // line in the full text of the input
 type EvtInput struct {
-	KeyStr 					string
-	LineText 				string
-	CursorPosition 	int
-	LineIndex 			int
+	KeyStr         string
+	LineText       string
+	CursorPosition int
+	LineIndex      int
 }
 
 // Input is the main object for a text input. The object exposes the following public properties
@@ -44,19 +44,19 @@ type EvtInput struct {
 // SpecialChars: a map[string]string of characters from the /sys/kbd events to actual strings in the content
 type Input struct {
 	Block
-	TextFgColor     Attribute
-	TextBgColor     Attribute
-	IsCapturing     bool
-	IsMultiLine     bool
-	TextBuilder     TextBuilder
-	SpecialChars    map[string]string
+	TextFgColor  Attribute
+	TextBgColor  Attribute
+	IsCapturing  bool
+	IsMultiLine  bool
+	TextBuilder  TextBuilder
+	SpecialChars map[string]string
 
 	//DebugMode				bool
 	//debugMessage		string
 
 	// internal vars
-	lines						[]string
-	cursorLineIndex	int
+	lines           []string
+	cursorLineIndex int
 	cursorLinePos   int
 }
 
@@ -64,11 +64,11 @@ type Input struct {
 // and whether it should be initialized as a multi-line innput field or not
 func NewInput(s string, isMultiLine bool) *Input {
 	textArea := &Input{
-		Block:           *NewBlock(),
-		TextFgColor:     ThemeAttr("par.text.fg"),
-		TextBgColor:     ThemeAttr("par.text.bg"),
-		TextBuilder:     NewMarkdownTxBuilder(),
-		IsMultiLine:     isMultiLine,
+		Block:       *NewBlock(),
+		TextFgColor: ThemeAttr("par.text.fg"),
+		TextBgColor: ThemeAttr("par.text.bg"),
+		TextBuilder: NewMarkdownTxBuilder(),
+		IsMultiLine: isMultiLine,
 
 		cursorLineIndex: 0,
 		cursorLinePos:   0,
@@ -153,22 +153,21 @@ func (i *Input) Lines() []string {
 	return i.lines
 }
 
-
 // Private methods for the input field
 // TODO: handle delete key
 
 func (i *Input) backspace() {
 	curLine := i.lines[i.cursorLineIndex]
 	// at the beginning of the buffer, nothing to do
-	if len(curLine) == 0 && i.cursorLineIndex == 0{
+	if len(curLine) == 0 && i.cursorLineIndex == 0 {
 		return
 	}
 
 	// at the beginning of a line somewhere in the buffer
 	if i.cursorLinePos == 0 {
-		prevLine := i.lines[i.cursorLineIndex - 1]
+		prevLine := i.lines[i.cursorLineIndex-1]
 		// remove the newline character from the prevline
-		prevLine = prevLine[:len(curLine) - 1] + curLine
+		prevLine = prevLine[:len(curLine)-1] + curLine
 		i.lines = append(i.lines[:i.cursorLineIndex], i.lines[i.cursorLineIndex+1:]...)
 		i.cursorLineIndex--
 		i.cursorLinePos = len(prevLine) - 1
@@ -176,14 +175,14 @@ func (i *Input) backspace() {
 	}
 
 	// I'm at the end of a line
-	if i.cursorLinePos == len(curLine) - 1 {
-		i.lines[i.cursorLineIndex] = curLine[:len(curLine) - 1]
+	if i.cursorLinePos == len(curLine)-1 {
+		i.lines[i.cursorLineIndex] = curLine[:len(curLine)-1]
 		i.cursorLinePos--
 		return
 	}
 
 	// I'm in the middle of a line
-	i.lines[i.cursorLineIndex] = curLine[:i.cursorLinePos - 1] + curLine[i.cursorLinePos:]
+	i.lines[i.cursorLineIndex] = curLine[:i.cursorLinePos-1] + curLine[i.cursorLinePos:]
 	i.cursorLinePos--
 }
 
@@ -192,7 +191,7 @@ func (i *Input) addString(key string) {
 		if key == NEW_LINE {
 			// special case when we go back to the beginning of a buffer with multiple lines, prepend a new line
 			if i.cursorLineIndex == 0 && len(i.lines) > 1 {
-				i.lines = append([]string { "" }, i.lines...)
+				i.lines = append([]string{""}, i.lines...)
 
 				// this case handles newlines at the end of the file or in the middle of the file
 			} else {
@@ -209,9 +208,9 @@ func (i *Input) addString(key string) {
 				i.lines = append(
 					i.lines[:i.cursorLineIndex+1],
 					append(
-						[]string{ newString },
-						i.lines[i.cursorLineIndex+1:]...
-					)...
+						[]string{newString},
+						i.lines[i.cursorLineIndex+1:]...,
+					)...,
 				)
 			}
 			// increment the line index, reset the cursor to the beginning and return to skip the next step
@@ -221,7 +220,7 @@ func (i *Input) addString(key string) {
 		}
 
 		// cursor is at the end of the line
-		if i.cursorLinePos == len(i.lines[i.cursorLineIndex])  {
+		if i.cursorLinePos == len(i.lines[i.cursorLineIndex]) {
 			//i.debugMessage ="end"
 			i.lines[i.cursorLineIndex] += key
 
@@ -255,7 +254,7 @@ func (i *Input) moveUp() {
 	}
 
 	// The previous line is just as long, we can move to the same position in the line
-	prevLine := i.lines[i.cursorLineIndex - 1]
+	prevLine := i.lines[i.cursorLineIndex-1]
 	if len(prevLine) >= i.cursorLinePos {
 		i.cursorLineIndex--
 	} else {
@@ -267,13 +266,13 @@ func (i *Input) moveUp() {
 
 func (i *Input) moveDown() {
 	// we are already on the last line, we just need to move the position to the end of the line
-	if i.cursorLineIndex == len(i.lines) - 1 {
+	if i.cursorLineIndex == len(i.lines)-1 {
 		i.cursorLinePos = len(i.lines[i.cursorLineIndex]) - 1
 		return
 	}
 
 	// check if the cursor can move to the same position in the next line, otherwise move it to the end
-	nextLine := i.lines[i.cursorLineIndex + 1]
+	nextLine := i.lines[i.cursorLineIndex+1]
 	if len(nextLine) >= i.cursorLinePos {
 		i.cursorLineIndex++
 	} else {
@@ -303,7 +302,6 @@ func (i *Input) moveRight() {
 
 	i.cursorLinePos++
 }
-
 
 // Buffer implements Bufferer interface.
 func (i *Input) Buffer() Buffer {
@@ -346,18 +344,18 @@ func (i *Input) Buffer() Buffer {
 	}
 
 	/*
-	if i.DebugMode {
-		position := fmt.Sprintf("%s li: %d lp: %d n: %d", i.debugMessage, i.cursorLineIndex, i.cursorLinePos, len(i.lines))
+		if i.DebugMode {
+			position := fmt.Sprintf("%s li: %d lp: %d n: %d", i.debugMessage, i.cursorLineIndex, i.cursorLinePos, len(i.lines))
 
-		for idx, char := range position {
-			buf.Set(i.innerArea.Min.X+i.innerArea.Dx()-len(position) + idx,
-				i.innerArea.Min.Y+i.innerArea.Dy()-1,
-				Cell{Ch: char, Fg: i.TextFgColor, Bg: i.TextBgColor})
+			for idx, char := range position {
+				buf.Set(i.innerArea.Min.X+i.innerArea.Dx()-len(position) + idx,
+					i.innerArea.Min.Y+i.innerArea.Dy()-1,
+					Cell{Ch: char, Fg: i.TextFgColor, Bg: i.TextBgColor})
+			}
 		}
-	}
 	*/
 
-	termbox.SetCursor(i.cursorLinePos + 1, i.cursorLineIndex + 1)
+	termbox.SetCursor(i.cursorLinePos+1, i.cursorLineIndex+1)
 
 	return buf
 }
@@ -372,9 +370,9 @@ func (i *Input) getCharString(s string) string {
 
 func (i *Input) getInputEvt(key string) EvtInput {
 	return EvtInput{
-		KeyStr: key,
-		LineText: i.lines[i.cursorLineIndex],
+		KeyStr:         key,
+		LineText:       i.lines[i.cursorLineIndex],
 		CursorPosition: i.cursorLinePos,
-		LineIndex: i.cursorLineIndex,
+		LineIndex:      i.cursorLineIndex,
 	}
 }
