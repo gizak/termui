@@ -1,9 +1,10 @@
 package termui
 
 import (
+	"github.com/gizak/termui"
 	"github.com/nsf/termbox-go"
+	"strconv"
 	"strings"
-	//"fmt"
 )
 
 // default mappings between /sys/kbd events and multi-line inputs
@@ -23,6 +24,7 @@ var singleLineCharMap = map[string]string{
 }
 
 const NEW_LINE = "\n"
+const LINE_NO_MIN_SPACE = 1000
 
 // EvtInput  defines the structure for the /input/* events. The event contains the last keystroke, the full text
 // for the current line, and the position of the cursor in the current line as well as the index of the current
@@ -50,6 +52,7 @@ type Input struct {
 	IsMultiLine  bool
 	TextBuilder  TextBuilder
 	SpecialChars map[string]string
+	ShowLineNo   bool
 
 	//DebugMode				bool
 	//debugMessage		string
@@ -69,13 +72,14 @@ func NewInput(s string, isMultiLine bool) *Input {
 		TextBgColor: ThemeAttr("par.text.bg"),
 		TextBuilder: NewMarkdownTxBuilder(),
 		IsMultiLine: isMultiLine,
+		ShowLineNo:  false,
 
 		cursorLineIndex: 0,
 		cursorLinePos:   0,
 	}
 
 	if s != "" {
-		textArea.lines = strings.Split(s, NEW_LINE)
+		textArea.SetText(s)
 	}
 
 	if isMultiLine {
@@ -112,14 +116,10 @@ func (i *Input) StartCapture() {
 					break
 				}
 				newString := i.getCharString(key)
-				/*i.bufferXPos += len(newString)
-				i.CurStringOffset += len(newString)
-				i.Text += newString*/
 				i.addString(newString)
 			}
 			SendCustomEvt("/input/kbd", i.getInputEvt(key))
-			//print(i.Text)
-			i.Buffer()
+
 			Render(i)
 		}
 	})
@@ -146,6 +146,10 @@ func (i *Input) Text() string {
 		// we should never get here!
 		return i.lines[0]
 	}
+}
+
+func (i *Input) SetText(text string) {
+	i.lines = strings.Split(text, NEW_LINE)
 }
 
 // Lines returns the slice of strings with the content of the input field. By default lines are separated by \n
@@ -267,7 +271,7 @@ func (i *Input) moveUp() {
 func (i *Input) moveDown() {
 	// we are already on the last line, we just need to move the position to the end of the line
 	if i.cursorLineIndex == len(i.lines)-1 {
-		i.cursorLinePos = len(i.lines[i.cursorLineIndex]) - 1
+		i.cursorLinePos = len(i.lines[i.cursorLineIndex])
 		return
 	}
 
@@ -284,8 +288,11 @@ func (i *Input) moveDown() {
 func (i *Input) moveLeft() {
 	// if we are at the beginning of the line move the cursor to the previous line
 	if i.cursorLinePos == 0 {
+		origLine := i.cursorLineIndex
 		i.moveUp()
-		i.cursorLinePos = len(i.lines[i.cursorLineIndex])
+		if origLine > 0 {
+			i.cursorLinePos = len(i.lines[i.cursorLineIndex])
+		}
 		return
 	}
 
@@ -295,8 +302,11 @@ func (i *Input) moveLeft() {
 func (i *Input) moveRight() {
 	// if we are at the end of the line move to the next
 	if i.cursorLinePos >= len(i.lines[i.cursorLineIndex]) {
+		origLine := i.cursorLineIndex
 		i.moveDown()
-		i.cursorLinePos = 0
+		if origLine < len(i.lines)-1 {
+			i.cursorLinePos = 0
+		}
 		return
 	}
 
@@ -307,14 +317,16 @@ func (i *Input) moveRight() {
 func (i *Input) Buffer() Buffer {
 	buf := i.Block.Buffer()
 
-	bufferLines := i.lines[:]
-	if i.IsMultiLine {
-		firstLine := 0
-		lastLine := firstLine + i.innerArea.Dy()
+	// offset used to display the line numbers
+	textXOffset := 0
 
-		if i.cursorLineIndex > lastLine {
-			firstLine += i.cursorLineIndex - lastLine
-			lastLine += i.cursorLineIndex - lastLine
+	bufferLines := i.lines[:]
+	firstLine := 0
+	lastLine := i.innerArea.Dy()
+	if i.IsMultiLine {
+		if i.cursorLineIndex >= lastLine {
+			firstLine += i.cursorLineIndex - lastLine + 1
+			lastLine += i.cursorLineIndex - lastLine + 1
 		}
 
 		if len(i.lines) < lastLine {
@@ -324,24 +336,75 @@ func (i *Input) Buffer() Buffer {
 		}
 	}
 
+	if i.ShowLineNo {
+		// forcing space for up to 1K
+		if lastLine < LINE_NO_MIN_SPACE {
+			textXOffset = len(strconv.Itoa(LINE_NO_MIN_SPACE)) + 2
+		} else {
+			textXOffset = len(strconv.Itoa(lastLine)) + 2 // one space at the beginning and one at the end
+		}
+	}
+
 	text := strings.Join(bufferLines, NEW_LINE)
+
+	// if the last line is empty then we add a fake space to make sure line numbers are displayed
+	if len(bufferLines) > 0 && bufferLines[len(bufferLines)-1] == "" && i.ShowLineNo {
+		text += " "
+	}
 
 	fg, bg := i.TextFgColor, i.TextBgColor
 	cs := i.TextBuilder.Build(text, fg, bg)
 	y, x, n := 0, 0, 0
+	lineNoCnt := 1
 
 	for n < len(cs) {
 		w := cs[n].Width()
 
+		if x == 0 && i.ShowLineNo {
+			curLineNoString := " " + strconv.Itoa(lineNoCnt) +
+				strings.Join(make([]string, textXOffset-len(strconv.Itoa(lineNoCnt))-1), " ")
+			//i.debugMessage = "Line no: " + curLineNoString
+			curLineNoRunes := i.TextBuilder.Build(curLineNoString, fg, bg)
+			for lineNo := 0; lineNo < len(curLineNoRunes); lineNo++ {
+				buf.Set(i.innerArea.Min.X+x+lineNo, i.innerArea.Min.Y+y, curLineNoRunes[lineNo])
+			}
+			lineNoCnt++
+		}
+
 		if cs[n].Ch == '\n' {
 			y++
+			n++
 			x = 0 // set x = 0
+			continue
 		}
-		buf.Set(i.innerArea.Min.X+x, i.innerArea.Min.Y+y, cs[n])
+		buf.Set(i.innerArea.Min.X+x+textXOffset, i.innerArea.Min.Y+y, cs[n])
 
 		n++
 		x += w
 	}
+
+	xOffset := termui.TermWidth() - i.innerArea.Dx() + textXOffset + 1
+	if i.BorderLeft {
+		xOffset--
+	}
+	if i.BorderRight {
+		xOffset--
+	}
+
+	yOffset := termui.TermHeight() - i.innerArea.Dy()
+	if i.BorderTop {
+		yOffset--
+	}
+	if i.BorderBottom {
+		yOffset--
+	}
+	if lastLine > i.innerArea.Dy() {
+		yOffset += i.innerArea.Dy() - 1
+	} else {
+		yOffset += i.cursorLineIndex
+	}
+
+	termbox.SetCursor(i.cursorLinePos+xOffset, yOffset)
 
 	/*
 		if i.DebugMode {
@@ -354,9 +417,6 @@ func (i *Input) Buffer() Buffer {
 			}
 		}
 	*/
-
-	termbox.SetCursor(i.cursorLinePos+1, i.cursorLineIndex+1)
-
 	return buf
 }
 
