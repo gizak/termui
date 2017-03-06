@@ -8,7 +8,7 @@ import (
 	"fmt"
 )
 
-// This is the implemetation of multi-colored or stacked bar graph.  This is different from default barGraph which is implemented in bar.go
+// This is the implementation of multi-colored or stacked bar graph.  This is different from default barGraph which is implemented in bar.go
 // Multi-Colored-BarChart creates multiple bars in a widget:
 /*
    bc := termui.NewMBarChart()
@@ -72,7 +72,7 @@ func (bc *MBarChart) layout() {
 	}
 	bc.numStack = DataLen
 
-	//We need to know what is the mimimum size of data array data[0] could have 10 elements data[1] could have only 5, so we plot only 5 bar graphs
+	//We need to know what is the minimum size of data array data[0] could have 10 elements data[1] could have only 5, so we plot only 5 bar graphs
 
 	for i := 0; i < DataLen; i++ {
 		if bc.minDataLen > len(bc.Data[i]) {
@@ -90,13 +90,13 @@ func (bc *MBarChart) layout() {
 
 	for i := 0; i < bc.numStack; i++ {
 		bc.dataNum[i] = make([][]rune, len(bc.Data[i]))
-		//For each stack of bar calcualte the rune
+		//For each stack of bar calculate the rune
 		for j := 0; j < LabelLen && i < bc.numBar; j++ {
 			n := bc.Data[i][j]
 			s := fmt.Sprint(n)
 			bc.dataNum[i][j] = trimStr2Runes(s, bc.BarWidth)
 		}
-		//If color is not defined by default then populate a color that is different from the prevous bar
+		//If color is not defined by default then populate a color that is different from the previous bar
 		if bc.BarColor[i] == ColorDefault && bc.NumColor[i] == ColorDefault {
 			if i == 0 {
 				bc.BarColor[i] = ColorBlack
