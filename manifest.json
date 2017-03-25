@@ -1,0 +1,16 @@
+{
+    "dependencies": {
+        "github.com/maruel/panicparse": {
+            "branch": "master"
+        },
+        "github.com/mattn/go-runewidth": {
+            "branch": "master"
+        },
+        "github.com/mitchellh/go-wordwrap": {
+            "branch": "master"
+        },
+        "github.com/nsf/termbox-go": {
+            "branch": "master"
+        }
+    }
+}
