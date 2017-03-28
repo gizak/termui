@@ -4,7 +4,10 @@
 
 package termui
 
-import "strings"
+import (
+	"strings"
+	"sync"
+)
 
 /* Table is like:
 
@@ -47,6 +50,7 @@ type Table struct {
 	BgColors  []Attribute
 	Separator bool
 	TextAlign Align
+	sync.Mutex
 }
 
 // NewTable returns a new Table instance
@@ -67,8 +71,7 @@ func cellsWidth(cells []Cell) int {
 	return width
 }
 
-// Analysis generates and returns an array of []Cell that represent all columns in the Table
-func (table *Table) Analysis() [][]Cell {
+func (table *Table) analysis() [][]Cell {
 	var rowCells [][]Cell
 	length := len(table.Rows)
 	if length < 1 {
@@ -104,8 +107,17 @@ func (table *Table) Analysis() [][]Cell {
 	return rowCells
 }
 
+// Analysis generates and returns an array of []Cell that represent all columns in the Table
+func (table *Table) Analysis() [][]Cell {
+	table.Lock()
+	defer table.Unlock()
+	return table.analysis()
+}
+
 // SetSize calculates the table size and sets the internal value
 func (table *Table) SetSize() {
+	table.Lock()
+	defer table.Unlock()
 	length := len(table.Rows)
 	if table.Separator {
 		table.Height = length*2 + 1
@@ -120,8 +132,7 @@ func (table *Table) SetSize() {
 	}
 }
 
-// CalculatePosition ...
-func (table *Table) CalculatePosition(x int, y int, coordinateX *int, coordinateY *int, cellStart *int) {
+func (table *Table) calculatePosition(x int, y int, coordinateX *int, coordinateY *int, cellStart *int) {
 	if table.Separator {
 		*coordinateY = table.innerArea.Min.Y + y*2
 	} else {
@@ -143,16 +154,25 @@ func (table *Table) CalculatePosition(x int, y int, coordinateX *int, coordinate
 	}
 }
 
+// CalculatePosition ...
+func (table *Table) CalculatePosition(x int, y int, coordinateX *int, coordinateY *int, cellStart *int) {
+	table.Lock()
+	defer table.Unlock()
+	table.calculatePosition(x, y, coordinateX, coordinateY, cellStart)
+}
+
 // Buffer ...
 func (table *Table) Buffer() Buffer {
+	table.Lock()
+	defer table.Unlock()
 	buffer := table.Block.Buffer()
-	rowCells := table.Analysis()
+	rowCells := table.analysis()
 	pointerX := table.innerArea.Min.X + 2
 	pointerY := table.innerArea.Min.Y
 	borderPointerX := table.innerArea.Min.X
 	for y, row := range table.Rows {
 		for x := range row {
-			table.CalculatePosition(x, y, &pointerX, &pointerY, &borderPointerX)
+			table.calculatePosition(x, y, &pointerX, &pointerY, &borderPointerX)
 			background := DefaultTxBuilder.Build(strings.Repeat(" ", table.CellWidth[x]+3), table.BgColors[y], table.BgColors[y])
 			cells := rowCells[y*len(row)+x]
 			for i, back := range background {
@@ -182,4 +202,33 @@ func (table *Table) Buffer() Buffer {
 	}
 
 	return buffer
+}
+
+func (table *Table) SetRows(rows [][]string) {
+	table.Lock()
+	defer table.Unlock()
+
+	oldlen := len(table.Rows)
+	table.Rows = rows
+	nrNewRows := len(table.Rows) - oldlen
+	nrNewColors := len(table.Rows) - len(table.FgColors) /* FgColors and BgColors are in sync */
+
+	/* if there is a positive delta between the current number of colors and then number we expect allocate them */
+	/* we intentionally do not deallocate unnecessary colors. They are not used and we keep them "chached" */
+	/* caching avoids reallocation and it is relatively unlikely that a table starts very big, decreades a lot and stays like that */
+	if nrNewColors > 0 {
+		newfgs := make([]Attribute, nrNewColors)
+		newbgs := make([]Attribute, nrNewColors)
+
+		table.FgColors = append(table.FgColors, newfgs...)
+		table.BgColors = append(table.BgColors, newbgs...)
+	}
+
+	/* always reset the colors of additional rows */
+	if nrNewRows > 0 {
+		for i := 0; i < nrNewRows; i++ {
+			table.FgColors[oldlen+i] = table.FgColor
+			table.BgColors[oldlen+i] = table.BgColor
+		}
+	}
 }
