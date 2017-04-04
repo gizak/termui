@@ -62,7 +62,7 @@ func (bc *BarChart) layout() {
 	}
 
 	//bc.max = bc.Data[0] //  what if Data is nil? Sometimes when bar graph is nill it produces panic with panic: runtime error: index out of range
-	// Asign a negative value to get maxvalue auto-populates
+	// Assign a negative value to get maxvalue auto-populates
 	if bc.max == 0 {
 		bc.max = -1
 	}
