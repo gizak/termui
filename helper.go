@@ -100,7 +100,7 @@ func charWidth(ch rune) int {
 
 var whiteSpaceRegex = regexp.MustCompile(`\s`)
 
-// StringToAttribute converts text to a termui attribute. You may specifiy more
+// StringToAttribute converts text to a termui attribute. You may specify more
 // then one attribute like that: "BLACK, BOLD, ...". All whitespaces
 // are ignored.
 func StringToAttribute(text string) Attribute {
