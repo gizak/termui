@@ -126,7 +126,7 @@ func hookTermboxEvt() {
 		e := termbox.PollEvent()
 
 		for _, c := range sysEvtChs {
-			go func(ch chan Event) {
+			func(ch chan Event) {
 				ch <- crtTermboxEvt(e)
 			}(c)
 		}
@@ -244,7 +244,7 @@ func (es *EvtStream) Loop() {
 		case "/sig/stoploop":
 			return
 		}
-		go func(a Event) {
+		func(a Event) {
 			es.RLock()
 			defer es.RUnlock()
 			if pattern := es.match(a.Path); pattern != "" {
