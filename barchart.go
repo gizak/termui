@@ -25,7 +25,7 @@ type BarChart struct {
 	BarColor   Attribute
 	TextColor  Attribute
 	NumColor   Attribute
-	Data       []int
+	Data       []float32
 	DataLabels []string
 	BarWidth   int
 	BarGap     int
@@ -34,7 +34,7 @@ type BarChart struct {
 	dataNum    [][]rune
 	numBar     int
 	scale      float64
-	max        int
+	max        float32
 }
 
 // NewBarChart returns a new *BarChart with current theme.
@@ -74,7 +74,7 @@ func (bc *BarChart) layout() {
 	bc.scale = float64(bc.max) / float64(bc.innerArea.Dy()-1)
 }
 
-func (bc *BarChart) SetMax(max int) {
+func (bc *BarChart) SetMax(max float32) {
 
 	if max > 0 {
 		bc.max = max
