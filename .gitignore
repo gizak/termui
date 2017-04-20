@@ -24,3 +24,4 @@ _testmain.go
 *.prof
 .DS_Store
 /vendor
+.idea
