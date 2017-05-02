@@ -9,8 +9,6 @@ package main
 import ui "github.com/gizak/termui"
 import "math"
 
-import "time"
-
 func main() {
 	err := ui.Init()
 	if err != nil {
@@ -18,8 +16,19 @@ func main() {
 	}
 	defer ui.Close()
 
-	ui.UseTheme("helloworld")
-
+	// Deprecated
+	//ui.UseTheme("helloworld")
+	ui.ColorMap = map[string]ui.Attribute{
+		"fg":               ui.ColorWhite,
+		"bg":               ui.ColorDefault,
+		"border.fg":        ui.ColorYellow,
+		"label.fg":         ui.ColorGreen,
+		"par.fg":           ui.ColorYellow,
+		"par.label.bg":     ui.ColorWhite,
+		"gauge.bar.bg":     ui.ColorCyan,
+		"gauge.percent.fg": ui.ColorBlue,
+		"barchart.bar.bg":  ui.ColorRed,
+	}
 	p := ui.NewPar(":PRESS q TO QUIT DEMO")
 	p.Height = 3
 	p.Width = 50
@@ -106,7 +115,7 @@ func main() {
 	lc1.Y = 14
 
 	p1 := ui.NewPar("Hey!\nI am a borderless block!")
-	p1.HasBorder = false
+	p1.Border = false
 	p1.Width = 26
 	p1.Height = 2
 	p1.X = 52
@@ -123,21 +132,13 @@ func main() {
 		ui.Render(p, list, g, sp, lc, bc, lc1, p1)
 	}
 
-	evt := ui.EventCh()
-	i := 0
-	for {
-		select {
-		case e := <-evt:
-			if e.Type == ui.EventKey && e.Ch == 'q' {
-				return
-			}
-		default:
-			draw(i)
-			i++
-			if i == 102 {
-				return
-			}
-			time.Sleep(time.Second / 2)
-		}
-	}
+	ui.Render(p, list, g, sp, lc, bc, lc1, p1)
+	ui.Handle("/sys/kbd/q", func(ui.Event) {
+		ui.StopLoop()
+	})
+	ui.Handle("/timer/1s", func(e ui.Event) {
+		t := e.Data.(ui.EvtTimer)
+		draw(int(t.Count))
+	})
+	ui.Loop()
 }

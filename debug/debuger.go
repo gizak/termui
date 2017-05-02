@@ -68,7 +68,7 @@ func (s *Server) ListenAndServe() error {
 	http.Handle(s.Path, websocket.Handler(func(ws *websocket.Conn) {
 		defer ws.Close()
 
-		mc := make(chan string)
+		mc := make(chan string, 10)
 		s.chs = append(s.chs, mc)
 
 		for m := range mc {
@@ -79,7 +79,7 @@ func (s *Server) ListenAndServe() error {
 	go func() {
 		for msg := range s.Msg {
 			for _, c := range s.chs {
-				go func(a chan string) {
+				func(a chan string) {
 					a <- msg
 				}(c)
 			}
