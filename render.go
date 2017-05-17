@@ -33,6 +33,7 @@ func Init() error {
 	if err := tm.Init(); err != nil {
 		return err
 	}
+	DefaultEvtStream = NewEvtStream()
 
 	sysEvtChs = make([]chan Event, 0)
 	go hookTermboxEvt()
