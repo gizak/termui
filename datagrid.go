@@ -35,23 +35,22 @@ Example:
 // DataGrid tracks all the attributes of a DataGrid instance
 type DataGrid struct {
 	Block
-	Rows      [][]string
-	CellWidth []int
-	FgColor   Attribute
-	BgColor   Attribute
-	FgColors  []Attribute
-	BgColors  []Attribute
-	Separator bool
-	TextAlign Align
+	Rows        [][]string
+	DataColumns []DataColumn
+	FgColor     Attribute
+	BgColor     Attribute
+	Separator   bool
+	FgColors    []Attribute
+	BgColors    []Attribute
+	// TextAlign   Align
 }
 
 // DataColumn ...
 type DataColumn struct {
-	Name       string
-	Label      string
-	Width      int
-	TextAlign  Align
-	TextFormat string
+	Width     int
+	Title     string
+	TextAlign Align
+	Formatter func(string) string // Optional function to format the column content
 }
 
 // DataRow ...
@@ -97,6 +96,7 @@ func (grid *DataGrid) Analysis() [][]Cell {
 		return rowCells
 	}
 
+	// Create array of FgColors and BgColors for every row
 	if len(grid.FgColors) == 0 {
 		grid.FgColors = make([]Attribute, len(grid.Rows))
 	}
@@ -104,8 +104,9 @@ func (grid *DataGrid) Analysis() [][]Cell {
 		grid.BgColors = make([]Attribute, len(grid.Rows))
 	}
 
-	cellWidths := make([]int, len(grid.Rows[0]))
+	// cellWidths := make([]int, len(grid.Rows[0]))
 
+	// For each row []string object with rowIndex y, set the fg and bg colors
 	for y, row := range grid.Rows {
 		if grid.FgColors[y] == 0 {
 			grid.FgColors[y] = grid.FgColor
@@ -113,37 +114,23 @@ func (grid *DataGrid) Analysis() [][]Cell {
 		if grid.BgColors[y] == 0 {
 			grid.BgColors[y] = grid.BgColor
 		}
-		for x, str := range row {
+		// For each string in row with index x, build the string with colors
+		for _, str := range row {
 			cells := DefaultTxBuilder.Build(str, grid.FgColors[y], grid.BgColors[y])
-			cw := cellsWidth(cells)
-			if cellWidths[x] < cw {
-				cellWidths[x] = cw
-			}
+			// FIXME: Datagrid is fixed width based on defined columns.
+			// cw := cellsWidth(cells)
+			// if cellWidths[x] < cw {
+			// 	cellWidths[x] = cw
+			// }
 			rowCells = append(rowCells, cells)
 		}
 	}
-	grid.CellWidth = cellWidths
+	// grid.CellWidth = cellWidths
 	return rowCells
 }
 
-// SetSize calculates the grid size and sets the internal value
-func (grid *DataGrid) SetSize() {
-	length := len(grid.Rows)
-	if grid.Separator {
-		grid.Height = length*2 + 1
-	} else {
-		grid.Height = length + 2
-	}
-	grid.Width = 2
-	if length != 0 {
-		for _, cellWidth := range grid.CellWidth {
-			grid.Width += cellWidth + 3
-		}
-	}
-}
-
-// CalculatePosition ...
-func (grid *DataGrid) CalculatePosition(x int, y int, coordinateX *int, coordinateY *int, cellStart *int) {
+// EvaluatePosition ...
+func (grid *DataGrid) EvaluatePosition(x int, y int, coordinateX *int, coordinateY *int, cellStart *int) {
 	if grid.Separator {
 		*coordinateY = grid.innerArea.Min.Y + y*2
 	} else {
@@ -152,14 +139,17 @@ func (grid *DataGrid) CalculatePosition(x int, y int, coordinateX *int, coordina
 	if x == 0 {
 		*cellStart = grid.innerArea.Min.X
 	} else {
-		*cellStart += grid.CellWidth[x-1] + 3
+		*cellStart += grid.DataColumns[x-1].Width + 3
 	}
-
-	switch grid.TextAlign {
+	align := AlignLeft
+	if x < len(grid.DataColumns) {
+		align = grid.DataColumns[x].TextAlign
+	}
+	switch align {
 	case AlignRight:
-		*coordinateX = *cellStart + (grid.CellWidth[x] - len(grid.Rows[y][x])) + 2
+		*coordinateX = *cellStart + (grid.DataColumns[x].Width - len(grid.Rows[y][x])) + 2
 	case AlignCenter:
-		*coordinateX = *cellStart + (grid.CellWidth[x]-len(grid.Rows[y][x]))/2 + 2
+		*coordinateX = *cellStart + (grid.DataColumns[x].Width-len(grid.Rows[y][x]))/2 + 2
 	default:
 		*coordinateX = *cellStart + 2
 	}
@@ -172,10 +162,13 @@ func (grid *DataGrid) Buffer() Buffer {
 	pointerX := grid.innerArea.Min.X + 2
 	pointerY := grid.innerArea.Min.Y
 	borderPointerX := grid.innerArea.Min.X
+	// For each []string object with rowIndex y
 	for y, row := range grid.Rows {
+		// For each string in row array
 		for x := range row {
-			grid.CalculatePosition(x, y, &pointerX, &pointerY, &borderPointerX)
-			background := DefaultTxBuilder.Build(strings.Repeat(" ", grid.CellWidth[x]+3), grid.BgColors[y], grid.BgColors[y])
+
+			grid.EvaluatePosition(x, y, &pointerX, &pointerY, &borderPointerX)
+			background := DefaultTxBuilder.Build(strings.Repeat(" ", grid.DataColumns[x].Width+3), grid.BgColors[y], grid.BgColors[y])
 			cells := rowCells[y*len(row)+x]
 			for i, back := range background {
 				buffer.Set(borderPointerX+i, pointerY, back)
@@ -195,12 +188,12 @@ func (grid *DataGrid) Buffer() Buffer {
 			}
 		}
 
-		if grid.Separator {
-			border := DefaultTxBuilder.Build(strings.Repeat("─", grid.Width-2), grid.FgColor, grid.BgColor)
-			for i, cell := range border {
-				buffer.Set(i+1, pointerY+1, cell)
-			}
-		}
+		// if grid.Separator {
+		// 	border := DefaultTxBuilder.Build(strings.Repeat("─", grid.Width-2), grid.FgColor, grid.BgColor)
+		// 	for i, cell := range border {
+		// 		buffer.Set(i+1, pointerY+1, cell)
+		// 	}
+		// }
 	}
 
 	return buffer
