@@ -2,20 +2,35 @@ package termui
 
 import "strings"
 
-/* DataGrid is like:
-
+/* DataGrid is like the output of the unix top command.
 
 Example:
 
+	columns := []termui.DataColumn{
+		{12, `Market`, ui.AlignLeft, nil},
+		{10, `High`, ui.AlignRight, nil},
+		{10, `Low`, ui.AlignRight, nil},
+		{10, `Ask`, ui.AlignRight, nil},
+		{10, `Bid`, ui.AlignRight, nil},
+		{7, `Buys`, ui.AlignRight, nil},
+		{7, `Sells`, ui.AlignRight, nil},
+		{10, `Volume`, ui.AlignRight, nil},
+		{10, `Last`, ui.AlignRight, nil},
+	}
+
 	grid := termui.NewDataGrid()
-	grid.Rows = data  // type [][]string
-	grid.FgColor = termui.ColorWhite
+	grid.FgColor = termui.ColorYellow
 	grid.BgColor = termui.ColorDefault
-	grid.Height = 7
-	grid.Width = 62
+	grid.Height = 50
+	grid.Width = 120
 	grid.Y = 0
 	grid.X = 0
-	grid.Border = true
+	grid.Border = false
+
+	var results [][]string
+	// Set value of results with your data
+	grid.Rows = results
+	termui.Render(grid)
 */
 
 // DataGrid tracks all the attributes of a DataGrid instance
@@ -37,13 +52,13 @@ type DataColumn struct {
 	Formatter func(string) string // Optional function to format the column content
 }
 
-// DataRow ...
+// DataRow ... TBD
 type DataRow struct {
 	FgColor Attribute
 	BgColor Attribute
 }
 
-// DataCell ...
+// DataCell ... TBD
 type DataCell struct {
 	Text       string
 	Value      float64
@@ -84,7 +99,7 @@ func (grid *DataGrid) Analysis() [][]Cell {
 	return rowCells
 }
 
-// Buffer ...
+// Buffer is a required func that renders the text content into termui
 func (grid *DataGrid) Buffer() Buffer {
 	buffer := grid.Block.Buffer()
 	rowCells := grid.Analysis()
