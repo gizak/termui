@@ -82,10 +82,6 @@ func NewDataGrid() *DataGrid {
 // Analysis generates and returns an array of []Cell that represent all cells in the DataGrid
 func (grid *DataGrid) Analysis() [][]Cell {
 	var rowCells [][]Cell
-	length := len(grid.Rows)
-	if length < 1 {
-		return rowCells
-	}
 
 	// For each row []string object with rowIndex y, set the fg and bg colors
 	for _, row := range grid.Rows {
@@ -150,7 +146,6 @@ func (grid *DataGrid) Buffer() Buffer {
 			}
 		}
 	}
-
 	return buffer
 }
 
