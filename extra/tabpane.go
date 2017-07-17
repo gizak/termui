@@ -231,7 +231,7 @@ func (tp *Tabpane) Buffer() Buffer {
 			ps = append(ps, pt)
 
 			if all <= 0 {
-				addp := tp.drawPointWithBorder(pt, '<', '«', HORIZONTAL_LINE, HORIZONTAL_LINE)
+				addp := tp.drawPointWithBorder(pt, '<', QUOTA_LEFT, HORIZONTAL_LINE, HORIZONTAL_LINE)
 				ps = append(ps, addp...)
 			}
 
@@ -242,7 +242,7 @@ func (tp *Tabpane) Buffer() Buffer {
 			}
 			ps = append(ps, pt)
 			if all >= 0 {
-				addp := tp.drawPointWithBorder(pt, '>', '»', HORIZONTAL_LINE, HORIZONTAL_LINE)
+				addp := tp.drawPointWithBorder(pt, '>', QUOTA_RIGHT, HORIZONTAL_LINE, HORIZONTAL_LINE)
 				ps = append(ps, addp...)
 			}
 		}
