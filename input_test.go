@@ -82,3 +82,31 @@ func TestInput_MultiLine_MoveLeftToPreviousLine(t *testing.T) {
 		t.Errorf("Expected cursor to be at position %d, found it at %d", len(TESTING_LINE), input.cursorLinePos)
 	}
 }
+
+// Test issues mentioned in the pull request: https://github.com/gizak/termui/pull/129
+func TestInput_BackspaceOnFirstChar_NoAction(t *testing.T) {
+	input := NewInput("", false)
+
+	// backspace here should not throw an error
+	input.backspace()
+
+	input.addString(TESTING_LINE)
+
+	if input.cursorLinePos != len(TESTING_LINE) {
+		t.Errorf("Expected cursor to be at position %d, found it at %d", len(TESTING_LINE), input.cursorLinePos)
+	}
+}
+
+// Test issues mentioned in the pull request: https://github.com/gizak/termui/pull/129
+func TestInput_LeftOnFirstChar_NoAction(t *testing.T) {
+	input := NewInput("", false)
+
+	// backspace here should not throw an error
+	input.moveLeft()
+
+	input.addString(TESTING_LINE)
+
+	if input.cursorLinePos != len(TESTING_LINE) {
+		t.Errorf("Expected cursor to be at position %d, found it at %d", len(TESTING_LINE), input.cursorLinePos)
+	}
+}

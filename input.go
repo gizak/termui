@@ -82,7 +82,7 @@ func NewInput(s string, isMultiLine bool) *Input {
 	}
 
 	if s != "" {
-		textArea.SetText(s)
+		textArea.addString(s)
 	}
 
 	if isMultiLine {
@@ -168,6 +168,11 @@ func (i *Input) Lines() []string {
 // TODO: handle delete key
 
 func (i *Input) backspace() {
+	// we have no lines yet, nothing to do.
+	if len(i.lines) == 0 {
+		return;
+	}
+
 	curLine := i.lines[i.cursorLineIndex]
 	// at the beginning of the buffer, nothing to do
 	if len(curLine) == 0 && i.cursorLineIndex == 0 {
