@@ -108,7 +108,7 @@ func (grid *DataGrid) Buffer() Buffer {
 			grid.positionText(column.Title, x, &pointerX, &startPointerX)
 			cells := DefaultTxBuilder.Build(column.Title, grid.FgColor, grid.BgColor)
 			for i, cell := range cells {
-				buffer.Set(pointerX+i, 0, cell)
+				buffer.Set(pointerX+i, pointerY, cell)
 			}
 		}
 	}
@@ -118,7 +118,7 @@ func (grid *DataGrid) Buffer() Buffer {
 		// For each string in row array
 		for x := range row {
 			if grid.ShowHeader {
-				pointerY = y + 1
+				pointerY = y + grid.Y + 1
 			}
 			grid.positionText(grid.Rows[y][x], x, &pointerX, &startPointerX)
 			bgWidth := grid.DataColumns[x].Width
