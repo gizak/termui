@@ -50,6 +50,26 @@ func NewList() *List {
 func (l *List) Buffer() Buffer {
 	buf := l.Block.Buffer()
 
+	hs := func(scroll bool) {
+		trimItems := l.Items
+		if len(trimItems) > l.innerArea.Dy() {
+			if scroll {
+				trimItems = trimItems[len(trimItems)-l.innerArea.Dy():]
+			} else {
+				trimItems = trimItems[:l.innerArea.Dy()]
+			}
+		}
+		for i, v := range trimItems {
+			cs := DTrimTxCls(DefaultTxBuilder.Build(v, l.ItemFgColor, l.ItemBgColor), l.innerArea.Dx())
+			j := 0
+			for _, vv := range cs {
+				w := vv.Width()
+				buf.Set(l.innerArea.Min.X+j, l.innerArea.Min.Y+i, vv)
+				j += w
+			}
+		}
+	}
+
 	switch l.Overflow {
 	case "wrap":
 		cs := DefaultTxBuilder.Build(strings.Join(l.Items, "\n"), l.ItemFgColor, l.ItemBgColor)
@@ -71,19 +91,10 @@ func (l *List) Buffer() Buffer {
 		}
 
 	case "hidden":
-		trimItems := l.Items
-		if len(trimItems) > l.innerArea.Dy() {
-			trimItems = trimItems[:l.innerArea.Dy()]
-		}
-		for i, v := range trimItems {
-			cs := DTrimTxCls(DefaultTxBuilder.Build(v, l.ItemFgColor, l.ItemBgColor), l.innerArea.Dx())
-			j := 0
-			for _, vv := range cs {
-				w := vv.Width()
-				buf.Set(l.innerArea.Min.X+j, l.innerArea.Min.Y+i, vv)
-				j += w
-			}
-		}
+		hs(false)
+
+	case "scroll":
+		hs(true)
 	}
 	return buf
 }
