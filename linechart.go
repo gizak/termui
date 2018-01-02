@@ -135,6 +135,7 @@ func (lc *LineChart) renderBraille() Buffer {
 
 func (lc *LineChart) renderDot() Buffer {
 	buf := NewBuffer()
+	oy := -1
 	for i := 0; i < len(lc.Data) && i < lc.axisXWidth; i++ {
 		c := Cell{
 			Ch: lc.DotStyle,
@@ -143,6 +144,22 @@ func (lc *LineChart) renderDot() Buffer {
 		}
 		x := lc.innerArea.Min.X + lc.labelYSpace + 1 + i
 		y := lc.innerArea.Min.Y + lc.innerArea.Dy() - 3 - int((lc.Data[i]-lc.bottomValue)/lc.scale+0.5)
+		
+		if oy != -1 && oy != y{
+			u := 1
+			if oy > y {
+				u = -1
+			}
+			for i := oy + u; i != y; i += u {
+				dx := -1
+				if u*(i-oy) >= u*(y-oy)/2 {
+					dx = 0
+				}
+				buf.Set(x+dx, i, c)
+			}
+		}
+		oy = y
+		
 		buf.Set(x, y, c)
 	}
 
