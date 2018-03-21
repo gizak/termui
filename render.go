@@ -104,17 +104,43 @@ func render(bs ...Bufferer) {
 			Close()
 			fmt.Fprintf(os.Stderr, "Captured a panic(value=%v) when rendering Bufferer. Exit termui and clean terminal...\nPrint stack trace:\n\n", e)
 			//debug.PrintStack()
-			gs, err := stack.ParseDump(bytes.NewReader(debug.Stack()), os.Stderr)
+			gs, err := stack.ParseDump(bytes.NewReader(debug.Stack()), os.Stderr, false)
 			if err != nil {
 				debug.PrintStack()
 				os.Exit(1)
 			}
-			p := &stack.Palette{}
-			buckets := stack.SortBuckets(stack.Bucketize(gs, stack.AnyValue))
-			srcLen, pkgLen := stack.CalcLengths(buckets, false)
+			buckets := stack.Aggregate(gs.Goroutines, stack.AnyValue)
 			for _, bucket := range buckets {
-				io.WriteString(os.Stdout, p.BucketHeader(&bucket, false, len(buckets) > 1))
-				io.WriteString(os.Stdout, p.StackLines(&bucket.Signature, srcLen, pkgLen, false))
+				srcLen, pkgLen := 0, 0
+				for _, line := range bucket.Signature.Stack.Calls {
+					if l := len(line.SrcLine()); l > srcLen {
+						srcLen = l
+					}
+					if l := len(line.Func.PkgName()); l > pkgLen {
+						pkgLen = l
+					}
+				}
+				extra := ""
+				if s := bucket.SleepString(); s != "" {
+					extra += " [" + s + "]"
+				}
+				if bucket.Locked {
+					extra += " [locked]"
+				}
+				if c := bucket.CreatedByString(false); c != "" {
+					extra += " [Created by " + c + "]"
+				}
+				io.WriteString(os.Stdout, fmt.Sprintf("%d: %s%s\n", len(bucket.IDs), bucket.State, extra))
+
+				for _, line := range bucket.Stack.Calls {
+					io.WriteString(os.Stdout, fmt.Sprintf(
+						"    %-*s %-*s %s(%s)\n",
+						pkgLen, line.Func.PkgName(), srcLen, line.SrcLine(),
+						line.Func.Name(), &line.Args))
+				}
+				if bucket.Stack.Elided {
+					io.WriteString(os.Stdout, "    (...)\n")
+				}
 			}
 			os.Exit(1)
 		}
