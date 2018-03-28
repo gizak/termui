@@ -18,8 +18,8 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/gizak/termui"
-	"github.com/gizak/termui/extra"
+	"github.com/ttacon/termui"
+	"github.com/ttacon/termui/extra"
 )
 
 const statFilePath = "/proc/stat"

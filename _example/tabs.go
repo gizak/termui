@@ -7,8 +7,8 @@
 package main
 
 import (
-	"github.com/gizak/termui"
-	"github.com/gizak/termui/extra"
+	"github.com/ttacon/termui"
+	"github.com/ttacon/termui/extra"
 )
 
 func main() {

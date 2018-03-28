@@ -4,7 +4,7 @@
 
 package main
 
-import "github.com/gizak/termui"
+import "github.com/ttacon/termui"
 
 func main() {
 	err := termui.Init()

@@ -11,9 +11,9 @@ pages:
 - About: 'about.md'
 
 site_name: termui
-repo_url: https://github.com/gizak/termui/
+repo_url: https://github.com/ttacon/termui/
 site_description: 'termui user guide'
-site_author: gizak
+site_author: ttacon
 
 docs_dir: '_docs'
 
