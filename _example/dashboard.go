@@ -6,7 +6,7 @@
 
 package main
 
-import ui "github.com/gizak/termui"
+import ui "github.com/ttacon/termui"
 import "math"
 
 func main() {
@@ -30,7 +30,7 @@ func main() {
 		}
 	})
 
-	strs := []string{"[0] gizak/termui", "[1] editbox.go", "[2] interrupt.go", "[3] keyboard.go", "[4] output.go", "[5] random_out.go", "[6] dashboard.go", "[7] nsf/termbox-go"}
+	strs := []string{"[0] ttacon/termui", "[1] editbox.go", "[2] interrupt.go", "[3] keyboard.go", "[4] output.go", "[5] random_out.go", "[6] dashboard.go", "[7] nsf/termbox-go"}
 	list := ui.NewList()
 	list.Items = strs
 	list.ItemFgColor = ui.ColorYellow

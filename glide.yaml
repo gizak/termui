@@ -1,4 +1,4 @@
-package: github.com/gizak/termui
+package: github.com/ttacon/termui
 import:
 - package: github.com/mattn/go-runewidth
 - package: github.com/mitchellh/go-wordwrap
