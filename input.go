@@ -1,9 +1,10 @@
 package termui
 
 import (
-	"github.com/nsf/termbox-go"
 	"strconv"
 	"strings"
+
+	"github.com/nsf/termbox-go"
 )
 
 // default mappings between /sys/kbd events and multi-line inputs
@@ -24,6 +25,9 @@ var singleLineCharMap = map[string]string{
 
 const NEW_LINE = "\n"
 const LINE_NO_MIN_SPACE = 1000
+
+// TextRenderer can modify text content before it is added to the buffer for rendering
+type TextRenderer func(word string, lineNo int, linePos int) string
 
 // EvtInput  defines the structure for the /input/* events. The event contains the last keystroke, the full text
 // for the current line, and the position of the cursor in the current line as well as the index of the current
@@ -56,6 +60,7 @@ type Input struct {
 	Name         string
 	CursorX      int
 	CursorY      int
+	Formatter    TextRenderer
 
 	//DebugMode				bool
 	//debugMessage		string
@@ -124,7 +129,7 @@ func (i *Input) StartCapture() {
 			if i.Name == "" {
 				SendCustomEvt("/input/kbd", i.getInputEvt(key))
 			} else {
-				SendCustomEvt("/input/" + i.Name + "/kbd", i.getInputEvt(key))
+				SendCustomEvt("/input/"+i.Name+"/kbd", i.getInputEvt(key))
 			}
 
 			Render(i)
@@ -170,7 +175,7 @@ func (i *Input) Lines() []string {
 func (i *Input) backspace() {
 	// we have no lines yet, nothing to do.
 	if len(i.lines) == 0 {
-		return;
+		return
 	}
 
 	curLine := i.lines[i.cursorLineIndex]
@@ -363,9 +368,23 @@ func (i *Input) Buffer() Buffer {
 	if len(bufferLines) > 0 && bufferLines[len(bufferLines)-1] == "" && i.ShowLineNo {
 		text += " "
 	}
+	finalText := ""
+	if i.Formatter != nil {
+		for _, w := range strings.Split(text, " ") {
+			if strings.HasPrefix(w, "\n") {
+				finalText += "\n" + i.Formatter(strings.Trim(w, "\n"), 0, 0) + " "
+			} else if strings.HasSuffix(w, "\n") {
+				finalText += i.Formatter(strings.Trim(w, "\n"), 0, 0) + "\n"
+			} else {
+				finalText += i.Formatter(strings.Trim(w, "\n"), 0, 0) + " "
+			}
+		}
+	} else {
+		finalText = text
+	}
 
 	fg, bg := i.TextFgColor, i.TextBgColor
-	cs := i.TextBuilder.Build(text, fg, bg)
+	cs := i.TextBuilder.Build(finalText, fg, bg)
 	y, x, n := 0, 0, 0
 	lineNoCnt := 1
 
@@ -400,7 +419,7 @@ func (i *Input) Buffer() Buffer {
 		cursorXOffset++
 	}
 
-	cursorYOffset := i.Y//   termui.TermHeight() - i.innerArea.Dy()
+	cursorYOffset := i.Y //   termui.TermHeight() - i.innerArea.Dy()
 	if i.BorderTop {
 		cursorYOffset++
 	}
@@ -410,22 +429,11 @@ func (i *Input) Buffer() Buffer {
 		cursorYOffset += i.cursorLineIndex
 	}
 	if i.IsCapturing {
-		i.CursorX = i.cursorLinePos+cursorXOffset
+		i.CursorX = i.cursorLinePos + cursorXOffset
 		i.CursorY = cursorYOffset
 		termbox.SetCursor(i.cursorLinePos+cursorXOffset, cursorYOffset)
 	}
 
-	/*
-		if i.DebugMode {
-			position := fmt.Sprintf("%s li: %d lp: %d n: %d", i.debugMessage, i.cursorLineIndex, i.cursorLinePos, len(i.lines))
-
-			for idx, char := range position {
-				buf.Set(i.innerArea.Min.X+i.innerArea.Dx()-len(position) + idx,
-					i.innerArea.Min.Y+i.innerArea.Dy()-1,
-					Cell{Ch: char, Fg: i.TextFgColor, Bg: i.TextBgColor})
-			}
-		}
-	*/
 	return buf
 }
 
