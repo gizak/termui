@@ -1,0 +1,78 @@
+{
+    "memo": "4305f3e0ebab1acd0d530e8111dc739debf707e5672b8676975517e970ce4aba",
+    "projects": [
+        {
+            "name": "github.com/davecgh/go-spew",
+            "version": "v1.1.0",
+            "revision": "a7a0063072ed89d04285d3d3362aa590ed9f7878",
+            "packages": [
+                "spew"
+            ]
+        },
+        {
+            "name": "github.com/gizak/termui",
+            "version": "v2.2.0",
+            "revision": "24acd523c756fd9728824cdfac66aad9d8982fb7",
+            "packages": [
+                ".",
+                "debug"
+            ]
+        },
+        {
+            "name": "github.com/maruel/panicparse",
+            "branch": "master",
+            "revision": "25bcac0d793cf4109483505a0d66e066a3a90a80",
+            "packages": [
+                "stack"
+            ]
+        },
+        {
+            "name": "github.com/mattn/go-runewidth",
+            "branch": "master",
+            "revision": "14207d285c6c197daabb5c9793d63e7af9ab2d50",
+            "packages": [
+                "."
+            ]
+        },
+        {
+            "name": "github.com/mitchellh/go-wordwrap",
+            "branch": "master",
+            "revision": "ad45545899c7b13c020ea92b2072220eefad42b8",
+            "packages": [
+                "."
+            ]
+        },
+        {
+            "name": "github.com/nsf/termbox-go",
+            "branch": "master",
+            "revision": "91bae1bb5fa9ee504905ecbe7043fa30e92feaa3",
+            "packages": [
+                "."
+            ]
+        },
+        {
+            "name": "github.com/pmezard/go-difflib",
+            "version": "v1.0.0",
+            "revision": "792786c7400a136282c1664665ae0a8db921c6c2",
+            "packages": [
+                "difflib"
+            ]
+        },
+        {
+            "name": "github.com/stretchr/testify",
+            "version": "v1.1.4",
+            "revision": "69483b4bd14f5845b5a1e55bca19e954e827f1d0",
+            "packages": [
+                "assert"
+            ]
+        },
+        {
+            "name": "golang.org/x/net",
+            "branch": "master",
+            "revision": "6c23252515492caf9b228a9d5cabcdbde29f7f82",
+            "packages": [
+                "websocket"
+            ]
+        }
+    ]
+}
