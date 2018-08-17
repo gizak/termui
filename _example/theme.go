@@ -6,8 +6,11 @@
 
 package main
 
-import ui "github.com/gizak/termui"
-import "math"
+import (
+	"math"
+
+	ui "github.com/gizak/termui"
+)
 
 func main() {
 	err := ui.Init()
@@ -76,7 +79,7 @@ func main() {
 	})()
 
 	lc.BorderLabel = "Line Chart"
-	lc.Data = sinps
+	lc.Data["default"] = sinps
 	lc.Width = 50
 	lc.Height = 11
 	lc.X = 0
@@ -108,7 +111,7 @@ func main() {
 		}
 		return d
 	})()
-	lc1.Data = rndwalk
+	lc1.Data["default"] = rndwalk
 	lc1.Width = 26
 	lc1.Height = 11
 	lc1.X = 51
@@ -126,8 +129,8 @@ func main() {
 		list.Items = strs[t%9:]
 		sp.Lines[0].Data = spdata[t%10:]
 		sp.Lines[1].Data = spdata[t/2%10:]
-		lc.Data = sinps[t/2:]
-		lc1.Data = rndwalk[t:]
+		lc.Data["default"] = sinps[t/2:]
+		lc1.Data["default"] = rndwalk[t:]
 		bc.Data = bcdata[t/2%10:]
 		ui.Render(p, list, g, sp, lc, bc, lc1, p1)
 	}

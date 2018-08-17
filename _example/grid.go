@@ -6,9 +6,11 @@
 
 package main
 
-import ui "github.com/gizak/termui"
+import (
+	"math"
 
-import "math"
+	ui "github.com/gizak/termui"
+)
 
 func main() {
 	if err := ui.Init(); err != nil {
@@ -45,10 +47,10 @@ func main() {
 
 	lc := ui.NewLineChart()
 	lc.BorderLabel = "braille-mode Line Chart"
-	lc.Data = sinps
+	lc.Data["default"] = sinps
 	lc.Height = 11
 	lc.AxesColor = ui.ColorWhite
-	lc.LineColor = ui.ColorYellow | ui.AttrBold
+	lc.LineColor["default"] = ui.ColorYellow | ui.AttrBold
 
 	gs := make([]*ui.Gauge, 3)
 	for i := range gs {
@@ -107,7 +109,7 @@ func main() {
 		}
 
 		sp.Lines[0].Data = spdata[:100+i]
-		lc.Data = sinps[2*i:]
+		lc.Data["default"] = sinps[2*i:]
 		ui.Render(ui.Body)
 	})
 
