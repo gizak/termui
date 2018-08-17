@@ -19,7 +19,7 @@ import (
 	"strings"
 
 	"github.com/gizak/termui"
-	"github.com/gizak/termui/_extra"
+	"github.com/gizak/termui/extra"
 )
 
 const statFilePath = "/proc/stat"
@@ -231,9 +231,9 @@ func (cte *CpuTabElems) Update(cs CpusStats) {
 		p := int(val.user + val.nice + val.system)
 		cte.GMap[key].Percent = p
 		if key == "cpu" {
-			cte.LChart.Data = append(cte.LChart.Data, 0)
-			copy(cte.LChart.Data[1:], cte.LChart.Data[0:])
-			cte.LChart.Data[0] = float64(p)
+			cte.LChart.Data["default"] = append(cte.LChart.Data["default"], 0)
+			copy(cte.LChart.Data["default"][1:], cte.LChart.Data["default"][0:])
+			cte.LChart.Data["default"][0] = float64(p)
 		}
 	}
 }
