@@ -21,11 +21,14 @@ func main() {
 
 	//termui.UseTheme("helloworld")
 
-	sinps := (func() []float64 {
+	sinps := (func() map[string][]float64 {
 		n := 220
-		ps := make([]float64, n)
-		for i := range ps {
-			ps[i] = 1 + math.Sin(float64(i)/5)
+		ps := make(map[string][]float64)
+		ps["first"] = make([]float64, n)
+		ps["second"] = make([]float64, n)
+		for i := 0; i < n; i++ {
+			ps["first"][i] = 1 + math.Sin(float64(i)/5)
+			ps["second"][i] = 1 + math.Cos(float64(i)/5)
 		}
 		return ps
 	})()
@@ -38,7 +41,7 @@ func main() {
 	lc0.X = 0
 	lc0.Y = 0
 	lc0.AxesColor = termui.ColorWhite
-	lc0.LineColor = termui.ColorGreen | termui.AttrBold
+	lc0.LineColor["first"] = termui.ColorGreen | termui.AttrBold
 
 	lc1 := termui.NewLineChart()
 	lc1.BorderLabel = "dot-mode Line Chart"
@@ -49,18 +52,19 @@ func main() {
 	lc1.X = 51
 	lc1.DotStyle = '+'
 	lc1.AxesColor = termui.ColorWhite
-	lc1.LineColor = termui.ColorYellow | termui.AttrBold
+	lc1.LineColor["first"] = termui.ColorYellow | termui.AttrBold
 
 	lc2 := termui.NewLineChart()
 	lc2.BorderLabel = "dot-mode Line Chart"
 	lc2.Mode = "dot"
-	lc2.Data = sinps[4:]
+	lc2.Data["first"] = sinps["first"][4:]
+	lc2.Data["second"] = sinps["second"][4:]
 	lc2.Width = 77
 	lc2.Height = 16
 	lc2.X = 0
 	lc2.Y = 12
 	lc2.AxesColor = termui.ColorWhite
-	lc2.LineColor = termui.ColorCyan | termui.AttrBold
+	lc2.LineColor["first"] = termui.ColorCyan | termui.AttrBold
 
 	termui.Render(lc0, lc1, lc2)
 	termui.Handle("/sys/kbd/q", func(termui.Event) {
