@@ -35,16 +35,17 @@ type PieChart struct {
 	Colors      []Attribute   // colors to by cycled through (see defaultColors)
 	BorderColor Attribute     // color of the pie-border
 	Label       PieChartLabel // callback function for labels
-	Offset      float64       // where to start drawing? (see piechartOffsetUp)
+	Offset      float64       // which angle to start drawing at? (see piechartOffsetUp)
 }
 
-// Creates a new pie chart with reasonable defaults and no labels
+// NewPieChart Creates a new pie chart with reasonable defaults and no labels
 func NewPieChart() *PieChart {
-	pc := &PieChart{Block: *NewBlock()}
-	pc.Colors = defaultColors
-	pc.Offset = piechartOffsetUp
-	pc.BorderColor = ColorDefault
-	return pc
+	return &PieChart{
+		Block:       *NewBlock(),
+		Colors:      defaultColors,
+		Offset:      piechartOffsetUp,
+		BorderColor: ColorDefault,
+	}
 }
 
 // computes the color for a given data index
@@ -52,18 +53,16 @@ func (pc *PieChart) colorFor(i int) Attribute {
 	return pc.Colors[i%len(pc.Colors)]
 }
 
-// creates the buffer for the pie chart
+// Buffer creates the buffer for the pie chart
 func (pc *PieChart) Buffer() Buffer {
 	buf := pc.Block.Buffer()
 	w, h := pc.innerArea.Dx(), pc.innerArea.Dy()
 	center := image.Point{X: w / 2, Y: h / 2}
 
 	// radius for the border
-	r := 0.0
+	r := float64(w/2/xStretch) - 1.0
 	if h < w/xStretch {
 		r = float64(h/2) - 1.0
-	} else {
-		r = float64(w/2/xStretch) - 1.0
 	}
 
 	// make border
@@ -148,10 +147,10 @@ func fill(p image.Point, c *Cell, buf *Buffer) {
 		w, e, row := p.X, p.X, p.Y
 
 		for empty(w-1, row) {
-			w -= 1
+			w--
 		}
 		for empty(e+1, row) {
-			e += 1
+			e++
 		}
 		for x := w; x <= e; x++ {
 			buf.Set(x, row, *c)
@@ -286,7 +285,6 @@ func sum(data []float64) float64 {
 func abs(x int) int {
 	if x >= 0 {
 		return x
-	} else {
-		return -x
 	}
+	return -x
 }

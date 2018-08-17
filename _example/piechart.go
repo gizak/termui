@@ -4,10 +4,11 @@ package main
 
 import (
 	"fmt"
-	"github.com/gizak/termui"
 	"math"
 	"math/rand"
 	"time"
+
+	"github.com/gizak/termui"
 )
 
 func main() {
