@@ -2,56 +2,80 @@
 
 
 [[projects]]
+  digest = "1:a2c1d0e43bd3baaa071d1b9ed72c27d78169b2b269f71c105ac4ba34b1be4a39"
   name = "github.com/davecgh/go-spew"
   packages = ["spew"]
+  pruneopts = "UT"
   revision = "346938d642f2ec3594ed81d874461961cd0faa76"
   version = "v1.1.0"
 
 [[projects]]
   branch = "master"
+  digest = "1:2eeeebccad4f052e6037527e86b8114c6bfd184a97f84d4449a5ea6ad202c216"
   name = "github.com/maruel/panicparse"
   packages = ["stack"]
+  pruneopts = "UT"
   revision = "4417700b5a8d33fbb4416bb04359d20329f60008"
 
 [[projects]]
+  digest = "1:e2d1d410fb367567c2b53ed9e2d719d3c1f0891397bb2fa49afd747cfbf1e8e4"
   name = "github.com/mattn/go-runewidth"
   packages = ["."]
+  pruneopts = "UT"
   revision = "9e777a8366cce605130a531d2cd6363d07ad7317"
   version = "v0.0.2"
 
 [[projects]]
   branch = "master"
+  digest = "1:e68cd472b96cdf7c9f6971ac41bcc1d4d3b23d67c2a31d2399446e295bc88ae9"
   name = "github.com/mitchellh/go-wordwrap"
   packages = ["."]
+  pruneopts = "UT"
   revision = "ad45545899c7b13c020ea92b2072220eefad42b8"
 
 [[projects]]
   branch = "master"
+  digest = "1:c9b6e36dbd23f8403a04493376916ca5dad8c01b2da5ae0a05e6a468eb0b6f24"
   name = "github.com/nsf/termbox-go"
   packages = ["."]
+  pruneopts = "UT"
   revision = "5c94acc5e6eb520f1bcd183974e01171cc4c23b3"
 
 [[projects]]
+  digest = "1:0028cb19b2e4c3112225cd871870f2d9cf49b9b4276531f03438a88e94be86fe"
   name = "github.com/pmezard/go-difflib"
   packages = ["difflib"]
+  pruneopts = "UT"
   revision = "792786c7400a136282c1664665ae0a8db921c6c2"
   version = "v1.0.0"
 
 [[projects]]
+  digest = "1:18752d0b95816a1b777505a97f71c7467a8445b8ffb55631a7bf779f6ba4fa83"
   name = "github.com/stretchr/testify"
   packages = ["assert"]
+  pruneopts = "UT"
   revision = "f35b8ab0b5a2cef36673838d662e249dd9c94686"
   version = "v1.2.2"
 
 [[projects]]
   branch = "master"
+  digest = "1:7427036b6d926b3d1fa0773771820735b35554a98296f1074df440ee30a97296"
   name = "golang.org/x/net"
   packages = ["websocket"]
+  pruneopts = "UT"
   revision = "f4c29de78a2a91c00474a2e689954305c350adf9"
 
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "0d20d9e695a3033eb9c49b41a66787c1465e6cc8ba4f8d7ef8488b3b686b530d"
+  input-imports = [
+    "github.com/davecgh/go-spew/spew",
+    "github.com/maruel/panicparse/stack",
+    "github.com/mattn/go-runewidth",
+    "github.com/mitchellh/go-wordwrap",
+    "github.com/nsf/termbox-go",
+    "github.com/stretchr/testify/assert",
+    "golang.org/x/net/websocket",
+  ]
   solver-name = "gps-cdcl"
   solver-version = 1
