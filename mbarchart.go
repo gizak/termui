@@ -30,6 +30,7 @@ type MBarChart struct {
 	BarColor   [NumberofColors]Attribute
 	TextColor  Attribute
 	NumColor   [NumberofColors]Attribute
+	NumFmt     func(int) string
 	Data       [NumberofColors][]int
 	DataLabels []string
 	BarWidth   int
@@ -51,6 +52,7 @@ func NewMBarChart() *MBarChart {
 	bc.BarColor[0] = ThemeAttr("mbarchart.bar.bg")
 	bc.NumColor[0] = ThemeAttr("mbarchart.num.fg")
 	bc.TextColor = ThemeAttr("mbarchart.text.fg")
+	bc.NumFmt = func(n int) string { return fmt.Sprint(n) }
 	bc.BarGap = 1
 	bc.BarWidth = 3
 	return bc
@@ -93,7 +95,7 @@ func (bc *MBarChart) layout() {
 		//For each stack of bar calculate the rune
 		for j := 0; j < LabelLen && i < bc.numBar; j++ {
 			n := bc.Data[i][j]
-			s := fmt.Sprint(n)
+			s := bc.NumFmt(n)
 			bc.dataNum[i][j] = trimStr2Runes(s, bc.BarWidth)
 		}
 		//If color is not defined by default then populate a color that is different from the previous bar
@@ -127,7 +129,7 @@ func (bc *MBarChart) layout() {
 
 	//Finally Calculate max sale
 	if bc.ShowScale {
-		s := fmt.Sprintf("%d", bc.max)
+		s := bc.NumFmt(bc.max)
 		bc.maxScale = trimStr2Runes(s, len(s))
 		bc.scale = float64(bc.max) / float64(bc.innerArea.Dy()-2)
 	} else {

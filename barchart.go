@@ -25,6 +25,7 @@ type BarChart struct {
 	BarColor   Attribute
 	TextColor  Attribute
 	NumColor   Attribute
+	NumFmt     func(int) string
 	Data       []int
 	DataLabels []string
 	BarWidth   int
@@ -43,6 +44,7 @@ func NewBarChart() *BarChart {
 	bc.BarColor = ThemeAttr("barchart.bar.bg")
 	bc.NumColor = ThemeAttr("barchart.num.fg")
 	bc.TextColor = ThemeAttr("barchart.text.fg")
+	bc.NumFmt = func(n int) string { return fmt.Sprint(n) }
 	bc.BarGap = 1
 	bc.BarWidth = 3
 	bc.CellChar = ' '
@@ -57,7 +59,7 @@ func (bc *BarChart) layout() {
 	for i := 0; i < bc.numBar && i < len(bc.DataLabels) && i < len(bc.Data); i++ {
 		bc.labels[i] = trimStr2Runes(bc.DataLabels[i], bc.BarWidth)
 		n := bc.Data[i]
-		s := fmt.Sprint(n)
+		s := bc.NumFmt(n)
 		bc.dataNum[i] = trimStr2Runes(s, bc.BarWidth)
 	}
 
