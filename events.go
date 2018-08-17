@@ -164,7 +164,7 @@ func NewSysEvtCh() chan Event {
 	return ec
 }
 
-var DefaultEvtStream = NewEvtStream()
+var DefaultEvtStream *EvtStream
 
 type EvtStream struct {
 	sync.RWMutex

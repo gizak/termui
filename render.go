@@ -34,6 +34,7 @@ func Init() error {
 		return err
 	}
 	tm.SetInputMode(tm.InputEsc | tm.InputMouse)
+	DefaultEvtStream = NewEvtStream()
 
 	sysEvtChs = make([]chan Event, 0)
 	go hookTermboxEvt()
