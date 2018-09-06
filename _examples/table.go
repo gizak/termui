@@ -50,7 +50,7 @@ func main() {
 
 	ui.Render(table2)
 
-	ui.Handle("/sys/kbd/q", func(ui.Event) {
+	ui.Handle("q", func(ui.Event) {
 		ui.StopLoop()
 	})
 

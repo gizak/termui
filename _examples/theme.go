@@ -8,6 +8,7 @@ package main
 
 import (
 	"math"
+	"time"
 
 	ui "github.com/gizak/termui"
 )
@@ -134,14 +135,20 @@ func main() {
 
 	ui.Render(p, list, g, sp, lc, bc, lc1, p1)
 
-	ui.Handle("/sys/kbd/q", func(ui.Event) {
+	ui.Handle("q", func(ui.Event) {
 		ui.StopLoop()
 	})
 
-	ui.Handle("/timer/1s", func(e ui.Event) {
-		t := e.Data.(ui.EvtTimer)
-		draw(int(t.Count))
-	})
+	drawTicker := time.NewTicker(time.Second)
+	drawTickerCount := 1
+	go func() {
+		for {
+			draw(drawTickerCount)
+
+			drawTickerCount++
+			<-drawTicker.C
+		}
+	}()
 
 	ui.Loop()
 }

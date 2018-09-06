@@ -58,17 +58,17 @@ func main() {
 
 	ui.Render(header, tabpane)
 
-	ui.Handle("/sys/kbd/q", func(ui.Event) {
+	ui.Handle("q", func(ui.Event) {
 		ui.StopLoop()
 	})
 
-	ui.Handle("/sys/kbd/j", func(ui.Event) {
+	ui.Handle("j", func(ui.Event) {
 		tabpane.SetActiveLeft()
 		ui.Clear()
 		ui.Render(header, tabpane)
 	})
 
-	ui.Handle("/sys/kbd/k", func(ui.Event) {
+	ui.Handle("k", func(ui.Event) {
 		tabpane.SetActiveRight()
 		ui.Clear()
 		ui.Render(header, tabpane)

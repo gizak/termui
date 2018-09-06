@@ -5,60 +5,163 @@
 package termui
 
 import (
-	"path"
 	"strconv"
 	"sync"
-	"time"
 
-	"github.com/nsf/termbox-go"
+	tb "github.com/nsf/termbox-go"
 )
 
+/*
+Here's the list of events which can be assigned handlers using Handle():
+	mouse events:
+		<MouseLeft> <MouseRight> <MouseMiddle>
+		<MouseWheelUp> <MouseWheelDown>
+	keyboard events:
+		any uppercase or lowercase letter or a set of two letters like j or jj or J or JJ
+		<C-d> etc
+		<M-d> etc
+		<Up> <Down> <Left> <Right>
+		<Insert> <Delete> <Home> <End> <Previous> <Next>
+		<Backspace> <Tab> <Enter> <Escape> <Space>
+		<C-<Space>> etc
+	terminal events:
+		<Resize>
+*/
+
+type EventType int
+
+const (
+	KeyboardEvent EventType = iota
+	MouseEvent
+	ResizeEvent
+)
+
+type eventStream struct {
+	sync.RWMutex
+	handlers   map[string]func(Event)
+	stopLoop   chan bool
+	eventQueue chan tb.Event // list of events from termbox
+	hook       func(Event)
+}
+
+var defaultES = eventStream{
+	handlers:   make(map[string]func(Event)),
+	stopLoop:   make(chan bool, 1),
+	eventQueue: make(chan tb.Event),
+	hook:       DefaultHandler,
+}
+
+// Event contains an ID used for Handle() and an optional payload.
 type Event struct {
-	Type string
-	Path string
-	From string
-	To   string
-	Data interface{}
-	Time int64
+	Type    EventType
+	ID      string
+	Payload interface{}
 }
 
-var sysEvtChs []chan Event
-
-type EvtKbd struct {
-	KeyStr string
+// Mouse payload.
+type Mouse struct {
+	Drag bool
+	X    int
+	Y    int
 }
 
-func evtKbd(e termbox.Event) EvtKbd {
-	ek := EvtKbd{}
+// Resize payload.
+type Resize struct {
+	Width  int
+	Height int
+}
 
+// handleEvent calls the approriate callback function if there is one.
+func handleEvent(e Event) {
+	if val, ok := defaultES.handlers[e.ID]; ok {
+		val(e)
+	}
+}
+
+// Loop gets events from termbox and passes them off to handleEvent.
+// Stops when StopLoop is called.
+func Loop() {
+	go func() {
+		for {
+			defaultES.eventQueue <- tb.PollEvent()
+		}
+	}()
+
+	for {
+		select {
+		case <-defaultES.stopLoop:
+			return
+		case e := <-defaultES.eventQueue:
+			ne := convertTermboxEvent(e)
+			defaultES.RLock()
+			handleEvent(ne)
+			defaultES.hook(ne)
+			defaultES.RUnlock()
+		}
+	}
+}
+
+// StopLoop stops the event loop.
+func StopLoop() {
+	defaultES.stopLoop <- true
+}
+
+// Handle assigns event names to their handlers. Takes a string, strings, or a slice of strings, and a function.
+func Handle(things ...interface{}) {
+	function := things[len(things)-1].(func(Event))
+	for _, thing := range things {
+		if value, ok := thing.(string); ok {
+			defaultES.Lock()
+			defaultES.handlers[value] = function
+			defaultES.Unlock()
+		}
+		if value, ok := thing.([]string); ok {
+			defaultES.Lock()
+			for _, name := range value {
+				defaultES.handlers[name] = function
+			}
+			defaultES.Unlock()
+		}
+	}
+}
+
+func EventHook(f func(Event)) {
+	defaultES.Lock()
+	defaultES.hook = f
+	defaultES.Unlock()
+}
+
+// convertTermboxKeyboardEvent converts a termbox keyboard event to a more friendly string format.
+// Combines modifiers into the string instead of having them as additional fields in an event.
+func convertTermboxKeyboardEvent(e tb.Event) Event {
 	k := string(e.Ch)
 	pre := ""
 	mod := ""
 
-	if e.Mod == termbox.ModAlt {
-		mod = "M-"
+	if e.Mod == tb.ModAlt {
+		mod = "<M-"
 	}
 	if e.Ch == 0 {
 		if e.Key > 0xFFFF-12 {
 			k = "<f" + strconv.Itoa(0xFFFF-int(e.Key)+1) + ">"
 		} else if e.Key > 0xFFFF-25 {
-			ks := []string{"<insert>", "<delete>", "<home>", "<end>", "<previous>", "<next>", "<up>", "<down>", "<left>", "<right>"}
+			ks := []string{"<Insert>", "<Delete>", "<Home>", "<End>", "<Previous>", "<Next>", "<Up>", "<Down>", "<Left>", "<Right>"}
 			k = ks[0xFFFF-int(e.Key)-12]
 		}
 
 		if e.Key <= 0x7F {
-			pre = "C-"
+			pre = "<C-"
 			k = string('a' - 1 + int(e.Key))
-			kmap := map[termbox.Key][2]string{
-				termbox.KeyCtrlSpace:     {"C-", "<space>"},
-				termbox.KeyBackspace:     {"", "<backspace>"},
-				termbox.KeyTab:           {"", "<tab>"},
-				termbox.KeyEnter:         {"", "<enter>"},
-				termbox.KeyEsc:           {"", "<escape>"},
-				termbox.KeyCtrlBackslash: {"C-", "\\"},
-				termbox.KeyCtrlSlash:     {"C-", "/"},
-				termbox.KeySpace:         {"", "<space>"},
-				termbox.KeyCtrl8:         {"C-", "8"},
+			kmap := map[tb.Key][2]string{
+				tb.KeyCtrlSpace:     {"C-", "<Space>"},
+				tb.KeyBackspace:     {"", "<Backspace>"},
+				tb.KeyTab:           {"", "<Tab>"},
+				tb.KeyEnter:         {"", "<Enter>"},
+				tb.KeyEsc:           {"", "<Escape>"},
+				tb.KeyCtrlBackslash: {"C-", "\\"},
+				tb.KeyCtrlSlash:     {"C-", "/"},
+				tb.KeySpace:         {"", "<Space>"},
+				tb.KeyCtrl8:         {"C-", "8"},
 			}
 			if sk, ok := kmap[e.Key]; ok {
 				pre = sk[0]
@@ -67,288 +170,85 @@ func evtKbd(e termbox.Event) EvtKbd {
 		}
 	}
 
-	ek.KeyStr = pre + mod + k
-	return ek
-}
-
-func crtTermboxEvt(e termbox.Event) Event {
-	systypemap := map[termbox.EventType]string{
-		termbox.EventKey:       "keyboard",
-		termbox.EventResize:    "window",
-		termbox.EventMouse:     "mouse",
-		termbox.EventError:     "error",
-		termbox.EventInterrupt: "interrupt",
-	}
-	ne := Event{From: "/sys", Time: time.Now().Unix()}
-	typ := e.Type
-	ne.Type = systypemap[typ]
-
-	switch typ {
-	case termbox.EventKey:
-		kbd := evtKbd(e)
-		ne.Path = "/sys/kbd/" + kbd.KeyStr
-		ne.Data = kbd
-	case termbox.EventResize:
-		wnd := EvtWnd{}
-		wnd.Width = e.Width
-		wnd.Height = e.Height
-		ne.Path = "/sys/wnd/resize"
-		ne.Data = wnd
-	case termbox.EventError:
-		err := EvtErr(e.Err)
-		ne.Path = "/sys/err"
-		ne.Data = err
-	case termbox.EventMouse:
-		m := evtMouse(e)
-		ne.Path = "/sys/mouse/" + m.Press
-		ne.Data = m
-	}
-	return ne
-}
-
-type EvtWnd struct {
-	Width  int
-	Height int
-}
-
-type EvtMouse struct {
-	X     int
-	Y     int
-	Drag  bool
-	Press string
-}
-
-func evtMouse(e termbox.Event) EvtMouse {
-	em := EvtMouse{}
-	em.X = e.MouseX
-	em.Y = e.MouseY
-
-	if e.Mod == termbox.ModMotion {
-		em.Drag = true
+	if pre != "" {
+		k += ">"
 	}
 
-	switch e.Key {
-	case termbox.MouseLeft:
-		em.Press = "MouseLeft"
-	case termbox.MouseMiddle:
-		em.Press = "MouseMiddle"
-	case termbox.MouseRight:
-		em.Press = "MouseRight"
+	id := pre + mod + k
 
-	case termbox.MouseRelease:
-		em.Press = "MouseRelease"
-
-	case termbox.MouseWheelUp:
-		em.Press = "MouseWheelUp"
-	case termbox.MouseWheelDown:
-		em.Press = "MouseWheelDown"
-	default:
-		em.Press = "Unknown_Mouse_Button"
+	return Event{
+		Type: KeyboardEvent,
+		ID:   id,
 	}
-
-	return em
 }
 
-type EvtErr error
+func convertTermboxMouseEvent(e tb.Event) Event {
+	mouseButtonMap := map[tb.Key]string{
+		tb.MouseLeft:      "<MouseLeft>",
+		tb.MouseMiddle:    "<MouseMiddle>",
+		tb.MouseRight:     "<MouseRight>",
+		tb.MouseRelease:   "<MouseRelease>",
+		tb.MouseWheelUp:   "<MouseWheelUp>",
+		tb.MouseWheelDown: "<MouseWheelDown>",
+	}
 
-func hookTermboxEvt() {
-	for {
-		e := termbox.PollEvent()
+	converted, ok := mouseButtonMap[e.Key]
+	if !ok {
+		converted = "Unknown_Mouse_Button"
+	}
 
-		for _, c := range sysEvtChs {
-			go func(ch chan Event) {
-				ch <- crtTermboxEvt(e)
-			}(c)
+	Drag := false
+	if e.Mod == tb.ModMotion {
+		Drag = true
+	}
+
+	return Event{
+		Type: MouseEvent,
+		ID:   converted,
+		Payload: Mouse{
+			X:    e.MouseX,
+			Y:    e.MouseY,
+			Drag: Drag,
+		},
+	}
+}
+
+// convertTermboxEvent turns a termbox event into a termui event.
+func convertTermboxEvent(e tb.Event) Event {
+	if e.Type == tb.EventError {
+		panic(e.Err)
+	}
+
+	switch e.Type {
+	case tb.EventKey:
+		return convertTermboxKeyboardEvent(e)
+	case tb.EventMouse:
+		return convertTermboxMouseEvent(e)
+	case tb.EventResize:
+		return Event{
+			Type: ResizeEvent,
+			ID:   "<Resize>",
+			Payload: Resize{
+				Width:  e.Width,
+				Height: e.Height,
+			},
 		}
 	}
-}
 
-func NewSysEvtCh() chan Event {
-	ec := make(chan Event)
-	sysEvtChs = append(sysEvtChs, ec)
-	return ec
-}
-
-var DefaultEvtStream *EvtStream
-
-type EvtStream struct {
-	sync.RWMutex
-	srcMap      map[string]chan Event
-	stream      chan Event
-	wg          sync.WaitGroup
-	sigStopLoop chan Event
-	Handlers    map[string]func(Event)
-	hook        func(Event)
-}
-
-func NewEvtStream() *EvtStream {
-	return &EvtStream{
-		srcMap:      make(map[string]chan Event),
-		stream:      make(chan Event),
-		Handlers:    make(map[string]func(Event)),
-		sigStopLoop: make(chan Event),
-	}
-}
-
-func (es *EvtStream) Init() {
-	es.Merge("internal", es.sigStopLoop)
-	go func() {
-		es.wg.Wait()
-		close(es.stream)
-	}()
-}
-
-func cleanPath(p string) string {
-	if p == "" {
-		return "/"
-	}
-	if p[0] != '/' {
-		p = "/" + p
-	}
-	return path.Clean(p)
-}
-
-func isPathMatch(pattern, path string) bool {
-	if len(pattern) == 0 {
-		return false
-	}
-	n := len(pattern)
-	return len(path) >= n && path[0:n] == pattern
-}
-
-func (es *EvtStream) Merge(name string, ec chan Event) {
-	es.Lock()
-	defer es.Unlock()
-
-	es.wg.Add(1)
-	es.srcMap[name] = ec
-
-	go func(a chan Event) {
-		for n := range a {
-			n.From = name
-			es.stream <- n
-		}
-		es.wg.Done()
-	}(ec)
-}
-
-func (es *EvtStream) Handle(path string, handler func(Event)) {
-	es.Handlers[cleanPath(path)] = handler
-}
-
-func findMatch(mux map[string]func(Event), path string) string {
-	n := -1
-	pattern := ""
-	for m := range mux {
-		if !isPathMatch(m, path) {
-			continue
-		}
-		if len(m) > n {
-			pattern = m
-			n = len(m)
-		}
-	}
-	return pattern
-
-}
-
-// Remove all existing defined Handlers from the map
-func (es *EvtStream) ResetHandlers() {
-	for Path, _ := range es.Handlers {
-		delete(es.Handlers, Path)
-	}
-	return
-}
-
-func (es *EvtStream) match(path string) string {
-	return findMatch(es.Handlers, path)
-}
-
-func (es *EvtStream) Hook(f func(Event)) {
-	es.hook = f
-}
-
-func (es *EvtStream) Loop() {
-	for e := range es.stream {
-		switch e.Path {
-		case "/sig/stoploop":
-			return
-		}
-		go func(a Event) {
-			es.RLock()
-			defer es.RUnlock()
-			if pattern := es.match(a.Path); pattern != "" {
-				es.Handlers[pattern](a)
-			}
-		}(e)
-		if es.hook != nil {
-			es.hook(e)
-		}
-	}
-}
-
-func (es *EvtStream) StopLoop() {
-	go func() {
-		e := Event{
-			Path: "/sig/stoploop",
-		}
-		es.sigStopLoop <- e
-	}()
-}
-
-func Merge(name string, ec chan Event) {
-	DefaultEvtStream.Merge(name, ec)
-}
-
-func Handle(path string, handler func(Event)) {
-	DefaultEvtStream.Handle(path, handler)
-}
-
-func Loop() {
-	DefaultEvtStream.Loop()
-}
-
-func StopLoop() {
-	DefaultEvtStream.StopLoop()
-}
-
-type EvtTimer struct {
-	Duration time.Duration
-	Count    uint64
-}
-
-func NewTimerCh(du time.Duration) chan Event {
-	t := make(chan Event)
-
-	go func(a chan Event) {
-		n := uint64(0)
-		for {
-			n++
-			time.Sleep(du)
-			e := Event{}
-			e.Type = "timer"
-			e.Path = "/timer/" + du.String()
-			e.Time = time.Now().Unix()
-			e.Data = EvtTimer{
-				Duration: du,
-				Count:    n,
-			}
-			t <- e
-
-		}
-	}(t)
-	return t
+	return Event{}
 }
 
 var DefaultHandler = func(e Event) {
 }
 
-var usrEvtCh = make(chan Event)
+func ResetHandlers() {
+	defaultES.Lock()
+	defaultES.handlers = make(map[string]func(Event))
+	defaultES.Unlock()
+}
 
-func SendCustomEvt(path string, data interface{}) {
-	e := Event{}
-	e.Path = path
-	e.Data = data
-	e.Time = time.Now().Unix()
-	usrEvtCh <- e
+func ResetHandler(handle string) {
+	defaultES.Lock()
+	delete(defaultES.handlers, handle)
+	defaultES.Unlock()
 }

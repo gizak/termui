@@ -75,8 +75,8 @@ func GenId() string {
 func (wm WgtMgr) WgtHandlersHook() func(Event) {
 	return func(e Event) {
 		for _, v := range wm {
-			if k := findMatch(v.Handlers, e.Path); k != "" {
-				v.Handlers[k](e)
+			if val, ok := v.Handlers[e.ID]; ok {
+				val(e)
 			}
 		}
 	}

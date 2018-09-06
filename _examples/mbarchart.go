@@ -41,7 +41,7 @@ func main() {
 
 	ui.Render(bc)
 
-	ui.Handle("/sys/kbd/q", func(ui.Event) {
+	ui.Handle("q", func(ui.Event) {
 		ui.StopLoop()
 	})
 

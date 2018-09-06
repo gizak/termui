@@ -37,14 +37,21 @@ func main() {
 		return fmt.Sprintf("%.02f", v)
 	}
 
-	ui.Handle("/timer/1s", func(e ui.Event) {
-		if run {
-			pc.Data, pc.Offset = randomDataAndOffset()
-			ui.Render(pc)
-		}
-	})
+	drawTicker := time.NewTicker(time.Second)
+	drawTickerCount := 1
+	go func() {
+		for {
+			if run {
+				pc.Data, pc.Offset = randomDataAndOffset()
+				ui.Render(pc)
+			}
 
-	ui.Handle("/sys/kbd/s", func(ui.Event) {
+			drawTickerCount++
+			<-drawTicker.C
+		}
+	}()
+
+	ui.Handle("s", func(ui.Event) {
 		run = !run
 		if run {
 			pc.BorderLabel = "Pie Chart"
@@ -54,7 +61,7 @@ func main() {
 		ui.Render(pc)
 	})
 
-	ui.Handle("/sys/kbd/q", func(ui.Event) {
+	ui.Handle("q", func(ui.Event) {
 		ui.StopLoop()
 	})
 

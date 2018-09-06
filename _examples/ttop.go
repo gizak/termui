@@ -17,6 +17,7 @@ import (
 	"sort"
 	"strconv"
 	"strings"
+	"time"
 
 	ui "github.com/gizak/termui"
 	"github.com/gizak/termui/extra"
@@ -330,35 +331,42 @@ func main() {
 
 	ui.Render(header, tabpane)
 
-	ui.Handle("/sys/kbd/q", func(ui.Event) {
+	ui.Handle("q", func(ui.Event) {
 		ui.StopLoop()
 	})
 
-	ui.Handle("/sys/kbd/j", func(ui.Event) {
+	ui.Handle("j", func(ui.Event) {
 		tabpane.SetActiveLeft()
 		ui.Render(header, tabpane)
 	})
 
-	ui.Handle("/sys/kbd/k", func(ui.Event) {
+	ui.Handle("k", func(ui.Event) {
 		tabpane.SetActiveRight()
 		ui.Render(header, tabpane)
 	})
 
-	ui.Handle("/timer/1s", func(e ui.Event) {
-		cs, errcs := getCpusStatsMap()
-		if errcs != nil {
-			panic(errcs)
-		}
-		cpusStats.tick(cs)
-		cpuTabElems.Update(*cpusStats)
+	drawTicker := time.NewTicker(time.Second)
+	drawTickerCount := 1
+	go func() {
+		for {
+			cs, errcs := getCpusStatsMap()
+			if errcs != nil {
+				panic(errcs)
+			}
+			cpusStats.tick(cs)
+			cpuTabElems.Update(*cpusStats)
 
-		ms, errm := getMemStats()
-		if errm != nil {
-			panic(errm)
+			ms, errm := getMemStats()
+			if errm != nil {
+				panic(errm)
+			}
+			memTabElems.Update(ms)
+			ui.Render(header, tabpane)
+
+			drawTickerCount++
+			<-drawTicker.C
 		}
-		memTabElems.Update(ms)
-		ui.Render(header, tabpane)
-	})
+	}()
 
 	ui.Loop()
 }

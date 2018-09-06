@@ -8,7 +8,6 @@ import (
 	"image"
 	"runtime/debug"
 	"sync"
-	"time"
 
 	tb "github.com/nsf/termbox-go"
 )
@@ -25,10 +24,10 @@ func Init() error {
 		return err
 	}
 	tb.SetInputMode(tb.InputEsc | tb.InputMouse)
-	DefaultEvtStream = NewEvtStream()
+	// DefaultEvtStream = NewEvtStream()
 
-	sysEvtChs = make([]chan Event, 0)
-	go hookTermboxEvt()
+	// sysEvtChs = make([]chan Event, 0)
+	// go hookTermboxEvt()
 
 	renderJobs = make(chan []Bufferer)
 	//renderLock = new(sync.RWMutex)
@@ -39,19 +38,13 @@ func Init() error {
 	Body.BgColor = ThemeAttr("bg")
 	Body.Width = TermWidth()
 
-	DefaultEvtStream.Init()
-	DefaultEvtStream.Merge("termbox", NewSysEvtCh())
-	DefaultEvtStream.Merge("timer", NewTimerCh(time.Second))
-	DefaultEvtStream.Merge("custom", usrEvtCh)
-
-	DefaultEvtStream.Handle("/", DefaultHandler)
-	DefaultEvtStream.Handle("/sys/wnd/resize", func(e Event) {
-		w := e.Data.(EvtWnd)
-		Body.Width = w.Width
+	Handle("<Resize>", func(e Event) {
+		payload := e.Payload.(Resize)
+		Body.Width = payload.Width
 	})
 
 	DefaultWgtMgr = NewWgtMgr()
-	DefaultEvtStream.Hook(DefaultWgtMgr.WgtHandlersHook())
+	EventHook(DefaultWgtMgr.WgtHandlersHook())
 
 	go func() {
 		for bs := range renderJobs {

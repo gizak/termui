@@ -8,6 +8,7 @@ package main
 
 import (
 	"math"
+	"time"
 
 	ui "github.com/gizak/termui"
 )
@@ -91,29 +92,33 @@ func main() {
 
 	ui.Render(ui.Body)
 
-	ui.Handle("/sys/kbd/q", func(ui.Event) {
+	ui.Handle("q", func(ui.Event) {
 		ui.StopLoop()
 	})
 
-	ui.Handle("/timer/1s", func(e ui.Event) {
-		t := e.Data.(ui.EvtTimer)
-		i := t.Count
-		if i > 103 {
-			ui.StopLoop()
-			return
+	drawTicker := time.NewTicker(time.Second)
+	drawTickerCount := 1
+	go func() {
+		for {
+			if drawTickerCount > 103 {
+				ui.StopLoop()
+				return
+			}
+			for _, g := range gs {
+				g.Percent = (g.Percent + 3) % 100
+			}
+			sp.Lines[0].Data = spdata[:100+drawTickerCount]
+			lc.Data["default"] = sinps[2*drawTickerCount:]
+			ui.Render(ui.Body)
+
+			drawTickerCount++
+			<-drawTicker.C
 		}
+	}()
 
-		for _, g := range gs {
-			g.Percent = (g.Percent + 3) % 100
-		}
-
-		sp.Lines[0].Data = spdata[:100+i]
-		lc.Data["default"] = sinps[2*i:]
-		ui.Render(ui.Body)
-	})
-
-	ui.Handle("/sys/wnd/resize", func(e ui.Event) {
-		ui.Body.Width = ui.TermWidth()
+	ui.Handle("<Resize>", func(e ui.Event) {
+		payload := e.Payload.(ui.Resize)
+		ui.Body.Width = payload.Width
 		ui.Body.Align()
 		ui.Clear()
 		ui.Render(ui.Body)

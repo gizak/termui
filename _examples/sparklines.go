@@ -56,7 +56,7 @@ func main() {
 
 	ui.Render(spls0, spls1, spls2)
 
-	ui.Handle("/sys/kbd/q", func(ui.Event) {
+	ui.Handle("q", func(ui.Event) {
 		ui.StopLoop()
 	})
 
