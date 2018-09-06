@@ -125,23 +125,23 @@ type Block struct {
 
 // NewBlock returns a *Block which inherits styles from current theme.
 func NewBlock() *Block {
-	b := Block{}
-	b.Display = true
-	b.Border = true
-	b.BorderLeft = true
-	b.BorderRight = true
-	b.BorderTop = true
-	b.BorderBottom = true
-	b.BorderBg = ThemeAttr("border.bg")
-	b.BorderFg = ThemeAttr("border.fg")
-	b.BorderLabelBg = ThemeAttr("label.bg")
-	b.BorderLabelFg = ThemeAttr("label.fg")
-	b.Bg = ThemeAttr("block.bg")
-	b.Width = 2
-	b.Height = 2
-	b.id = GenId()
-	b.Float = AlignNone
-	return &b
+	return &Block{
+		Display:       true,
+		Border:        true,
+		BorderLeft:    true,
+		BorderRight:   true,
+		BorderTop:     true,
+		BorderBottom:  true,
+		BorderBg:      ThemeAttr("border.bg"),
+		BorderFg:      ThemeAttr("border.fg"),
+		BorderLabelBg: ThemeAttr("label.bg"),
+		BorderLabelFg: ThemeAttr("label.fg"),
+		Bg:            ThemeAttr("block.bg"),
+		Width:         2,
+		Height:        2,
+		id:            GenId(),
+		Float:         AlignNone,
+	}
 }
 
 func (b Block) Id() string {

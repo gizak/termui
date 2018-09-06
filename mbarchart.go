@@ -46,16 +46,18 @@ type MBarChart struct {
 	maxScale   []rune
 }
 
-// NewBarChart returns a new *BarChart with current theme.
+// NewMBarChart returns a new *MBarChart with current theme.
 func NewMBarChart() *MBarChart {
-	bc := &MBarChart{Block: *NewBlock()}
-	bc.BarColor[0] = ThemeAttr("mbarchart.bar.bg")
-	bc.NumColor[0] = ThemeAttr("mbarchart.num.fg")
-	bc.TextColor = ThemeAttr("mbarchart.text.fg")
-	bc.NumFmt = func(n int) string { return fmt.Sprint(n) }
-	bc.BarGap = 1
-	bc.BarWidth = 3
-	return bc
+	mbc := &MBarChart{
+		Block:     *NewBlock(),
+		TextColor: ThemeAttr("mbarchart.text.fg"),
+		NumFmt:    func(n int) string { return fmt.Sprint(n) },
+		BarGap:    1,
+		BarWidth:  3,
+	}
+	mbc.BarColor[0] = ThemeAttr("mbarchart.bar.bg")
+	mbc.NumColor[0] = ThemeAttr("mbarchart.num.fg")
+	return mbc
 }
 
 func (bc *MBarChart) layout() {
@@ -139,7 +141,6 @@ func (bc *MBarChart) layout() {
 }
 
 func (bc *MBarChart) SetMax(max int) {
-
 	if max > 0 {
 		bc.max = max
 	}
@@ -148,7 +149,9 @@ func (bc *MBarChart) SetMax(max int) {
 // Buffer implements Bufferer interface.
 func (bc *MBarChart) Buffer() Buffer {
 	buf := bc.Block.Buffer()
+
 	bc.layout()
+
 	var oftX int
 
 	for i := 0; i < bc.numBar && i < bc.minDataLen && i < len(bc.DataLabels); i++ {

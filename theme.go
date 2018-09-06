@@ -103,7 +103,6 @@ func ThemeAttr(name string) Attribute {
 }
 
 func lookUpAttr(clrmap map[string]Attribute, name string) Attribute {
-
 	a, ok := clrmap[name]
 	if ok {
 		return a

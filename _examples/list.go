@@ -6,16 +6,11 @@
 
 package main
 
-import "github.com/gizak/termui"
+import ui "github.com/gizak/termui"
 
 func main() {
-	err := termui.Init()
-	if err != nil {
-		panic(err)
-	}
-	defer termui.Close()
-
-	//termui.UseTheme("helloworld")
+	ui.Init()
+	defer ui.Close()
 
 	strs := []string{
 		"[0] github.com/gizak/termui",
@@ -27,18 +22,19 @@ func main() {
 		"[6] dashboard.go",
 		"[7] nsf/termbox-go"}
 
-	ls := termui.NewList()
+	ls := ui.NewList()
 	ls.Items = strs
-	ls.ItemFgColor = termui.ColorYellow
+	ls.ItemFgColor = ui.ColorYellow
 	ls.BorderLabel = "List"
 	ls.Height = 7
 	ls.Width = 25
 	ls.Y = 0
 
-	termui.Render(ls)
-	termui.Handle("/sys/kbd/q", func(termui.Event) {
-		termui.StopLoop()
-	})
-	termui.Loop()
+	ui.Render(ls)
 
+	ui.Handle("/sys/kbd/q", func(ui.Event) {
+		ui.StopLoop()
+	})
+
+	ui.Loop()
 }

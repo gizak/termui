@@ -7,36 +7,31 @@
 package main
 
 import (
-	"github.com/gizak/termui"
+	ui "github.com/gizak/termui"
 	"github.com/gizak/termui/extra"
 )
 
 func main() {
-	err := termui.Init()
-	if err != nil {
-		panic(err)
-	}
-	defer termui.Close()
+	ui.Init()
+	defer ui.Close()
 
-	//termui.UseTheme("helloworld")
-
-	header := termui.NewPar("Press q to quit, Press j or k to switch tabs")
+	header := ui.NewPar("Press q to quit, Press j or k to switch tabs")
 	header.Height = 1
 	header.Width = 50
 	header.Border = false
-	header.TextBgColor = termui.ColorBlue
+	header.TextBgColor = ui.ColorBlue
 
 	tab1 := extra.NewTab("pierwszy")
-	par2 := termui.NewPar("Press q to quit\nPress j or k to switch tabs\n")
+	par2 := ui.NewPar("Press q to quit\nPress j or k to switch tabs\n")
 	par2.Height = 5
 	par2.Width = 37
 	par2.Y = 0
 	par2.BorderLabel = "Keys"
-	par2.BorderFg = termui.ColorYellow
+	par2.BorderFg = ui.ColorYellow
 	tab1.AddBlocks(par2)
 
 	tab2 := extra.NewTab("drugi")
-	bc := termui.NewBarChart()
+	bc := ui.NewBarChart()
 	data := []int{3, 2, 5, 3, 9, 5, 3, 2, 5, 8, 3, 2, 4, 5, 3, 2, 5, 7, 5, 3, 2, 6, 7, 4, 6, 3, 6, 7, 8, 3, 6, 4, 5, 3, 2, 4, 6, 4, 8, 5, 9, 4, 3, 6, 5, 3, 6}
 	bclabels := []string{"S0", "S1", "S2", "S3", "S4", "S5"}
 	bc.BorderLabel = "Bar Chart"
@@ -44,9 +39,9 @@ func main() {
 	bc.Width = 26
 	bc.Height = 10
 	bc.DataLabels = bclabels
-	bc.TextColor = termui.ColorGreen
-	bc.BarColor = termui.ColorRed
-	bc.NumColor = termui.ColorYellow
+	bc.TextColor = ui.ColorGreen
+	bc.BarColor = ui.ColorRed
+	bc.NumColor = ui.ColorYellow
 	tab2.AddBlocks(bc)
 
 	tab3 := extra.NewTab("trzeci")
@@ -61,23 +56,23 @@ func main() {
 
 	tabpane.SetTabs(*tab1, *tab2, *tab3, *tab4, *tab5, *tab6)
 
-	termui.Render(header, tabpane)
+	ui.Render(header, tabpane)
 
-	termui.Handle("/sys/kbd/q", func(termui.Event) {
-		termui.StopLoop()
+	ui.Handle("/sys/kbd/q", func(ui.Event) {
+		ui.StopLoop()
 	})
 
-	termui.Handle("/sys/kbd/j", func(termui.Event) {
+	ui.Handle("/sys/kbd/j", func(ui.Event) {
 		tabpane.SetActiveLeft()
-		termui.Clear()
-		termui.Render(header, tabpane)
+		ui.Clear()
+		ui.Render(header, tabpane)
 	})
 
-	termui.Handle("/sys/kbd/k", func(termui.Event) {
+	ui.Handle("/sys/kbd/k", func(ui.Event) {
 		tabpane.SetActiveRight()
-		termui.Clear()
-		termui.Render(header, tabpane)
+		ui.Clear()
+		ui.Render(header, tabpane)
 	})
 
-	termui.Loop()
+	ui.Loop()
 }

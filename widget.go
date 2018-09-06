@@ -33,7 +33,6 @@ func NewWgtInfo(wgt Widget) WgtInfo {
 func NewWgtMgr() WgtMgr {
 	wm := WgtMgr(make(map[string]WgtInfo))
 	return wm
-
 }
 
 func (wm WgtMgr) AddWgt(wgt Widget) {

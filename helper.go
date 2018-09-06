@@ -8,9 +8,9 @@ import (
 	"regexp"
 	"strings"
 
-	tm "github.com/nsf/termbox-go"
+	rw "github.com/mattn/go-runewidth"
+	tb "github.com/nsf/termbox-go"
 )
-import rw "github.com/mattn/go-runewidth"
 
 /* ---------------Port from termbox-go --------------------- */
 
@@ -59,8 +59,8 @@ const (
 
 /* ----------------------- End ----------------------------- */
 
-func toTmAttr(x Attribute) tm.Attribute {
-	return tm.Attribute(x)
+func toTmAttr(x Attribute) tb.Attribute {
+	return tb.Attribute(x)
 }
 
 func str2runes(s string) []rune {
@@ -237,14 +237,14 @@ func CellsToStr(cs []Cell) string {
 func SetOutputMode(mode OutputMode) {
 	switch mode {
 	case OutputCurrent:
-		tm.SetOutputMode(tm.OutputCurrent)
+		tb.SetOutputMode(tb.OutputCurrent)
 	case OutputNormal:
-		tm.SetOutputMode(tm.OutputNormal)
+		tb.SetOutputMode(tb.OutputNormal)
 	case Output256:
-		tm.SetOutputMode(tm.Output256)
+		tb.SetOutputMode(tb.Output256)
 	case Output216:
-		tm.SetOutputMode(tm.Output216)
+		tb.SetOutputMode(tb.Output216)
 	case OutputGrayscale:
-		tm.SetOutputMode(tm.OutputGrayscale)
+		tb.SetOutputMode(tb.OutputGrayscale)
 	}
 }

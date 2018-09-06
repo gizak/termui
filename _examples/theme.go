@@ -13,10 +13,7 @@ import (
 )
 
 func main() {
-	err := ui.Init()
-	if err != nil {
-		panic(err)
-	}
+	ui.Init()
 	defer ui.Close()
 
 	// Deprecated
@@ -136,12 +133,15 @@ func main() {
 	}
 
 	ui.Render(p, list, g, sp, lc, bc, lc1, p1)
+
 	ui.Handle("/sys/kbd/q", func(ui.Event) {
 		ui.StopLoop()
 	})
+
 	ui.Handle("/timer/1s", func(e ui.Event) {
 		t := e.Data.(ui.EvtTimer)
 		draw(int(t.Count))
 	})
+
 	ui.Loop()
 }

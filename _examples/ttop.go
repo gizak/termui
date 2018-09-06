@@ -18,7 +18,7 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/gizak/termui"
+	ui "github.com/gizak/termui"
 	"github.com/gizak/termui/extra"
 )
 
@@ -201,23 +201,23 @@ func getMemStats() (ms MemStat, err error) {
 }
 
 type CpuTabElems struct {
-	GMap   map[string]*termui.Gauge
-	LChart *termui.LineChart
+	GMap   map[string]*ui.Gauge
+	LChart *ui.LineChart
 }
 
 func NewCpuTabElems(width int) *CpuTabElems {
-	lc := termui.NewLineChart()
+	lc := ui.NewLineChart()
 	lc.Width = width
 	lc.Height = 12
 	lc.X = 0
 	lc.Mode = "dot"
 	lc.BorderLabel = "CPU"
-	return &CpuTabElems{GMap: make(map[string]*termui.Gauge),
+	return &CpuTabElems{GMap: make(map[string]*ui.Gauge),
 		LChart: lc}
 }
 
-func (cte *CpuTabElems) AddGauge(key string, Y int, width int) *termui.Gauge {
-	cte.GMap[key] = termui.NewGauge()
+func (cte *CpuTabElems) AddGauge(key string, Y int, width int) *ui.Gauge {
+	cte.GMap[key] = ui.NewGauge()
 	cte.GMap[key].Width = width
 	cte.GMap[key].Height = 3
 	cte.GMap[key].Y = Y
@@ -239,21 +239,21 @@ func (cte *CpuTabElems) Update(cs CpusStats) {
 }
 
 type MemTabElems struct {
-	Gauge  *termui.Gauge
-	SLines *termui.Sparklines
+	Gauge  *ui.Gauge
+	SLines *ui.Sparklines
 }
 
 func NewMemTabElems(width int) *MemTabElems {
-	g := termui.NewGauge()
+	g := ui.NewGauge()
 	g.Width = width
 	g.Height = 3
 	g.Y = 0
 
-	sline := termui.NewSparkline()
+	sline := ui.NewSparkline()
 	sline.Title = "MEM"
 	sline.Height = 8
 
-	sls := termui.NewSparklines(sline)
+	sls := ui.NewSparklines(sline)
 	sls.Width = width
 	sls.Height = 12
 	sls.Y = 3
@@ -275,21 +275,16 @@ func main() {
 	if runtime.GOOS != "linux" {
 		panic("Currently works only on Linux")
 	}
-	err := termui.Init()
-	if err != nil {
-		panic(err)
-	}
-	defer termui.Close()
+	ui.Init()
+	defer ui.Close()
 
 	termWidth := 70
 
-	//termui.UseTheme("helloworld")
-
-	header := termui.NewPar("Press q to quit, Press j or k to switch tabs")
+	header := ui.NewPar("Press q to quit, Press j or k to switch tabs")
 	header.Height = 1
 	header.Width = 50
 	header.Border = false
-	header.TextBgColor = termui.ColorBlue
+	header.TextBgColor = ui.ColorBlue
 
 	tabCpu := extra.NewTab("CPU")
 	tabMem := extra.NewTab("MEM")
@@ -333,23 +328,23 @@ func main() {
 
 	tabpane.SetTabs(*tabCpu, *tabMem)
 
-	termui.Render(header, tabpane)
+	ui.Render(header, tabpane)
 
-	termui.Handle("/sys/kbd/q", func(termui.Event) {
-		termui.StopLoop()
+	ui.Handle("/sys/kbd/q", func(ui.Event) {
+		ui.StopLoop()
 	})
 
-	termui.Handle("/sys/kbd/j", func(termui.Event) {
+	ui.Handle("/sys/kbd/j", func(ui.Event) {
 		tabpane.SetActiveLeft()
-		termui.Render(header, tabpane)
+		ui.Render(header, tabpane)
 	})
 
-	termui.Handle("/sys/kbd/k", func(termui.Event) {
+	ui.Handle("/sys/kbd/k", func(ui.Event) {
 		tabpane.SetActiveRight()
-		termui.Render(header, tabpane)
+		ui.Render(header, tabpane)
 	})
 
-	termui.Handle("/timer/1s", func(e termui.Event) {
+	ui.Handle("/timer/1s", func(e ui.Event) {
 		cs, errcs := getCpusStatsMap()
 		if errcs != nil {
 			panic(errcs)
@@ -362,8 +357,8 @@ func main() {
 			panic(errm)
 		}
 		memTabElems.Update(ms)
-		termui.Render(header, tabpane)
+		ui.Render(header, tabpane)
 	})
 
-	termui.Loop()
+	ui.Loop()
 }

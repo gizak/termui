@@ -10,7 +10,7 @@ import (
 	"sync"
 	"time"
 
-	tm "github.com/nsf/termbox-go"
+	tb "github.com/nsf/termbox-go"
 )
 
 // Bufferer should be implemented by all renderable components.
@@ -21,10 +21,10 @@ type Bufferer interface {
 // Init initializes termui library. This function should be called before any others.
 // After initialization, the library must be finalized by 'Close' function.
 func Init() error {
-	if err := tm.Init(); err != nil {
+	if err := tb.Init(); err != nil {
 		return err
 	}
-	tm.SetInputMode(tm.InputEsc | tm.InputMouse)
+	tb.SetInputMode(tb.InputEsc | tb.InputMouse)
 	DefaultEvtStream = NewEvtStream()
 
 	sysEvtChs = make([]chan Event, 0)
@@ -65,15 +65,15 @@ func Init() error {
 // Close finalizes termui library,
 // should be called after successful initialization when termui's functionality isn't required anymore.
 func Close() {
-	tm.Close()
+	tb.Close()
 }
 
 var renderLock sync.Mutex
 
 func termSync() {
 	renderLock.Lock()
-	tm.Sync()
-	termWidth, termHeight = tm.Size()
+	tb.Sync()
+	termWidth, termHeight = tb.Size()
 	renderLock.Unlock()
 }
 
@@ -105,7 +105,7 @@ func render(bs ...Bufferer) {
 		for p, c := range buf.CellMap {
 			if p.In(buf.Area) {
 
-				tm.SetCell(p.X, p.Y, c.Ch, toTmAttr(c.Fg), toTmAttr(c.Bg))
+				tb.SetCell(p.X, p.Y, c.Ch, toTmAttr(c.Fg), toTmAttr(c.Bg))
 
 			}
 		}
@@ -114,25 +114,25 @@ func render(bs ...Bufferer) {
 
 	renderLock.Lock()
 	// render
-	tm.Flush()
+	tb.Flush()
 	renderLock.Unlock()
 }
 
 func Clear() {
-	tm.Clear(tm.ColorDefault, toTmAttr(ThemeAttr("bg")))
+	tb.Clear(tb.ColorDefault, toTmAttr(ThemeAttr("bg")))
 }
 
 func clearArea(r image.Rectangle, bg Attribute) {
 	for i := r.Min.X; i < r.Max.X; i++ {
 		for j := r.Min.Y; j < r.Max.Y; j++ {
-			tm.SetCell(i, j, ' ', tm.ColorDefault, toTmAttr(bg))
+			tb.SetCell(i, j, ' ', tb.ColorDefault, toTmAttr(bg))
 		}
 	}
 }
 
 func ClearArea(r image.Rectangle, bg Attribute) {
 	clearArea(r, bg)
-	tm.Flush()
+	tb.Flush()
 }
 
 var renderJobs chan []Bufferer

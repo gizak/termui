@@ -40,15 +40,16 @@ type BarChart struct {
 
 // NewBarChart returns a new *BarChart with current theme.
 func NewBarChart() *BarChart {
-	bc := &BarChart{Block: *NewBlock()}
-	bc.BarColor = ThemeAttr("barchart.bar.bg")
-	bc.NumColor = ThemeAttr("barchart.num.fg")
-	bc.TextColor = ThemeAttr("barchart.text.fg")
-	bc.NumFmt = func(n int) string { return fmt.Sprint(n) }
-	bc.BarGap = 1
-	bc.BarWidth = 3
-	bc.CellChar = ' '
-	return bc
+	return &BarChart{
+		Block:     *NewBlock(),
+		BarColor:  ThemeAttr("barchart.bar.bg"),
+		NumColor:  ThemeAttr("barchart.num.fg"),
+		TextColor: ThemeAttr("barchart.text.fg"),
+		NumFmt:    func(n int) string { return fmt.Sprint(n) },
+		BarGap:    1,
+		BarWidth:  3,
+		CellChar:  ' ',
+	}
 }
 
 func (bc *BarChart) layout() {
@@ -77,7 +78,6 @@ func (bc *BarChart) layout() {
 }
 
 func (bc *BarChart) SetMax(max int) {
-
 	if max > 0 {
 		bc.max = max
 	}

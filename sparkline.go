@@ -53,8 +53,7 @@ func NewSparkline() Sparkline {
 
 // NewSparklines return a new *Sparklines with given Sparkline(s), you can always add a new Sparkline later.
 func NewSparklines(ss ...Sparkline) *Sparklines {
-	s := &Sparklines{Block: *NewBlock(), Lines: ss}
-	return s
+	return &Sparklines{Block: *NewBlock(), Lines: ss}
 }
 
 func (sl *Sparklines) update() {

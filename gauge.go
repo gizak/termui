@@ -43,7 +43,6 @@ func NewGauge() *Gauge {
 		LabelAlign:              AlignCenter,
 		PercentColorHighlighted: ColorUndef,
 	}
-
 	g.Width = 12
 	g.Height = 5
 	return g

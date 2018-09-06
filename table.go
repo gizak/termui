@@ -51,11 +51,12 @@ type Table struct {
 
 // NewTable returns a new Table instance
 func NewTable() *Table {
-	table := &Table{Block: *NewBlock()}
-	table.FgColor = ColorWhite
-	table.BgColor = ColorDefault
-	table.Separator = true
-	return table
+	return &Table{
+		Block:     *NewBlock(),
+		FgColor:   ColorWhite,
+		BgColor:   ColorDefault,
+		Separator: true,
+	}
 }
 
 // CellsWidth calculates the width of a cell array and returns an int

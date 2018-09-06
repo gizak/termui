@@ -79,21 +79,22 @@ type LineChart struct {
 
 // NewLineChart returns a new LineChart with current theme.
 func NewLineChart() *LineChart {
-	lc := &LineChart{Block: *NewBlock()}
-	lc.AxesColor = ThemeAttr("linechart.axes.fg")
-	lc.defaultLineColor = ThemeAttr("linechart.line.fg")
-	lc.Mode = "braille"
-	lc.DotStyle = '•'
-	lc.Data = make(map[string][]float64)
-	lc.LineColor = make(map[string]Attribute)
-	lc.axisXLabelGap = 2
-	lc.axisYLabelGap = 1
-	lc.bottomValue = math.Inf(1)
-	lc.topValue = math.Inf(-1)
-	lc.YPadding = 0.2
-	lc.YFloor = math.Inf(-1)
-	lc.YCeil = math.Inf(1)
-	return lc
+	return &LineChart{
+		Block:            *NewBlock(),
+		AxesColor:        ThemeAttr("linechart.axes.fg"),
+		defaultLineColor: ThemeAttr("linechart.line.fg"),
+		Mode:             "braille",
+		DotStyle:         '•',
+		Data:             make(map[string][]float64),
+		LineColor:        make(map[string]Attribute),
+		axisXLabelGap:    2,
+		axisYLabelGap:    1,
+		bottomValue:      math.Inf(1),
+		topValue:         math.Inf(-1),
+		YPadding:         0.2,
+		YFloor:           math.Inf(-1),
+		YCeil:            math.Inf(1),
+	}
 }
 
 // one cell contains two data points, so capicity is 2x dot mode

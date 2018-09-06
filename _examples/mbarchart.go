@@ -6,18 +6,13 @@
 
 package main
 
-import "github.com/gizak/termui"
+import ui "github.com/gizak/termui"
 
 func main() {
-	err := termui.Init()
-	if err != nil {
-		panic(err)
-	}
-	defer termui.Close()
+	ui.Init()
+	defer ui.Close()
 
-	//termui.UseTheme("helloworld")
-
-	bc := termui.NewMBarChart()
+	bc := ui.NewMBarChart()
 	math := []int{90, 85, 90, 80}
 	english := []int{70, 85, 75, 60}
 	science := []int{75, 60, 80, 85}
@@ -36,19 +31,20 @@ func main() {
 	bc.ShowScale = true //Show y_axis scale value (min and max)
 	bc.SetMax(400)
 
-	bc.TextColor = termui.ColorGreen    //this is color for label (x-axis)
-	bc.BarColor[3] = termui.ColorGreen  //BarColor for computerscience
-	bc.BarColor[1] = termui.ColorYellow //Bar Color for english
-	bc.NumColor[3] = termui.ColorRed    // Num color for computerscience
-	bc.NumColor[1] = termui.ColorRed    // num color for english
+	bc.TextColor = ui.ColorGreen    //this is color for label (x-axis)
+	bc.BarColor[3] = ui.ColorGreen  //BarColor for computerscience
+	bc.BarColor[1] = ui.ColorYellow //Bar Color for english
+	bc.NumColor[3] = ui.ColorRed    // Num color for computerscience
+	bc.NumColor[1] = ui.ColorRed    // num color for english
 
 	//Other colors are automatically populated, btw All the students seems do well in computerscience. :p
 
-	termui.Render(bc)
+	ui.Render(bc)
 
-	termui.Handle("/sys/kbd/q", func(termui.Event) {
-		termui.StopLoop()
+	ui.Handle("/sys/kbd/q", func(ui.Event) {
+		ui.StopLoop()
 	})
-	termui.Loop()
+
+	ui.Loop()
 
 }

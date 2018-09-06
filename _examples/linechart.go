@@ -9,17 +9,12 @@ package main
 import (
 	"math"
 
-	"github.com/gizak/termui"
+	ui "github.com/gizak/termui"
 )
 
 func main() {
-	err := termui.Init()
-	if err != nil {
-		panic(err)
-	}
-	defer termui.Close()
-
-	//termui.UseTheme("helloworld")
+	err := ui.Init()
+	defer ui.Close()
 
 	sinps := (func() map[string][]float64 {
 		n := 220
@@ -33,17 +28,17 @@ func main() {
 		return ps
 	})()
 
-	lc0 := termui.NewLineChart()
+	lc0 := ui.NewLineChart()
 	lc0.BorderLabel = "braille-mode Line Chart"
 	lc0.Data = sinps
 	lc0.Width = 50
 	lc0.Height = 12
 	lc0.X = 0
 	lc0.Y = 0
-	lc0.AxesColor = termui.ColorWhite
-	lc0.LineColor["first"] = termui.ColorGreen | termui.AttrBold
+	lc0.AxesColor = ui.ColorWhite
+	lc0.LineColor["first"] = ui.ColorGreen | ui.AttrBold
 
-	lc1 := termui.NewLineChart()
+	lc1 := ui.NewLineChart()
 	lc1.BorderLabel = "dot-mode Line Chart"
 	lc1.Mode = "dot"
 	lc1.Data = sinps
@@ -51,10 +46,10 @@ func main() {
 	lc1.Height = 12
 	lc1.X = 51
 	lc1.DotStyle = '+'
-	lc1.AxesColor = termui.ColorWhite
-	lc1.LineColor["first"] = termui.ColorYellow | termui.AttrBold
+	lc1.AxesColor = ui.ColorWhite
+	lc1.LineColor["first"] = ui.ColorYellow | ui.AttrBold
 
-	lc2 := termui.NewLineChart()
+	lc2 := ui.NewLineChart()
 	lc2.BorderLabel = "dot-mode Line Chart"
 	lc2.Mode = "dot"
 	lc2.Data["first"] = sinps["first"][4:]
@@ -63,13 +58,14 @@ func main() {
 	lc2.Height = 16
 	lc2.X = 0
 	lc2.Y = 12
-	lc2.AxesColor = termui.ColorWhite
-	lc2.LineColor["first"] = termui.ColorCyan | termui.AttrBold
+	lc2.AxesColor = ui.ColorWhite
+	lc2.LineColor["first"] = ui.ColorCyan | ui.AttrBold
 
-	termui.Render(lc0, lc1, lc2)
-	termui.Handle("/sys/kbd/q", func(termui.Event) {
-		termui.StopLoop()
+	ui.Render(lc0, lc1, lc2)
+
+	ui.Handle("/sys/kbd/q", func(ui.Event) {
+		ui.StopLoop()
 	})
-	termui.Loop()
 
+	ui.Loop()
 }

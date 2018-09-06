@@ -13,9 +13,7 @@ import (
 )
 
 func main() {
-	if err := ui.Init(); err != nil {
-		panic(err)
-	}
+	ui.Init()
 	defer ui.Close()
 
 	sinps := (func() []float64 {
@@ -96,6 +94,7 @@ func main() {
 	ui.Handle("/sys/kbd/q", func(ui.Event) {
 		ui.StopLoop()
 	})
+
 	ui.Handle("/timer/1s", func(e ui.Event) {
 		t := e.Data.(ui.EvtTimer)
 		i := t.Count

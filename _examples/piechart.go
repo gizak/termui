@@ -8,14 +8,13 @@ import (
 	"math/rand"
 	"time"
 
-	"github.com/gizak/termui"
+	ui "github.com/gizak/termui"
 )
 
 func main() {
-	if err := termui.Init(); err != nil {
-		panic(err)
-	}
-	defer termui.Close()
+	ui.Init()
+	defer ui.Close()
+
 	rand.Seed(time.Now().UTC().UnixNano())
 	randomDataAndOffset := func() (data []float64, offset float64) {
 		noSlices := 1 + rand.Intn(5)
@@ -28,7 +27,7 @@ func main() {
 	}
 	run := true
 
-	pc := termui.NewPieChart()
+	pc := ui.NewPieChart()
 	pc.BorderLabel = "Pie Chart"
 	pc.Width = 70
 	pc.Height = 36
@@ -38,26 +37,28 @@ func main() {
 		return fmt.Sprintf("%.02f", v)
 	}
 
-	termui.Handle("/timer/1s", func(e termui.Event) {
+	ui.Handle("/timer/1s", func(e ui.Event) {
 		if run {
 			pc.Data, pc.Offset = randomDataAndOffset()
-			termui.Render(pc)
+			ui.Render(pc)
 		}
 	})
 
-	termui.Handle("/sys/kbd/s", func(termui.Event) {
+	ui.Handle("/sys/kbd/s", func(ui.Event) {
 		run = !run
 		if run {
 			pc.BorderLabel = "Pie Chart"
 		} else {
 			pc.BorderLabel = "Pie Chart (Stopped)"
 		}
-		termui.Render(pc)
+		ui.Render(pc)
 	})
 
-	termui.Handle("/sys/kbd/q", func(termui.Event) {
-		termui.StopLoop()
+	ui.Handle("/sys/kbd/q", func(ui.Event) {
+		ui.StopLoop()
 	})
-	termui.Render(pc)
-	termui.Loop()
+
+	ui.Render(pc)
+
+	ui.Loop()
 }
