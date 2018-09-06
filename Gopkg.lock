@@ -10,14 +10,6 @@
   version = "v1.1.0"
 
 [[projects]]
-  branch = "master"
-  digest = "1:2eeeebccad4f052e6037527e86b8114c6bfd184a97f84d4449a5ea6ad202c216"
-  name = "github.com/maruel/panicparse"
-  packages = ["stack"]
-  pruneopts = "UT"
-  revision = "4417700b5a8d33fbb4416bb04359d20329f60008"
-
-[[projects]]
   digest = "1:e2d1d410fb367567c2b53ed9e2d719d3c1f0891397bb2fa49afd747cfbf1e8e4"
   name = "github.com/mattn/go-runewidth"
   packages = ["."]
@@ -70,7 +62,6 @@
   analyzer-version = 1
   input-imports = [
     "github.com/davecgh/go-spew/spew",
-    "github.com/maruel/panicparse/stack",
     "github.com/mattn/go-runewidth",
     "github.com/mitchellh/go-wordwrap",
     "github.com/nsf/termbox-go",
