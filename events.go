@@ -100,7 +100,7 @@ func crtTermboxEvt(e termbox.Event) Event {
 		ne.Data = err
 	case termbox.EventMouse:
 		m := evtMouse(e)
-		ne.Path = "/sys/mouse"
+		ne.Path = "/sys/mouse/" + m.Press
 		ne.Data = m
 	}
 	return ne
@@ -114,34 +114,39 @@ type EvtWnd struct {
 type EvtMouse struct {
 	X     int
 	Y     int
+	Drag  bool
 	Press string
 }
 
-func evtMouse(e termbox.Event) (te EvtMouse) {
-	te.X = e.MouseX
-	te.Y = e.MouseY
+func evtMouse(e termbox.Event) EvtMouse {
+	em := EvtMouse{}
+	em.X = e.MouseX
+	em.Y = e.MouseY
 
-	var m string
+	if e.Mod == termbox.ModMotion {
+		em.Drag = true
+	}
 
 	switch e.Key {
 	case termbox.MouseLeft:
-		m = "MouseLeft"
+		em.Press = "MouseLeft"
 	case termbox.MouseMiddle:
-		m = "MouseMiddle"
+		em.Press = "MouseMiddle"
 	case termbox.MouseRight:
-		m = "MouseRight"
-	case termbox.MouseRelease:
-		m = "MouseRelease"
-	case termbox.MouseWheelUp:
-		m = "MouseWheelUp"
-	case termbox.MouseWheelDown:
-		m = "MouseWheelDown"
-	default:
-		m = "Unknown_Mouse_Button"
-	}
-	te.Press = m
+		em.Press = "MouseRight"
 
-	return
+	case termbox.MouseRelease:
+		em.Press = "MouseRelease"
+
+	case termbox.MouseWheelUp:
+		em.Press = "MouseWheelUp"
+	case termbox.MouseWheelDown:
+		em.Press = "MouseWheelDown"
+	default:
+		em.Press = "Unknown_Mouse_Button"
+	}
+
+	return em
 }
 
 type EvtErr error
@@ -151,7 +156,7 @@ func hookTermboxEvt() {
 		e := termbox.PollEvent()
 
 		for _, c := range sysEvtChs {
-			func(ch chan Event) {
+			go func(ch chan Event) {
 				ch <- crtTermboxEvt(e)
 			}(c)
 		}
@@ -269,7 +274,7 @@ func (es *EvtStream) Loop() {
 		case "/sig/stoploop":
 			return
 		}
-		func(a Event) {
+		go func(a Event) {
 			es.RLock()
 			defer es.RUnlock()
 			if pattern := es.match(a.Path); pattern != "" {
@@ -297,10 +302,6 @@ func Merge(name string, ec chan Event) {
 
 func Handle(path string, handler func(Event)) {
 	DefaultEvtStream.Handle(path, handler)
-}
-
-func ResetHandlers() {
-	DefaultEvtStream.ResetHandlers()
 }
 
 func Loop() {
