@@ -122,14 +122,14 @@ func main() {
 	p1.X = 52
 	p1.Y = 11
 
-	draw := func(t int) {
-		g.Percent = t % 101
-		list.Items = strs[t%9:]
-		sp.Lines[0].Data = spdata[t%10:]
-		sp.Lines[1].Data = spdata[t/2%10:]
-		lc.Data["default"] = sinps[t/2:]
-		lc1.Data["default"] = rndwalk[t:]
-		bc.Data = bcdata[t/2%10:]
+	draw := func(count int) {
+		g.Percent = count % 101
+		list.Items = strs[count%9:]
+		sp.Lines[0].Data = spdata[count%10:]
+		sp.Lines[1].Data = spdata[count/2%10:]
+		lc.Data["default"] = sinps[count/2:]
+		lc1.Data["default"] = rndwalk[count:]
+		bc.Data = bcdata[count/2%10:]
 		ui.Render(p, list, g, sp, lc, bc, lc1, p1)
 	}
 
