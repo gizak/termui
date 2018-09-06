@@ -8,7 +8,7 @@ from subprocess import call
 if __name__ == '__main__':
     signal.signal(signal.SIGINT, lambda sig, frame: sys.exit(0))
 
-    p = Path('.') / '_example'
+    p = Path('.') / '_examples'
     files = p.glob('*.go')
     for file in files:
         command = f'go run {file}'
