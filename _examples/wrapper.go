@@ -9,7 +9,10 @@ package main
 import ui "github.com/gizak/termui"
 
 func main() {
-	ui.Init()
+	err := ui.Init()
+	if err != nil {
+		panic(err)
+	}
 	defer ui.Close()
 
 	p := ui.NewPar("Press q to QUIT THE DEMO. [There](fg-blue) are other things [that](fg-red) are going to fit in here I think. What do you think? Now is the time for all good [men to](bg-blue) come to the aid of their country. [This is going to be one really really really long line](fg-green) that is going to go together and stuffs and things. Let's see how this thing renders out.\n    Here is a new paragraph and stuffs and things. There should be a tab indent at the beginning of the paragraph. Let's see if that worked as well.")

@@ -12,7 +12,10 @@ import (
 )
 
 func main() {
-	ui.Init()
+	err := ui.Init()
+	if err != nil {
+		panic(err)
+	}
 	defer ui.Close()
 
 	header := ui.NewPar("Press q to quit, Press j or k to switch tabs")

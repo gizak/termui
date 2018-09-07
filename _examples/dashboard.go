@@ -14,7 +14,10 @@ import (
 )
 
 func main() {
-	ui.Init()
+	err := ui.Init()
+	if err != nil {
+		panic(err)
+	}
 	defer ui.Close()
 
 	p := ui.NewPar(":PRESS q TO QUIT DEMO")

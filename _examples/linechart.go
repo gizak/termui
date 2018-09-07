@@ -13,7 +13,10 @@ import (
 )
 
 func main() {
-	ui.Init()
+	err := ui.Init()
+	if err != nil {
+		panic(err)
+	}
 	defer ui.Close()
 
 	sinps := (func() map[string][]float64 {

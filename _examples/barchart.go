@@ -9,7 +9,10 @@ package main
 import ui "github.com/gizak/termui"
 
 func main() {
-	ui.Init()
+	err := ui.Init()
+	if err != nil {
+		panic(err)
+	}
 	defer ui.Close()
 
 	bc := ui.NewBarChart()

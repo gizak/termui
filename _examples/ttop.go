@@ -276,7 +276,10 @@ func main() {
 	if runtime.GOOS != "linux" {
 		panic("Currently works only on Linux")
 	}
-	ui.Init()
+	err := ui.Init()
+	if err != nil {
+		panic(err)
+	}
 	defer ui.Close()
 
 	termWidth := 70

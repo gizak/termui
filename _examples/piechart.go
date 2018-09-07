@@ -12,7 +12,10 @@ import (
 )
 
 func main() {
-	ui.Init()
+	err := ui.Init()
+	if err != nil {
+		panic(err)
+	}
 	defer ui.Close()
 
 	rand.Seed(time.Now().UTC().UnixNano())
