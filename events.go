@@ -26,6 +26,9 @@ Here's the list of events which can be assigned handlers using Handle():
 		<C-<Space>> etc
 	terminal events:
 		<Resize>
+	meta events:
+		<Keyboard>
+		<Mouse>
 */
 
 type EventType int
@@ -75,6 +78,16 @@ type Resize struct {
 func handleEvent(e Event) {
 	if val, ok := defaultES.handlers[e.ID]; ok {
 		val(e)
+	}
+	switch e.Type {
+	case KeyboardEvent:
+		if val, ok := defaultES.handlers["<Keyboard>"]; ok {
+			val(e)
+		}
+	case MouseEvent:
+		if val, ok := defaultES.handlers["<Mouse>"]; ok {
+			val(e)
+		}
 	}
 }
 
