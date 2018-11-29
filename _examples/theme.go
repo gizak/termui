@@ -33,7 +33,7 @@ func main() {
 		"gauge.percent.fg": ui.ColorBlue,
 		"barchart.bar.bg":  ui.ColorRed,
 	}
-	p := ui.NewPar(":PRESS q TO QUIT DEMO")
+	p := ui.NewParagraph(":PRESS q TO QUIT DEMO")
 	p.Height = 3
 	p.Width = 50
 	p.BorderLabel = "Text Box"
@@ -118,7 +118,7 @@ func main() {
 	lc1.X = 51
 	lc1.Y = 14
 
-	p1 := ui.NewPar("Hey!\nI am a borderless block!")
+	p1 := ui.NewParagraph("Hey!\nI am a borderless block!")
 	p1.Border = false
 	p1.Width = 26
 	p1.Height = 2

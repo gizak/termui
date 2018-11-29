@@ -284,7 +284,7 @@ func main() {
 
 	termWidth := 70
 
-	header := ui.NewPar("Press q to quit, Press h or l to switch tabs")
+	header := ui.NewParagraph("Press q to quit, Press h or l to switch tabs")
 	header.Height = 1
 	header.Width = 50
 	header.Border = false

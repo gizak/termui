@@ -76,9 +76,9 @@ func main() {
 	}
 	ls.Height = 5
 
-	par := ui.NewPar("<> This row has 3 columns\n<- Widgets can be stacked up like left side\n<- Stacked widgets are treated as a single widget")
-	par.Height = 5
-	par.BorderLabel = "Demonstration"
+	p := ui.NewParagraph("<> This row has 3 columns\n<- Widgets can be stacked up like left side\n<- Stacked widgets are treated as a single widget")
+	p.Height = 5
+	p.BorderLabel = "Demonstration"
 
 	// build layout
 	ui.Body.AddRows(
@@ -88,7 +88,7 @@ func main() {
 		ui.NewRow(
 			ui.NewCol(3, 0, ls),
 			ui.NewCol(3, 0, gs[0], gs[1], gs[2]),
-			ui.NewCol(6, 0, par)))
+			ui.NewCol(6, 0, p)))
 
 	// calculate layout
 	ui.Body.Align()

@@ -20,7 +20,7 @@ func main() {
 	}
 	defer ui.Close()
 
-	p := ui.NewPar("PRESS q TO QUIT DEMO")
+	p := ui.NewParagraph("PRESS q TO QUIT DEMO")
 	p.Height = 3
 	p.Width = 50
 	p.TextFgColor = ui.ColorWhite
@@ -120,7 +120,7 @@ func main() {
 	lc2.AxesColor = ui.ColorWhite
 	lc2.LineColor["default"] = ui.ColorYellow | ui.AttrBold
 
-	p2 := ui.NewPar("Hey!\nI am a borderless block!")
+	p2 := ui.NewParagraph("Hey!\nI am a borderless block!")
 	p2.Border = false
 	p2.Width = 26
 	p2.Height = 2

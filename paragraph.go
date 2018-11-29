@@ -4,14 +4,14 @@
 
 package termui
 
-// Par displays a paragraph.
+// Paragraph displays a paragraph.
 /*
-  par := termui.NewPar("Simple Text")
+  par := termui.NewParagraph("Simple Text")
   par.Height = 3
   par.Width = 17
   par.BorderLabel = "Label"
 */
-type Par struct {
+type Paragraph struct {
 	Block
 	Text        string
 	TextFgColor Attribute
@@ -19,9 +19,9 @@ type Par struct {
 	WrapLength  int // words wrap limit. Note it may not work properly with multi-width char
 }
 
-// NewPar returns a new *Par with given text as its content.
-func NewPar(s string) *Par {
-	return &Par{
+// NewParagraph returns a new *Paragraph with given text as its content.
+func NewParagraph(s string) *Paragraph {
+	return &Paragraph{
 		Block:       *NewBlock(),
 		Text:        s,
 		TextFgColor: ThemeAttr("par.text.fg"),
@@ -31,7 +31,7 @@ func NewPar(s string) *Par {
 }
 
 // Buffer implements Bufferer interface.
-func (p *Par) Buffer() Buffer {
+func (p *Paragraph) Buffer() Buffer {
 	buf := p.Block.Buffer()
 
 	fg, bg := p.TextFgColor, p.TextBgColor

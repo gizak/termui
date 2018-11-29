@@ -18,20 +18,20 @@ func main() {
 	}
 	defer ui.Close()
 
-	header := ui.NewPar("Press q to quit, Press h or l to switch tabs")
+	header := ui.NewParagraph("Press q to quit, Press h or l to switch tabs")
 	header.Height = 1
 	header.Width = 50
 	header.Border = false
 	header.TextBgColor = ui.ColorBlue
 
 	tab1 := extra.NewTab("pierwszy")
-	par2 := ui.NewPar("Press q to quit\nPress h or l to switch tabs\n")
-	par2.Height = 5
-	par2.Width = 37
-	par2.Y = 0
-	par2.BorderLabel = "Keys"
-	par2.BorderFg = ui.ColorYellow
-	tab1.AddBlocks(par2)
+	p2 := ui.NewParagraph("Press q to quit\nPress h or l to switch tabs\n")
+	p2.Height = 5
+	p2.Width = 37
+	p2.Y = 0
+	p2.BorderLabel = "Keys"
+	p2.BorderFg = ui.ColorYellow
+	tab1.AddBlocks(p2)
 
 	tab2 := extra.NewTab("drugi")
 	bc := ui.NewBarChart()
