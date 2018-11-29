@@ -38,13 +38,16 @@ func Init() error {
 	Body.BgColor = ThemeAttr("bg")
 	Body.Width = TermWidth()
 
-	Handle("<Resize>", func(e Event) {
-		payload := e.Payload.(Resize)
-		Body.Width = payload.Width
-	})
+	// resizeCh := Handle("<Resize>")
+	// go func() {
+	// 	for e := range resizeCh {
+	// 		payload := e.Payload.(Resize)
+	// 		Body.Width = payload.Width
+	// 	}
+	// }()
 
-	DefaultWgtMgr = NewWgtMgr()
-	EventHook(DefaultWgtMgr.WgtHandlersHook())
+	// DefaultWgtMgr = NewWgtMgr()
+	// EventHook(DefaultWgtMgr.WgtHandlersHook())
 
 	go func() {
 		for bs := range renderJobs {

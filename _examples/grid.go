@@ -95,37 +95,31 @@ func main() {
 
 	ui.Render(ui.Body)
 
-	ui.Handle("q", func(ui.Event) {
-		ui.StopLoop()
-	})
-
-	drawTicker := time.NewTicker(time.Second)
-	drawTickerCount := 1
-	go func() {
-		for {
-			if drawTickerCount > 103 {
-				ui.StopLoop()
+	tickerCount := 1
+	for {
+		select {
+		case e := <-ui.PollEvent():
+			switch e.ID {
+			case "q", "<C-c>":
+				return
+			case "<Resize>":
+				payload := e.Payload.(ui.Resize)
+				ui.Body.Width = payload.Width
+				ui.Body.Align()
+				ui.Clear()
+				ui.Render(ui.Body)
+			}
+		case <-time.NewTicker(time.Second).C:
+			if tickerCount > 103 {
 				return
 			}
 			for _, g := range gs {
 				g.Percent = (g.Percent + 3) % 100
 			}
-			sp.Lines[0].Data = spdata[:100+drawTickerCount]
-			lc.Data["default"] = sinps[2*drawTickerCount:]
+			sp.Lines[0].Data = spdata[:100+tickerCount]
+			lc.Data["default"] = sinps[2*tickerCount:]
 			ui.Render(ui.Body)
-
-			drawTickerCount++
-			<-drawTicker.C
+			tickerCount++
 		}
-	}()
-
-	ui.Handle("<Resize>", func(e ui.Event) {
-		payload := e.Payload.(ui.Resize)
-		ui.Body.Width = payload.Width
-		ui.Body.Align()
-		ui.Clear()
-		ui.Render(ui.Body)
-	})
-
-	ui.Loop()
+	}
 }

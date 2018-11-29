@@ -40,21 +40,7 @@ func main() {
 		return fmt.Sprintf("%.02f", v)
 	}
 
-	drawTicker := time.NewTicker(time.Second)
-	drawTickerCount := 1
-	go func() {
-		for {
-			if run {
-				pc.Data, pc.Offset = randomDataAndOffset()
-				ui.Render(pc)
-			}
-
-			drawTickerCount++
-			<-drawTicker.C
-		}
-	}()
-
-	ui.Handle("s", func(ui.Event) {
+	pause := func() {
 		run = !run
 		if run {
 			pc.BorderLabel = "Pie Chart"
@@ -62,13 +48,24 @@ func main() {
 			pc.BorderLabel = "Pie Chart (Stopped)"
 		}
 		ui.Render(pc)
-	})
-
-	ui.Handle("q", func(ui.Event) {
-		ui.StopLoop()
-	})
+	}
 
 	ui.Render(pc)
 
-	ui.Loop()
+	for {
+		select {
+		case e := <-ui.PollEvent():
+			switch e.ID {
+			case "q", "<C-c>":
+				return
+			case "s":
+				pause()
+			}
+		case <-time.NewTicker(time.Second).C:
+			if run {
+				pc.Data, pc.Offset = randomDataAndOffset()
+				ui.Render(pc)
+			}
+		}
+	}
 }

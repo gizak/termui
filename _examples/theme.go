@@ -138,20 +138,17 @@ func main() {
 
 	ui.Render(p, list, g, sp, lc, bc, lc1, p1)
 
-	ui.Handle("q", func(ui.Event) {
-		ui.StopLoop()
-	})
-
-	drawTicker := time.NewTicker(time.Second)
-	drawTickerCount := 1
-	go func() {
-		for {
-			draw(drawTickerCount)
-
-			drawTickerCount++
-			<-drawTicker.C
+	tickerCount := 1
+	for {
+		select {
+		case e := <-ui.PollEvent():
+			switch e.ID {
+			case "q", "<C-c>":
+				return
+			}
+		case <-time.NewTicker(time.Second).C:
+			draw(tickerCount)
+			tickerCount++
 		}
-	}()
-
-	ui.Loop()
+	}
 }

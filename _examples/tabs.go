@@ -18,14 +18,14 @@ func main() {
 	}
 	defer ui.Close()
 
-	header := ui.NewPar("Press q to quit, Press j or k to switch tabs")
+	header := ui.NewPar("Press q to quit, Press h or l to switch tabs")
 	header.Height = 1
 	header.Width = 50
 	header.Border = false
 	header.TextBgColor = ui.ColorBlue
 
 	tab1 := extra.NewTab("pierwszy")
-	par2 := ui.NewPar("Press q to quit\nPress j or k to switch tabs\n")
+	par2 := ui.NewPar("Press q to quit\nPress h or l to switch tabs\n")
 	par2.Height = 5
 	par2.Width = 37
 	par2.Y = 0
@@ -61,21 +61,19 @@ func main() {
 
 	ui.Render(header, tabpane)
 
-	ui.Handle("q", func(ui.Event) {
-		ui.StopLoop()
-	})
-
-	ui.Handle("j", func(ui.Event) {
-		tabpane.SetActiveLeft()
-		ui.Clear()
-		ui.Render(header, tabpane)
-	})
-
-	ui.Handle("k", func(ui.Event) {
-		tabpane.SetActiveRight()
-		ui.Clear()
-		ui.Render(header, tabpane)
-	})
-
-	ui.Loop()
+	for {
+		e := <-ui.PollEvent()
+		switch e.ID {
+		case "q", "<C-c>":
+			return
+		case "h":
+			tabpane.SetActiveLeft()
+			ui.Clear()
+			ui.Render(header, tabpane)
+		case "l":
+			tabpane.SetActiveRight()
+			ui.Clear()
+			ui.Render(header, tabpane)
+		}
+	}
 }

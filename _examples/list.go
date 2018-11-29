@@ -35,9 +35,11 @@ func main() {
 
 	ui.Render(ls)
 
-	ui.Handle("q", func(ui.Event) {
-		ui.StopLoop()
-	})
-
-	ui.Loop()
+	for {
+		e := <-ui.PollEvent()
+		switch e.ID {
+		case "q", "<C-c>":
+			return
+		}
+	}
 }

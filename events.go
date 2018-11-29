@@ -6,13 +6,12 @@ package termui
 
 import (
 	"strconv"
-	"sync"
 
 	tb "github.com/nsf/termbox-go"
 )
 
 /*
-Here's the list of events which can be assigned handlers using Handle():
+List of events:
 	mouse events:
 		<MouseLeft> <MouseRight> <MouseMiddle>
 		<MouseWheelUp> <MouseWheelDown>
@@ -26,9 +25,6 @@ Here's the list of events which can be assigned handlers using Handle():
 		<C-<Space>> etc
 	terminal events:
 		<Resize>
-	meta events:
-		<Keyboard>
-		<Mouse>
 */
 
 type EventType int
@@ -39,22 +35,6 @@ const (
 	ResizeEvent
 )
 
-type eventStream struct {
-	sync.RWMutex
-	handlers   map[string]func(Event)
-	stopLoop   chan bool
-	eventQueue chan tb.Event // list of events from termbox
-	hook       func(Event)
-}
-
-var defaultES = eventStream{
-	handlers:   make(map[string]func(Event)),
-	stopLoop:   make(chan bool, 1),
-	eventQueue: make(chan tb.Event),
-	hook:       DefaultHandler,
-}
-
-// Event contains an ID used for Handle() and an optional payload.
 type Event struct {
 	Type    EventType
 	ID      string
@@ -74,74 +54,15 @@ type Resize struct {
 	Height int
 }
 
-// handleEvent calls the approriate callback function if there is one.
-func handleEvent(e Event) {
-	if val, ok := defaultES.handlers[e.ID]; ok {
-		val(e)
-	}
-	switch e.Type {
-	case KeyboardEvent:
-		if val, ok := defaultES.handlers["<Keyboard>"]; ok {
-			val(e)
-		}
-	case MouseEvent:
-		if val, ok := defaultES.handlers["<Mouse>"]; ok {
-			val(e)
-		}
-	}
-}
+var pollingChannels [](chan Event)
 
-// Loop gets events from termbox and passes them off to handleEvent.
-// Stops when StopLoop is called.
-func Loop() {
+// PollEvent gets events from termbox, converts them, then sends them to each of its channels.
+func PollEvent() <-chan Event {
+	ch := make(chan Event)
 	go func() {
-		for {
-			defaultES.eventQueue <- tb.PollEvent()
-		}
+		ch <- convertTermboxEvent(tb.PollEvent())
 	}()
-
-	for {
-		select {
-		case <-defaultES.stopLoop:
-			return
-		case e := <-defaultES.eventQueue:
-			ne := convertTermboxEvent(e)
-			defaultES.RLock()
-			handleEvent(ne)
-			defaultES.hook(ne)
-			defaultES.RUnlock()
-		}
-	}
-}
-
-// StopLoop stops the event loop.
-func StopLoop() {
-	defaultES.stopLoop <- true
-}
-
-// Handle assigns event names to their handlers. Takes a string, strings, or a slice of strings, and a function.
-func Handle(things ...interface{}) {
-	function := things[len(things)-1].(func(Event))
-	for _, thing := range things {
-		if value, ok := thing.(string); ok {
-			defaultES.Lock()
-			defaultES.handlers[value] = function
-			defaultES.Unlock()
-		}
-		if value, ok := thing.([]string); ok {
-			defaultES.Lock()
-			for _, name := range value {
-				defaultES.handlers[name] = function
-			}
-			defaultES.Unlock()
-		}
-	}
-}
-
-func EventHook(f func(Event)) {
-	defaultES.Lock()
-	defaultES.hook = f
-	defaultES.Unlock()
+	return ch
 }
 
 // convertTermboxKeyboardEvent converts a termbox keyboard event to a more friendly string format.
@@ -232,13 +153,15 @@ func convertTermboxEvent(e tb.Event) Event {
 		panic(e.Err)
 	}
 
+	var event Event
+
 	switch e.Type {
 	case tb.EventKey:
-		return convertTermboxKeyboardEvent(e)
+		event = convertTermboxKeyboardEvent(e)
 	case tb.EventMouse:
-		return convertTermboxMouseEvent(e)
+		event = convertTermboxMouseEvent(e)
 	case tb.EventResize:
-		return Event{
+		event = Event{
 			Type: ResizeEvent,
 			ID:   "<Resize>",
 			Payload: Resize{
@@ -248,20 +171,5 @@ func convertTermboxEvent(e tb.Event) Event {
 		}
 	}
 
-	return Event{}
-}
-
-var DefaultHandler = func(e Event) {
-}
-
-func ResetHandlers() {
-	defaultES.Lock()
-	defaultES.handlers = make(map[string]func(Event))
-	defaultES.Unlock()
-}
-
-func ResetHandler(handle string) {
-	defaultES.Lock()
-	delete(defaultES.handlers, handle)
-	defaultES.Unlock()
+	return event
 }

@@ -284,7 +284,7 @@ func main() {
 
 	termWidth := 70
 
-	header := ui.NewPar("Press q to quit, Press j or k to switch tabs")
+	header := ui.NewPar("Press q to quit, Press h or l to switch tabs")
 	header.Height = 1
 	header.Width = 50
 	header.Border = false
@@ -334,24 +334,21 @@ func main() {
 
 	ui.Render(header, tabpane)
 
-	ui.Handle("q", func(ui.Event) {
-		ui.StopLoop()
-	})
-
-	ui.Handle("j", func(ui.Event) {
-		tabpane.SetActiveLeft()
-		ui.Render(header, tabpane)
-	})
-
-	ui.Handle("k", func(ui.Event) {
-		tabpane.SetActiveRight()
-		ui.Render(header, tabpane)
-	})
-
-	drawTicker := time.NewTicker(time.Second)
-	drawTickerCount := 1
-	go func() {
-		for {
+	tickerCount := 1
+	for {
+		select {
+		case e := <-ui.PollEvent():
+			switch e.ID {
+			case "q", "<C-c>":
+				return
+			case "h":
+				tabpane.SetActiveLeft()
+				ui.Render(header, tabpane)
+			case "l":
+				tabpane.SetActiveRight()
+				ui.Render(header, tabpane)
+			}
+		case <-time.NewTicker(time.Second).C:
 			cs, errcs := getCpusStatsMap()
 			if errcs != nil {
 				panic(errcs)
@@ -365,11 +362,7 @@ func main() {
 			}
 			memTabElems.Update(ms)
 			ui.Render(header, tabpane)
-
-			drawTickerCount++
-			<-drawTicker.C
+			tickerCount++
 		}
-	}()
-
-	ui.Loop()
+	}
 }

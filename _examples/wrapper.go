@@ -24,13 +24,14 @@ func main() {
 	p.TextFgColor = ui.ColorWhite
 	p.BorderLabel = "Text Box with Wrapping"
 	p.BorderFg = ui.ColorCyan
-	//p.Border = false
 
 	ui.Render(p)
 
-	ui.Handle("q", func(ui.Event) {
-		ui.StopLoop()
-	})
-
-	ui.Loop()
+	for {
+		e := <-ui.PollEvent()
+		switch e.ID {
+		case "q", "<C-c>":
+			return
+		}
+	}
 }

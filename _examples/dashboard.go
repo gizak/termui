@@ -20,27 +20,20 @@ func main() {
 	}
 	defer ui.Close()
 
-	p := ui.NewPar(":PRESS q TO QUIT DEMO")
+	p := ui.NewPar("PRESS q TO QUIT DEMO")
 	p.Height = 3
 	p.Width = 50
 	p.TextFgColor = ui.ColorWhite
 	p.BorderLabel = "Text Box"
 	p.BorderFg = ui.ColorCyan
 
-	pTicker := time.NewTicker(time.Second)
-	pTickerCount := 1
-	go func() {
-		for {
-			if pTickerCount%2 == 0 {
-				p.TextFgColor = ui.ColorRed
-			} else {
-				p.TextFgColor = ui.ColorWhite
-			}
-
-			pTickerCount++
-			<-pTicker.C
+	updateP := func(count int) {
+		if count%2 == 0 {
+			p.TextFgColor = ui.ColorRed
+		} else {
+			p.TextFgColor = ui.ColorWhite
 		}
-	}()
+	}
 
 	listData := []string{"[0] gizak/termui", "[1] editbox.go", "[2] interrupt.go", "[3] keyboard.go", "[4] output.go", "[5] random_out.go", "[6] dashboard.go", "[7] nsf/termbox-go"}
 
@@ -147,20 +140,18 @@ func main() {
 		ui.Render(p, l, g, sls, lc, bc, lc2, p2)
 	}
 
-	ui.Handle("q", func(ui.Event) {
-		ui.StopLoop()
-	})
-
-	drawTicker := time.NewTicker(time.Second)
-	drawTickerCount := 1
-	go func() {
-		for {
-			draw(drawTickerCount)
-
-			drawTickerCount++
-			<-drawTicker.C
+	tickerCount := 1
+	for {
+		select {
+		case e := <-ui.PollEvent():
+			switch e.ID {
+			case "q", "<C-c>":
+				return
+			}
+		case <-time.NewTicker(time.Second).C:
+			updateP(tickerCount)
+			draw(tickerCount)
+			tickerCount++
 		}
-	}()
-
-	ui.Loop()
+	}
 }

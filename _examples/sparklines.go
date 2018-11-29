@@ -59,9 +59,11 @@ func main() {
 
 	ui.Render(spls0, spls1, spls2)
 
-	ui.Handle("q", func(ui.Event) {
-		ui.StopLoop()
-	})
-
-	ui.Loop()
+	for {
+		e := <-ui.PollEvent()
+		switch e.ID {
+		case "q", "<C-c>":
+			return
+		}
+	}
 }
