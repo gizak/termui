@@ -54,13 +54,13 @@ type Resize struct {
 	Height int
 }
 
-var pollingChannels [](chan Event)
-
-// PollEvent gets events from termbox, converts them, then sends them to each of its channels.
-func PollEvent() <-chan Event {
+// PollEvents gets events from termbox, converts them, then sends them to each of its channels.
+func PollEvents() <-chan Event {
 	ch := make(chan Event)
 	go func() {
-		ch <- convertTermboxEvent(tb.PollEvent())
+		for {
+			ch <- convertTermboxEvent(tb.PollEvent())
+		}
 	}()
 	return ch
 }

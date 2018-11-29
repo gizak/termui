@@ -1,6 +1,7 @@
 ## 18/11/29
 
 - Move Tabpane from termui/extra to termui and rename it to TabPane
+- Rename PollEvent to PollEvents
 
 ## 18/11/28
 
