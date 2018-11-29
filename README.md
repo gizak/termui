@@ -10,7 +10,7 @@
 
 ## Installation
 
-It's recommended to install from the master branch:
+Installing from the master branch is recommended:
 
 ```bash
 go get -u github.com/gizak/termui@master
