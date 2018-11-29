@@ -2,13 +2,9 @@
 // Use of this source code is governed by a MIT license that can
 // be found in the LICENSE file.
 
-package extra
+package termui
 
-import (
-	"unicode/utf8"
-
-	. "github.com/gizak/termui"
-)
+import "unicode/utf8"
 
 type Tab struct {
 	Label   string
@@ -37,7 +33,7 @@ func (tab *Tab) Buffer() Buffer {
 	return buf
 }
 
-type Tabpane struct {
+type TabPane struct {
 	Block
 	Tabs           []Tab
 	activeTabIndex int
@@ -46,8 +42,8 @@ type Tabpane struct {
 	offTabText     int
 }
 
-func NewTabpane() *Tabpane {
-	tp := Tabpane{
+func NewTabPane() *TabPane {
+	tp := TabPane{
 		Block:          *NewBlock(),
 		activeTabIndex: 0,
 		offTabText:     0,
@@ -55,7 +51,7 @@ func NewTabpane() *Tabpane {
 	return &tp
 }
 
-func (tp *Tabpane) SetTabs(tabs ...Tab) {
+func (tp *TabPane) SetTabs(tabs ...Tab) {
 	tp.Tabs = make([]Tab, len(tabs))
 	tp.posTabText = make([]int, len(tabs)+1)
 	off := 0
@@ -67,7 +63,7 @@ func (tp *Tabpane) SetTabs(tabs ...Tab) {
 	tp.posTabText[len(tabs)] = off - 1 //total length of Tab's text
 }
 
-func (tp *Tabpane) SetActiveLeft() {
+func (tp *TabPane) SetActiveLeft() {
 	if tp.activeTabIndex == 0 {
 		return
 	}
@@ -77,7 +73,7 @@ func (tp *Tabpane) SetActiveLeft() {
 	}
 }
 
-func (tp *Tabpane) SetActiveRight() {
+func (tp *TabPane) SetActiveRight() {
 	if tp.activeTabIndex == len(tp.Tabs)-1 {
 		return
 	}
@@ -93,7 +89,7 @@ func (tp *Tabpane) SetActiveRight() {
 // if only right tabs are not visible return 1
 // if both return 0
 // use only if fitsWidth() returns false
-func (tp *Tabpane) checkAlignment() int {
+func (tp *TabPane) checkAlignment() int {
 	ret := 0
 	if tp.offTabText > 0 {
 		ret = -1
@@ -104,12 +100,12 @@ func (tp *Tabpane) checkAlignment() int {
 	return ret
 }
 
-// Checks if all tabs fits innerWidth of Tabpane
-func (tp *Tabpane) fitsWidth() bool {
+// Checks if all tabs fits innerWidth of TabPane
+func (tp *TabPane) fitsWidth() bool {
 	return tp.InnerWidth() >= tp.posTabText[len(tp.Tabs)]
 }
 
-func (tp *Tabpane) align() {
+func (tp *TabPane) align() {
 	if !tp.fitsWidth() && !tp.Border {
 		tp.PaddingLeft += 1
 		tp.PaddingRight += 1
@@ -135,10 +131,10 @@ func buf2pt(b Buffer) []point {
 	return ps
 }
 
-// Adds the point only if it is visible in Tabpane.
+// Adds the point only if it is visible in TabPane.
 // Point can be invisible if concatenation of Tab's texts is widther then
-// innerWidth of Tabpane
-func (tp *Tabpane) addPoint(ptab []point, charOffset *int, oftX *int, points ...point) []point {
+// innerWidth of TabPane
+func (tp *TabPane) addPoint(ptab []point, charOffset *int, oftX *int, points ...point) []point {
 	if *charOffset < tp.offTabText || tp.offTabText+tp.InnerWidth() < *charOffset {
 		*charOffset++
 		return ptab
@@ -153,7 +149,7 @@ func (tp *Tabpane) addPoint(ptab []point, charOffset *int, oftX *int, points ...
 }
 
 // Draws the point and redraws upper and lower border points (if it has one)
-func (tp *Tabpane) drawPointWithBorder(p point, ch rune, chbord rune, chdown rune, chup rune) []point {
+func (tp *TabPane) drawPointWithBorder(p point, ch rune, chbord rune, chdown rune, chup rune) []point {
 	var addp []point
 	p.Ch = ch
 	if tp.Border {
@@ -169,7 +165,7 @@ func (tp *Tabpane) drawPointWithBorder(p point, ch rune, chbord rune, chdown run
 	return append(addp, p)
 }
 
-func (tp *Tabpane) Buffer() Buffer {
+func (tp *TabPane) Buffer() Buffer {
 	if tp.Border {
 		tp.Height = 3
 	} else {
@@ -247,7 +243,7 @@ func (tp *Tabpane) Buffer() Buffer {
 			}
 		}
 
-		//draw tab content below the Tabpane
+		//draw tab content below the TabPane
 		if i == tp.activeTabIndex {
 			blockPoints := buf2pt(tab.Buffer())
 			for i := 0; i < len(blockPoints); i++ {
