@@ -14,7 +14,7 @@ It's recommended to install from the master branch:
 go get -u github.com/gizak/termui@master
 ```
 
-Note that termui is currently undergoing major API changes so be prepared for things to break if you upgrade.
+Note that termui is currently undergoing some API changes so be prepared for things to break if you upgrade.
 
 ## Usage
 
