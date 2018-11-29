@@ -11,7 +11,7 @@ import (
 // This is the implementation of multi-colored or stacked bar graph.  This is different from default barGraph which is implemented in bar.go
 // Multi-Colored-BarChart creates multiple bars in a widget:
 /*
-   bc := termui.NewMBarChart()
+   bc := termui.NewStackedBarChart()
    data := make([][]int, 2)
    data[0] := []int{3, 2, 5, 7, 9, 4}
    data[1] := []int{7, 8, 5, 3, 1, 6}
@@ -25,7 +25,7 @@ import (
    bc.BarColor = termui.ColorRed
    bc.NumColor = termui.ColorYellow
 */
-type MBarChart struct {
+type StackedBarChart struct {
 	Block
 	BarColor   [NumberofColors]Attribute
 	TextColor  Attribute
@@ -46,9 +46,9 @@ type MBarChart struct {
 	maxScale   []rune
 }
 
-// NewMBarChart returns a new *MBarChart with current theme.
-func NewMBarChart() *MBarChart {
-	mbc := &MBarChart{
+// NewStackedBarChart returns a new *StackedBarChart with current theme.
+func NewStackedBarChart() *StackedBarChart {
+	mbc := &StackedBarChart{
 		Block:     *NewBlock(),
 		TextColor: ThemeAttr("mbarchart.text.fg"),
 		NumFmt:    func(n int) string { return fmt.Sprint(n) },
@@ -60,7 +60,7 @@ func NewMBarChart() *MBarChart {
 	return mbc
 }
 
-func (bc *MBarChart) layout() {
+func (bc *StackedBarChart) layout() {
 	bc.numBar = bc.innerArea.Dx() / (bc.BarGap + bc.BarWidth)
 	bc.labels = make([][]rune, bc.numBar)
 	DataLen := 0
@@ -140,14 +140,14 @@ func (bc *MBarChart) layout() {
 
 }
 
-func (bc *MBarChart) SetMax(max int) {
+func (bc *StackedBarChart) SetMax(max int) {
 	if max > 0 {
 		bc.max = max
 	}
 }
 
 // Buffer implements Bufferer interface.
-func (bc *MBarChart) Buffer() Buffer {
+func (bc *StackedBarChart) Buffer() Buffer {
 	buf := bc.Block.Buffer()
 
 	bc.layout()
