@@ -74,8 +74,9 @@ func main() {
 
 	ui.Render(g0, g1, g2, g3, g4)
 
+	uiEvents := ui.PollEvents()
 	for {
-		e := <-ui.PollEvent()
+		e := <-uiEvents
 		switch e.ID {
 		case "q", "<C-c>":
 			return

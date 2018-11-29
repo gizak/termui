@@ -96,9 +96,11 @@ func main() {
 	ui.Render(ui.Body)
 
 	tickerCount := 1
+	uiEvents := ui.PollEvents()
+	ticker := time.NewTicker(time.Second).C
 	for {
 		select {
-		case e := <-ui.PollEvent():
+		case e := <-uiEvents:
 			switch e.ID {
 			case "q", "<C-c>":
 				return
@@ -109,7 +111,7 @@ func main() {
 				ui.Clear()
 				ui.Render(ui.Body)
 			}
-		case <-time.NewTicker(time.Second).C:
+		case <-ticker:
 			if tickerCount > 103 {
 				return
 			}

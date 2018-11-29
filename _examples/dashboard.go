@@ -141,14 +141,16 @@ func main() {
 	}
 
 	tickerCount := 1
+	uiEvents := ui.PollEvents()
+	ticker := time.NewTicker(time.Second).C
 	for {
 		select {
-		case e := <-ui.PollEvent():
+		case e := <-uiEvents:
 			switch e.ID {
 			case "q", "<C-c>":
 				return
 			}
-		case <-time.NewTicker(time.Second).C:
+		case <-ticker:
 			updateP(tickerCount)
 			draw(tickerCount)
 			tickerCount++

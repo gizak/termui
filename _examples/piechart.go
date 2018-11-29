@@ -52,16 +52,18 @@ func main() {
 
 	ui.Render(pc)
 
+	uiEvents := ui.PollEvents()
+	ticker := time.NewTicker(time.Second).C
 	for {
 		select {
-		case e := <-ui.PollEvent():
+		case e := <-uiEvents:
 			switch e.ID {
 			case "q", "<C-c>":
 				return
 			case "s":
 				pause()
 			}
-		case <-time.NewTicker(time.Second).C:
+		case <-ticker:
 			if run {
 				pc.Data, pc.Offset = randomDataAndOffset()
 				ui.Render(pc)

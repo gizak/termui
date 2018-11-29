@@ -20,7 +20,6 @@ import (
 	"time"
 
 	ui "github.com/gizak/termui"
-	"github.com/gizak/termui/extra"
 )
 
 const statFilePath = "/proc/stat"
@@ -290,10 +289,10 @@ func main() {
 	header.Border = false
 	header.TextBgColor = ui.ColorBlue
 
-	tabCpu := extra.NewTab("CPU")
-	tabMem := extra.NewTab("MEM")
+	tabCpu := ui.NewTab("CPU")
+	tabMem := ui.NewTab("MEM")
 
-	tabpane := extra.NewTabpane()
+	tabpane := ui.NewTabPane()
 	tabpane.Y = 1
 	tabpane.Width = 30
 	tabpane.Border = false
@@ -335,9 +334,11 @@ func main() {
 	ui.Render(header, tabpane)
 
 	tickerCount := 1
+	uiEvents := ui.PollEvents()
+	ticker := time.NewTicker(time.Second).C
 	for {
 		select {
-		case e := <-ui.PollEvent():
+		case e := <-uiEvents:
 			switch e.ID {
 			case "q", "<C-c>":
 				return
@@ -348,7 +349,7 @@ func main() {
 				tabpane.SetActiveRight()
 				ui.Render(header, tabpane)
 			}
-		case <-time.NewTicker(time.Second).C:
+		case <-ticker:
 			cs, errcs := getCpusStatsMap()
 			if errcs != nil {
 				panic(errcs)
