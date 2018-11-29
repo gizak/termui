@@ -1,155 +1,79 @@
-# termui [![Build Status](https://travis-ci.org/gizak/termui.svg?branch=master)](https://travis-ci.org/gizak/termui) [![Doc Status](https://godoc.org/github.com/gizak/termui?status.png)](https://godoc.org/github.com/gizak/termui)
+# termui
 
-<img src="./_examples/dashboard.gif" alt="demo cast under osx 10.10; Terminal.app; Menlo Regular 12pt.)" width="80%">
+[![Build Status](https://travis-ci.org/gizak/termui.svg?branch=master)](https://travis-ci.org/gizak/termui) [![Doc Status](https://godoc.org/github.com/gizak/termui?status.png)](https://godoc.org/github.com/gizak/termui)
 
-`termui` is a cross-platform, easy-to-compile, and fully-customizable terminal dashboard. It is inspired by [blessed-contrib](https://github.com/yaronn/blessed-contrib), but purely in Go.
+<img src="./_examples/dashboard.gif" alt="demo cast under osx 10.10; Terminal.app; Menlo Regular 12pt.)" width="100%">
 
-Now version v2 has arrived! It brings new event system, new theme system, new `Buffer` interface and specific colour text rendering. (some docs are missing, but it will be completed soon!)
+`termui` is a cross-platform, easy-to-compile, and fully-customizable terminal dashboard built on top of [termbox-go](https://github.com/nsf/termbox-go). It is inspired by [blessed-contrib](https://github.com/yaronn/blessed-contrib) and written purely in Go.
 
 ## Installation
 
-`master` mirrors v2 branch, to install:
+It's recommended to install from the master branch:
 
 ```bash
-go get -u github.com/gizak/termui
+go get -u github.com/gizak/termui@master
 ```
 
-It is recommanded to use locked deps by using [dep](https://golang.github.io/dep/): move to `termui` src directory then run `dep ensure`.
-
-For the compatible reason, you can choose to install the legacy version of `termui`:
-
-```bash
-go get gopkg.in/gizak/termui.v1
-```
+Note that termui is currently undergoing major API changes so be prepared for things to break if you upgrade.
 
 ## Usage
 
-### Layout
-
-To use `termui`, the very first thing you may want to know is how to manage layout. `termui` offers two ways of doing this, known as absolute layout and grid layout.
-
-**Absolute layout**
-
-Each widget has an underlying block structure which basically is a box model. It has border, label and padding properties. A border of a widget can be chosen to hide or display (with its border label), you can pick a different front/back colour for the border as well. To display such a widget at a specific location in terminal window, you need to assign `.X`, `.Y`, `.Height`, `.Width` values for each widget before sending it to `.Render`. Let's demonstrate these by a code snippet:
+### Hello World
 
 ```go
-	import ui "github.com/gizak/termui" // <- ui shortcut, optional
+import ui "github.com/gizak/termui"
 
-	func main() {
-		err := ui.Init()
-		if err != nil {
-			panic(err)
-		}
-		defer ui.Close()
-
-		p := ui.NewPar(":PRESS q TO QUIT DEMO")
-		p.Height = 3
-		p.Width = 50
-		p.TextFgColor = ui.ColorWhite
-		p.BorderLabel = "Text Box"
-		p.BorderFg = ui.ColorCyan
-
-		g := ui.NewGauge()
-		g.Percent = 50
-		g.Width = 50
-		g.Height = 3
-		g.Y = 11
-		g.BorderLabel = "Gauge"
-		g.BarColor = ui.ColorRed
-		g.BorderFg = ui.ColorWhite
-		g.BorderLabelFg = ui.ColorCyan
-
-		ui.Render(p, g) // feel free to call Render, it's async and non-block
-
-		// event handler...
+func main() {
+	err := ui.Init()
+	if err != nil {
+		panic(err)
 	}
-```
+	defer ui.Close()
 
-Note that components can be overlapped (I'd rather call this a feature...), `Render(rs ...Renderer)` renders its args from left to right (i.e. each component's weight is arising from left to right).
+	p := ui.NewParagraph("Hello World")
+	ui.Render(p)
 
-**Grid layout:**
-
-<img src="./_examples/grid.gif" alt="grid" width="60%">
-
-Grid layout uses [12 columns grid system](http://www.w3schools.com/bootstrap/bootstrap_grid_system.asp) with expressive syntax. To use `Grid`, all we need to do is build a widget tree consisting of `Row`s and `Col`s (Actually a `Col` is also a `Row` but with a widget endpoint attached).
-
-```go
-	import ui "github.com/gizak/termui"
-	// init and create widgets...
-
-	// build
-	ui.Body.AddRows(
-		ui.NewRow(
-			ui.NewCol(6, 0, widget0),
-			ui.NewCol(6, 0, widget1)),
-		ui.NewRow(
-			ui.NewCol(3, 0, widget2),
-			ui.NewCol(3, 0, widget30, widget31, widget32),
-			ui.NewCol(6, 0, widget4)))
-
-	// calculate layout
-	ui.Body.Align()
-
-	ui.Render(ui.Body)
-```
-
-### Events
-
-`termui` ships with a http-like event mux handling system. All events are channeled up from different sources (typing, click, windows resize, custom event) and then encoded as universal `Event` object. `Event.Path` indicates the event type and `Event.Data` stores the event data struct. Add a handler to a certain event is easy as below:
-
-```go
-	// handle key q pressing
-	ui.Handle("/sys/kbd/q", func(ui.Event) {
-		// press q to quit
-		ui.StopLoop()
-	})
-
-	ui.Handle("/sys/kbd/C-x", func(ui.Event) {
-		// handle Ctrl + x combination
-	})
-
-	ui.Handle("/sys/kbd", func(ui.Event) {
-		// handle all other key pressing
-	})
-
-	// handle a 1s timer
-	ui.Handle("/timer/1s", func(e ui.Event) {
-		t := e.Data.(ui.EvtTimer)
-		// t is a EvtTimer
-		if t.Count%2 ==0 {
-			// do something
+	for {
+		e := <-ui.PollEvent()
+		switch e.ID {
+		case "q", "<C-c>":
+			return
 		}
-	})
-
-	ui.Loop() // block until StopLoop is called
+	}
+}
 ```
 
 ### Widgets
 
 Click image to see the corresponding demo codes.
 
-[<img src="./_examples/par.png" alt="par" type="image/png" width="45%">](https://github.com/gizak/termui/blob/master/_examples/par.go)
-[<img src="./_examples/list.png" alt="list" type="image/png" width="45%">](https://github.com/gizak/termui/blob/master/_examples/list.go)
+[<img src="./_examples/barchart.png" alt="barchart" type="image/png" width="45%">](https://github.com/gizak/termui/blob/master/_examples/barchart.go)
 [<img src="./_examples/gauge.png" alt="gauge" type="image/png" width="45%">](https://github.com/gizak/termui/blob/master/_examples/gauge.go)
 [<img src="./_examples/linechart.png" alt="linechart" type="image/png" width="45%">](https://github.com/gizak/termui/blob/master/_examples/linechart.go)
-[<img src="./_examples/barchart.png" alt="barchart" type="image/png" width="45%">](https://github.com/gizak/termui/blob/master/_examples/barchart.go)
-[<img src="./_examples/mbarchart.png" alt="barchart" type="image/png" width="45%">](https://github.com/gizak/termui/blob/master/_examples/mbarchart.go)
+[<img src="./_examples/list.png" alt="list" type="image/png" width="45%">](https://github.com/gizak/termui/blob/master/_examples/list.go)
+[<img src="./_examples/paragraph.png" alt="paragraph" type="image/png" width="45%">](https://github.com/gizak/termui/blob/master/_examples/par.go)
 [<img src="./_examples/sparklines.png" alt="sparklines" type="image/png" width="45%">](https://github.com/gizak/termui/blob/master/_examples/sparklines.go)
+[<img src="./_examples/stackedbarchart.png" alt="stackedbarchart" type="image/png" width="45%">](https://github.com/gizak/termui/blob/master/_examples/mbarchart.go)
 [<img src="./_examples/table.png" alt="table" type="image/png" width="45%">](https://github.com/gizak/termui/blob/master/_examples/table.go)
 
-## GoDoc
+### Examples
 
-[godoc](https://godoc.org/github.com/gizak/termui)
+Examples can be found in [\_examples](./_examples). Run with `go run _examples/...` or run all of them consecutively with `./scripts/run_examples.py`.
 
-## TODO
+## Documentation
 
-- [x] Grid layout
-- [x] Event system
-- [x] Canvas widget
-- [x] Refine APIs
-- [ ] Focusable widgets
+- [godoc](https://godoc.org/github.com/gizak/termui) for code documentation
+- [wiki](https://github.com/gizak/termui/wiki) for general information
 
-## Changelog
+## Uses
+
+- [go-ethereum/monitorcmd](https://github.com/ethereum/go-ethereum/blob/96116758d22ddbff4dbef2050d6b63a7b74502d8/cmd/geth/monitorcmd.go)
+
+## Related Works
+
+- [blessed-contrib](https://github.com/yaronn/blessed-contrib)
+- [tui-rs](https://github.com/fdehau/tui-rs)
+- [gocui](https://github.com/jroimartin/gocui)
 
 ## License
 
