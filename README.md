@@ -21,6 +21,8 @@ Note that termui is currently undergoing major API changes so be prepared for th
 ### Hello World
 
 ```go
+package main
+
 import ui "github.com/gizak/termui"
 
 func main() {
