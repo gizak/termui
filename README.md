@@ -37,11 +37,9 @@ func main() {
 	p.Height = 5
 	ui.Render(p)
 
-	uiEvents := ui.PollEvents()
-	for {
-		e := <-uiEvents
+	for e := range ui.PollEvents() {
 		if e.Type == ui.KeyboardEvent {
-			return
+			break
 		}
 	}
 }
