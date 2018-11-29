@@ -6,6 +6,8 @@
 
 `termui` is a cross-platform, easy-to-compile, and fully-customizable terminal dashboard built on top of [termbox-go](https://github.com/nsf/termbox-go). It is inspired by [blessed-contrib](https://github.com/yaronn/blessed-contrib) and written purely in Go.
 
+**termui is currently undergoing some API changes so make sure to check the changelog when upgrading**
+
 ## Installation
 
 It's recommended to install from the master branch:
@@ -13,8 +15,6 @@ It's recommended to install from the master branch:
 ```bash
 go get -u github.com/gizak/termui@master
 ```
-
-Note that termui is currently undergoing some API changes so be prepared for things to break if you upgrade.
 
 ## Usage
 
