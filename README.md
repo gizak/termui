@@ -32,13 +32,14 @@ func main() {
 	}
 	defer ui.Close()
 
-	p := ui.NewParagraph("Hello World")
+	p := ui.NewParagraph("Hello World!")
+	p.Width = 25
+	p.Height = 5
 	ui.Render(p)
 
 	for {
 		e := <-ui.PollEvent()
-		switch e.ID {
-		case "q", "<C-c>":
+		if e.Type == ui.KeyboardEvent {
 			return
 		}
 	}
