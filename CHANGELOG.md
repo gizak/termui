@@ -1,3 +1,7 @@
+## 18/11/29
+
+- Move Tabpane from termui/extra to termui and rename it to TabPane
+
 ## 18/11/28
 
 - Migrated from Dep to vgo
