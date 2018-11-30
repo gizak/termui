@@ -53,7 +53,7 @@ Click image to see the corresponding demo codes.
 [<img src="./_examples/gauge.png" alt="gauge" type="image/png" width="45%">](https://github.com/gizak/termui/blob/master/_examples/gauge.go)
 [<img src="./_examples/linechart.png" alt="linechart" type="image/png" width="45%">](https://github.com/gizak/termui/blob/master/_examples/linechart.go)
 [<img src="./_examples/list.png" alt="list" type="image/png" width="45%">](https://github.com/gizak/termui/blob/master/_examples/list.go)
-[<img src="./_examples/paragraph.png" alt="paragraph" type="image/png" width="45%">](https://github.com/gizak/termui/blob/master/_examples/par.go)
+[<img src="./_examples/paragraph.png" alt="paragraph" type="image/png" width="45%">](https://github.com/gizak/termui/blob/master/_examples/paragraph.go)
 [<img src="./_examples/sparklines.png" alt="sparklines" type="image/png" width="45%">](https://github.com/gizak/termui/blob/master/_examples/sparklines.go)
 [<img src="./_examples/stackedbarchart.png" alt="stackedbarchart" type="image/png" width="45%">](https://github.com/gizak/termui/blob/master/_examples/mbarchart.go)
 [<img src="./_examples/table.png" alt="table" type="image/png" width="45%">](https://github.com/gizak/termui/blob/master/_examples/table.go)
