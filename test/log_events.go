@@ -20,7 +20,7 @@ func main() {
 	defer ui.Close()
 
 	for {
-		e := <-ui.PollEvent()
+		e := <-ui.PollEvents()
 		fmt.Printf("%v", e)
 		switch e.ID {
 		case "q", "<C-c>":
