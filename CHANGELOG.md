@@ -2,6 +2,13 @@ Feel free to search/open an issue if something is missing or confusing from the 
 
 ## 2019/01/23
 
+Non breaking changes:
+
+- Set `termbox-go` backend to 256 colors by default
+- Added `Canvas` which allows for drawing braille lines to a `Buffer`
+
+Breaking changes:
+
 - moved widgets to `github.com/gizak/termui/widgets`
 - rewrote widgets (check examples and code)
 - rewrote grid
@@ -18,10 +25,8 @@ Feel free to search/open an issue if something is missing or confusing from the 
 - Refactored `Theme`
   - `Theme` is now a large struct which holds the default `Styles` of everything
 - Combined `TermWidth` and `TermHeight` functions into `TerminalDimensions`
-- Added `Canvas` which allows for drawing braille lines to a `Buffer`
 - Refactored `Block`
 - Refactored `Buffer` methods
-- Set `termbox-go` backend to 256 colors by default
 - Decremented color numbers by 1 to match xterm colors
 - Changed text parsing
   - style items changed from `fg-color` to `fg:color`
