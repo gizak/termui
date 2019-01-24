@@ -40,7 +40,7 @@ func main() {
 	p0.LineColors[0] = ui.ColorGreen
 
 	p1 := widgets.NewPlot()
-	p1.Title = "custom Line Chart"
+	p1.Title = "dot-mode line Chart"
 	p1.Marker = widgets.MarkerDot
 	p1.Data = [][]float64{[]float64{1, 2, 3, 4, 5}}
 	p1.SetRect(50, 0, 75, 10)
@@ -61,7 +61,7 @@ func main() {
 	p2.Type = widgets.ScatterPlot
 
 	p3 := widgets.NewPlot()
-	p3.Title = "dot-mode Scatter Plot"
+	p3.Title = "braille-mode Scatter Plot"
 	p3.Data = make([][]float64, 2)
 	p3.Data[0] = []float64{1, 2, 3, 4, 5}
 	p3.Data[1] = sinData[1][4:]
