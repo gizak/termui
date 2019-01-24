@@ -11,20 +11,25 @@ import (
 	. "github.com/gizak/termui"
 )
 
-// LineChart has two modes: braille(default) and dot.
+// Plot has two modes: line(default) and scatter.
+// Plot also has two marker types: braille(default) and dot.
 // A single braille character is a 2x4 grid of dots, so using braille
 // gives 2x X resolution and 4x Y resolution over dot mode.
-type LineChart struct {
+type Plot struct {
 	Block
-	Data            [][]float64
-	DataLabels      []string
+
+	Data       [][]float64
+	DataLabels []string
+	MaxVal     float64
+
+	LineColors []Color
+	AxesColor  Color // TODO
+	ShowAxes   bool
+
+	Marker          PlotMarker
+	DotRune         rune
+	Type            PlotType
 	HorizontalScale int
-	LineType        LineType
-	DotChar         rune
-	LineColors      []Color
-	AxesColor       Color // TODO
-	MaxVal          float64
-	ShowAxes        bool
 	DrawDirection   DrawDirection // TODO
 }
 
@@ -35,11 +40,18 @@ const (
 	yAxisLabelsGap    = 1
 )
 
-type LineType int
+type PlotType uint
 
 const (
-	BrailleLine LineType = iota
-	DotLine
+	LineChart PlotType = iota
+	ScatterPlot
+)
+
+type PlotMarker uint
+
+const (
+	MarkerBraille PlotMarker = iota
+	MarkerDot
 )
 
 type DrawDirection uint
@@ -49,60 +61,93 @@ const (
 	DrawRight
 )
 
-func NewLineChart() *LineChart {
-	return &LineChart{
+func NewPlot() *Plot {
+	return &Plot{
 		Block:           *NewBlock(),
-		LineColors:      Theme.LineChart.Lines,
-		AxesColor:       Theme.LineChart.Axes,
-		LineType:        BrailleLine,
-		DotChar:         DOT,
+		LineColors:      Theme.Plot.Lines,
+		AxesColor:       Theme.Plot.Axes,
+		Marker:          MarkerBraille,
+		DotRune:         DOT,
 		Data:            [][]float64{},
 		HorizontalScale: 1,
 		DrawDirection:   DrawRight,
 		ShowAxes:        true,
+		Type:            LineChart,
 	}
 }
 
-func (self *LineChart) renderBraille(buf *Buffer, drawArea image.Rectangle, maxVal float64) {
+func (self *Plot) renderBraille(buf *Buffer, drawArea image.Rectangle, maxVal float64) {
 	canvas := NewCanvas()
 	canvas.Rectangle = drawArea
 
-	for i, line := range self.Data {
-		previousHeight := int((line[1] / maxVal) * float64(drawArea.Dy()-1))
-		for j, val := range line[1:] {
-			height := int((val / maxVal) * float64(drawArea.Dy()-1))
-			canvas.Line(
-				image.Pt(
-					(drawArea.Min.X+(j*self.HorizontalScale))*2,
-					(drawArea.Max.Y-previousHeight-1)*4,
-				),
-				image.Pt(
-					(drawArea.Min.X+((j+1)*self.HorizontalScale))*2,
-					(drawArea.Max.Y-height-1)*4,
-				),
-				SelectColor(self.LineColors, i),
-			)
-			previousHeight = height
+	switch self.Type {
+	case ScatterPlot:
+		for i, line := range self.Data {
+			for j, val := range line {
+				height := int((val / maxVal) * float64(drawArea.Dy()-1))
+				canvas.Point(
+					image.Pt(
+						(drawArea.Min.X+(j*self.HorizontalScale))*2,
+						(drawArea.Max.Y-height-1)*4,
+					),
+					SelectColor(self.LineColors, i),
+				)
+			}
+		}
+	case LineChart:
+		for i, line := range self.Data {
+			previousHeight := int((line[1] / maxVal) * float64(drawArea.Dy()-1))
+			for j, val := range line[1:] {
+				height := int((val / maxVal) * float64(drawArea.Dy()-1))
+				canvas.Line(
+					image.Pt(
+						(drawArea.Min.X+(j*self.HorizontalScale))*2,
+						(drawArea.Max.Y-previousHeight-1)*4,
+					),
+					image.Pt(
+						(drawArea.Min.X+((j+1)*self.HorizontalScale))*2,
+						(drawArea.Max.Y-height-1)*4,
+					),
+					SelectColor(self.LineColors, i),
+				)
+				previousHeight = height
+			}
 		}
 	}
 
 	canvas.Draw(buf)
 }
 
-func (self *LineChart) renderDot(buf *Buffer, drawArea image.Rectangle, maxVal float64) {
-	for i, line := range self.Data {
-		for j := 0; j < len(line) && j*self.HorizontalScale < drawArea.Dx(); j++ {
-			val := line[j]
-			height := int((val / maxVal) * float64(drawArea.Dy()-1))
-			buf.SetCell(
-				NewCell(self.DotChar, NewStyle(SelectColor(self.LineColors, i))),
-				image.Pt(drawArea.Min.X+(j*self.HorizontalScale), drawArea.Max.Y-1-height),
-			)
+func (self *Plot) renderDot(buf *Buffer, drawArea image.Rectangle, maxVal float64) {
+	switch self.Type {
+	case ScatterPlot:
+		for i, line := range self.Data {
+			for j, val := range line {
+				height := int((val / maxVal) * float64(drawArea.Dy()-1))
+				point := image.Pt(drawArea.Min.X+(j*self.HorizontalScale), drawArea.Max.Y-1-height)
+				if point.In(drawArea) {
+					buf.SetCell(
+						NewCell(self.DotRune, NewStyle(SelectColor(self.LineColors, i))),
+						point,
+					)
+				}
+			}
+		}
+	case LineChart:
+		for i, line := range self.Data {
+			for j := 0; j < len(line) && j*self.HorizontalScale < drawArea.Dx(); j++ {
+				val := line[j]
+				height := int((val / maxVal) * float64(drawArea.Dy()-1))
+				buf.SetCell(
+					NewCell(self.DotRune, NewStyle(SelectColor(self.LineColors, i))),
+					image.Pt(drawArea.Min.X+(j*self.HorizontalScale), drawArea.Max.Y-1-height),
+				)
+			}
 		}
 	}
 }
 
-func (self *LineChart) plotAxes(buf *Buffer, maxVal float64) {
+func (self *Plot) plotAxes(buf *Buffer, maxVal float64) {
 	// draw origin cell
 	buf.SetCell(
 		NewCell(BOTTOM_LEFT, NewStyle(ColorWhite)),
@@ -153,7 +198,7 @@ func (self *LineChart) plotAxes(buf *Buffer, maxVal float64) {
 	}
 }
 
-func (self *LineChart) Draw(buf *Buffer) {
+func (self *Plot) Draw(buf *Buffer) {
 	self.Block.Draw(buf)
 
 	maxVal := self.MaxVal
@@ -173,9 +218,10 @@ func (self *LineChart) Draw(buf *Buffer) {
 		)
 	}
 
-	if self.LineType == BrailleLine {
+	switch self.Marker {
+	case MarkerBraille:
 		self.renderBraille(buf, drawArea, maxVal)
-	} else {
+	case MarkerDot:
 		self.renderDot(buf, drawArea, maxVal)
 	}
 }

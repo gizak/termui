@@ -31,7 +31,7 @@ type RootTheme struct {
 
 	BarChart        BarChartTheme
 	Gauge           GaugeTheme
-	LineChart       LineChartTheme
+	Plot            PlotTheme
 	List            ListTheme
 	Paragraph       ParagraphTheme
 	PieChart        PieChartTheme
@@ -57,7 +57,7 @@ type GaugeTheme struct {
 	Label Style
 }
 
-type LineChartTheme struct {
+type PlotTheme struct {
 	Lines []Color
 	Axes  Color
 }
@@ -136,7 +136,7 @@ var Theme = RootTheme{
 		Line:  ColorWhite,
 	},
 
-	LineChart: LineChartTheme{
+	Plot: PlotTheme{
 		Lines: StandardColors,
 		Axes:  ColorWhite,
 	},

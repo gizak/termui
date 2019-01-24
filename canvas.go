@@ -54,6 +54,14 @@ func (self *Canvas) Line(p0, p1 image.Point, color Color) {
 	}
 }
 
+func (self *Canvas) Point(p image.Point, color Color) {
+	point := image.Pt(p.X/2, p.Y/4)
+	self.CellMap[point] = Cell{
+		self.CellMap[point].Rune | BRAILLE[p.X%4][p.Y%2],
+		NewStyle(color),
+	}
+}
+
 func (self *Canvas) Draw(buf *Buffer) {
 	for point, cell := range self.CellMap {
 		if point.In(self.Rectangle) {

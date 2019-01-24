@@ -1,5 +1,12 @@
 Feel free to search/open an issue if something is missing or confusing from the changelog, since many things have been in flux.
 
+## 2019/01/24
+
+Breaking changes:
+
+- Change LineChart to Plot
+  - Added ScatterPlot mode which plots points instead of lines between points
+
 ## 2019/01/23
 
 Non breaking changes:
