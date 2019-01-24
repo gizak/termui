@@ -10,8 +10,7 @@ import (
 	. "github.com/gizak/termui"
 )
 
-/* Table is like:
-
+/*Table is like:
 ┌ Awesome Table ───────────────────────────────────────────────┐
 │  Col0          | Col1 | Col2 | Col3  | Col4  | Col5  | Col6  |
 │──────────────────────────────────────────────────────────────│
@@ -20,7 +19,6 @@ import (
 │  Some Item #2  | BBB  | 456  | DDDDD | FFFFF | HHHHH | JJJJJ |
 └──────────────────────────────────────────────────────────────┘
 */
-
 type Table struct {
 	Block
 	Rows         [][]string
