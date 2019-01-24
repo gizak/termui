@@ -132,13 +132,13 @@ var Theme = RootTheme{
 	},
 
 	Sparkline: SparklineTheme{
-		Line:  ColorBlack,
-		Title: NewStyle(ColorBlue),
+		Title: NewStyle(ColorWhite),
+		Line:  ColorWhite,
 	},
 
 	LineChart: LineChartTheme{
 		Lines: StandardColors,
-		Axes:  ColorBlue,
+		Axes:  ColorWhite,
 	},
 
 	Table: TableTheme{

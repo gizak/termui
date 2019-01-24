@@ -63,6 +63,7 @@ func main() {
 		"",
 		"[3] Uploading File 3",
 	}
+    ls.Border = false
 
 	p := widgets.NewParagraph()
 	p.Text = "<> This row has 3 columns\n<- Widgets can be stacked up like left side\n<- Stacked widgets are treated as a single widget"
