@@ -46,13 +46,14 @@ Run an example with `go run _examples/{example}.go` or run all of them consecuti
 ## Uses
 
 - [cjbassi/gotop](https://github.com/cjbassi/gotop)
-- [go-ethereum/monitorcmd](https://github.com/ethereum/go-ethereum/blob/96116758d22ddbff4dbef2050d6b63a7b74502d8/cmd/geth/monitorcmd.go)
+- [ethereum/go-ethereum/monitorcmd](https://github.com/ethereum/go-ethereum/blob/96116758d22ddbff4dbef2050d6b63a7b74502d8/cmd/geth/monitorcmd.go)
+- [mikepea/go-jira-ui](https://github.com/mikepea/go-jira-ui)
 
 ## Related Works
 
 - [blessed-contrib](https://github.com/yaronn/blessed-contrib)
-- [tui-rs](https://github.com/fdehau/tui-rs)
 - [gocui](https://github.com/jroimartin/gocui)
+- [tui-rs](https://github.com/fdehau/tui-rs)
 
 ## License
 
