@@ -4,141 +4,149 @@
 
 package termui
 
-import "strings"
-
-/*
-// A ColorScheme represents the current look-and-feel of the dashboard.
-type ColorScheme struct {
-	BodyBg            Attribute
-	BlockBg           Attribute
-	HasBorder         bool
-	BorderFg          Attribute
-	BorderBg          Attribute
-	BorderLabelTextFg Attribute
-	BorderLabelTextBg Attribute
-	ParTextFg         Attribute
-	ParTextBg         Attribute
-	SparklineLine     Attribute
-	SparklineTitle    Attribute
-	GaugeBar          Attribute
-	GaugePercent      Attribute
-	LineChartLine     Attribute
-	LineChartAxes     Attribute
-	ListItemFg        Attribute
-	ListItemBg        Attribute
-	BarChartBar       Attribute
-	BarChartText      Attribute
-	BarChartNum       Attribute
-	MBarChartBar      Attribute
-	MBarChartText     Attribute
-	MBarChartNum      Attribute
-	TabActiveBg		  Attribute
+var StandardColors = []Color{
+	ColorRed,
+	ColorGreen,
+	ColorYellow,
+	ColorBlue,
+	ColorMagenta,
+	ColorCyan,
+	ColorWhite,
 }
 
-// default color scheme depends on the user's terminal setting.
-var themeDefault = ColorScheme{HasBorder: true}
-
-var themeHelloWorld = ColorScheme{
-	BodyBg:            ColorBlack,
-	BlockBg:           ColorBlack,
-	HasBorder:         true,
-	BorderFg:          ColorWhite,
-	BorderBg:          ColorBlack,
-	BorderLabelTextBg: ColorBlack,
-	BorderLabelTextFg: ColorGreen,
-	ParTextBg:         ColorBlack,
-	ParTextFg:         ColorWhite,
-	SparklineLine:     ColorMagenta,
-	SparklineTitle:    ColorWhite,
-	GaugeBar:          ColorRed,
-	GaugePercent:      ColorWhite,
-	LineChartLine:     ColorYellow | AttrBold,
-	LineChartAxes:     ColorWhite,
-	ListItemBg:        ColorBlack,
-	ListItemFg:        ColorYellow,
-	BarChartBar:       ColorRed,
-	BarChartNum:       ColorWhite,
-	BarChartText:      ColorCyan,
-	MBarChartBar:      ColorRed,
-	MBarChartNum:      ColorWhite,
-	MBarChartText:     ColorCyan,
-	TabActiveBg:	   ColorMagenta,
+var StandardStyles = []Style{
+	NewStyle(ColorRed),
+	NewStyle(ColorGreen),
+	NewStyle(ColorYellow),
+	NewStyle(ColorBlue),
+	NewStyle(ColorMagenta),
+	NewStyle(ColorCyan),
+	NewStyle(ColorWhite),
 }
 
-var theme = themeDefault // global dep
+type RootTheme struct {
+	Default Style
 
-// Theme returns the currently used theme.
-func Theme() ColorScheme {
-	return theme
+	Block BlockTheme
+
+	BarChart        BarChartTheme
+	Gauge           GaugeTheme
+	LineChart       LineChartTheme
+	List            ListTheme
+	Paragraph       ParagraphTheme
+	PieChart        PieChartTheme
+	Sparkline       SparklineTheme
+	StackedBarChart StackedBarChartTheme
+	Tab             TabTheme
+	Table           TableTheme
 }
 
-// SetTheme sets a new, custom theme.
-func SetTheme(newTheme ColorScheme) {
-	theme = newTheme
+type BlockTheme struct {
+	Title  Style
+	Border Style
 }
 
-// UseTheme sets a predefined scheme. Currently available: "hello-world" and
-// "black-and-white".
-func UseTheme(th string) {
-	switch th {
-	case "helloworld":
-		theme = themeHelloWorld
-	default:
-		theme = themeDefault
-	}
-}
-*/
-
-var ColorMap = map[string]Attribute{
-	"fg":           ColorWhite,
-	"bg":           ColorDefault,
-	"border.fg":    ColorWhite,
-	"label.fg":     ColorGreen,
-	"par.fg":       ColorYellow,
-	"par.label.bg": ColorWhite,
+type BarChartTheme struct {
+	Bars   []Color
+	Nums   []Style
+	Labels []Style
 }
 
-func ThemeAttr(name string) Attribute {
-	return lookUpAttr(ColorMap, name)
+type GaugeTheme struct {
+	Bar   Color
+	Label Style
 }
 
-func lookUpAttr(clrmap map[string]Attribute, name string) Attribute {
-	a, ok := clrmap[name]
-	if ok {
-		return a
-	}
-
-	ns := strings.Split(name, ".")
-	for i := range ns {
-		nn := strings.Join(ns[i:len(ns)], ".")
-		a, ok = ColorMap[nn]
-		if ok {
-			break
-		}
-	}
-
-	return a
+type LineChartTheme struct {
+	Lines []Color
+	Axes  Color
 }
 
-// 0<=r,g,b <= 5
-func ColorRGB(r, g, b int) Attribute {
-	within := func(n int) int {
-		if n < 0 {
-			return 0
-		}
-
-		if n > 5 {
-			return 5
-		}
-
-		return n
-	}
-
-	r, b, g = within(r), within(b), within(g)
-	return Attribute(0x0f + 36*r + 6*g + b)
+type ListTheme struct {
+	Text Style
 }
 
-// Convert from familiar 24 bit colors into 6 bit terminal colors
-func ColorRGB24(r, g, b int) Attribute {
-	return ColorRGB(r/51, g/51, b/51)
+type ParagraphTheme struct {
+	Text Style
+}
+
+type PieChartTheme struct {
+	Slices []Color
+}
+
+type SparklineTheme struct {
+	Title Style
+	Line  Color
+}
+
+type StackedBarChartTheme struct {
+	Bars   []Color
+	Nums   []Style
+	Labels []Style
+}
+
+type TabTheme struct {
+	Active   Style
+	Inactive Style
+}
+
+type TableTheme struct {
+	Text Style
+}
+
+var Theme = RootTheme{
+	Default: NewStyle(ColorWhite),
+
+	Block: BlockTheme{
+		Title:  NewStyle(ColorWhite),
+		Border: NewStyle(ColorWhite),
+	},
+
+	BarChart: BarChartTheme{
+		Bars:   StandardColors,
+		Nums:   StandardStyles,
+		Labels: StandardStyles,
+	},
+
+	Paragraph: ParagraphTheme{
+		Text: NewStyle(ColorWhite),
+	},
+
+	PieChart: PieChartTheme{
+		Slices: StandardColors,
+	},
+
+	List: ListTheme{
+		Text: NewStyle(ColorWhite),
+	},
+
+	StackedBarChart: StackedBarChartTheme{
+		Bars:   StandardColors,
+		Nums:   StandardStyles,
+		Labels: StandardStyles,
+	},
+
+	Gauge: GaugeTheme{
+		Bar:   ColorWhite,
+		Label: NewStyle(ColorWhite),
+	},
+
+	Sparkline: SparklineTheme{
+		Line:  ColorBlack,
+		Title: NewStyle(ColorBlue),
+	},
+
+	LineChart: LineChartTheme{
+		Lines: StandardColors,
+		Axes:  ColorBlue,
+	},
+
+	Table: TableTheme{
+		Text: NewStyle(ColorWhite),
+	},
+
+	Tab: TabTheme{
+		Active:   NewStyle(ColorRed),
+		Inactive: NewStyle(ColorWhite),
+	},
 }

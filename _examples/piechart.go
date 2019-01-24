@@ -4,17 +4,20 @@ package main
 
 import (
 	"fmt"
+	"log"
 	"math"
 	"math/rand"
 	"time"
 
 	ui "github.com/gizak/termui"
+	"github.com/gizak/termui/widgets"
 )
 
+var run = true
+
 func main() {
-	err := ui.Init()
-	if err != nil {
-		panic(err)
+	if err := ui.Init(); err != nil {
+		log.Fatalf("failed to initialize termui: %v", err)
 	}
 	defer ui.Close()
 
@@ -28,12 +31,10 @@ func main() {
 		offset = 2.0 * math.Pi * rand.Float64()
 		return
 	}
-	run := true
 
-	pc := ui.NewPieChart()
-	pc.BorderLabel = "Pie Chart"
-	pc.Width = 70
-	pc.Height = 36
+	pc := widgets.NewPieChart()
+	pc.Title = "Pie Chart"
+	pc.SetRect(5, 5, 70, 36)
 	pc.Data = []float64{.25, .25, .25, .25}
 	pc.Offset = -.5 * math.Pi
 	pc.Label = func(i int, v float64) string {
@@ -43,9 +44,9 @@ func main() {
 	pause := func() {
 		run = !run
 		if run {
-			pc.BorderLabel = "Pie Chart"
+			pc.Title = "Pie Chart"
 		} else {
-			pc.BorderLabel = "Pie Chart (Stopped)"
+			pc.Title = "Pie Chart (Stopped)"
 		}
 		ui.Render(pc)
 	}

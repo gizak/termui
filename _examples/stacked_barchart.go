@@ -19,23 +19,19 @@ func main() {
 	}
 	defer ui.Close()
 
-	l := widgets.NewList()
-	l.Title = "List"
-	l.Rows = []string{
-		"[0] github.com/gizak/termui",
-		"[1] [你好，世界](fg:blue)",
-		"[2] [こんにちは世界](fg:red)",
-		"[3] c[olor outpu](fg:white,bg:green)t",
-		"[4] output.go",
-		"[5] random_out.go",
-		"[6] dashboard.go",
-		"[7] nsf/termbox-go",
-	}
-	l.TextStyle = ui.NewStyle(ui.ColorYellow)
-	l.Wrap = false
-	l.SetRect(0, 0, 25, 50)
+	sbc := widgets.NewStackedBarChart()
+	sbc.Title = "Student's Marks: X-Axis=Name, Y-Axis=Grade% (Math, English, Science, Computer Science)"
+	sbc.Labels = []string{"Ken", "Rob", "Dennis", "Linus"}
 
-	ui.Render(l)
+	sbc.Data = make([][]float64, 4)
+	sbc.Data[0] = []float64{90, 85, 90, 80}
+	sbc.Data[1] = []float64{70, 85, 75, 60}
+	sbc.Data[2] = []float64{75, 60, 80, 85}
+	sbc.Data[3] = []float64{100, 100, 100, 100}
+	sbc.SetRect(5, 5, 100, 30)
+	sbc.BarWidth = 5
+
+	ui.Render(sbc)
 
 	uiEvents := ui.PollEvents()
 	for {

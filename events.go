@@ -16,7 +16,7 @@ List of events:
 		<MouseLeft> <MouseRight> <MouseMiddle>
 		<MouseWheelUp> <MouseWheelDown>
 	keyboard events:
-		any uppercase or lowercase letter or a set of two letters like j or jj or J or JJ
+		any uppercase or lowercase letter like j or J
 		<C-d> etc
 		<M-d> etc
 		<Up> <Down> <Left> <Right>

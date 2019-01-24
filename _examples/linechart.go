@@ -7,62 +7,57 @@
 package main
 
 import (
+	"log"
 	"math"
 
 	ui "github.com/gizak/termui"
+	"github.com/gizak/termui/widgets"
 )
 
 func main() {
-	err := ui.Init()
-	if err != nil {
-		panic(err)
+	if err := ui.Init(); err != nil {
+		log.Fatalf("failed to initialize termui: %v", err)
 	}
 	defer ui.Close()
 
-	sinps := (func() map[string][]float64 {
+	sinData := func() [][]float64 {
 		n := 220
-		ps := make(map[string][]float64)
-		ps["first"] = make([]float64, n)
-		ps["second"] = make([]float64, n)
+		data := make([][]float64, 2)
+		data[0] = make([]float64, n)
+		data[1] = make([]float64, n)
 		for i := 0; i < n; i++ {
-			ps["first"][i] = 1 + math.Sin(float64(i)/5)
-			ps["second"][i] = 1 + math.Cos(float64(i)/5)
+			data[0][i] = 1 + math.Sin(float64(i)/5)
+			data[1][i] = 1 + math.Cos(float64(i)/5)
 		}
-		return ps
-	})()
+		return data
+	}()
 
-	lc0 := ui.NewLineChart()
-	lc0.BorderLabel = "braille-mode Line Chart"
-	lc0.Data = sinps
-	lc0.Width = 50
-	lc0.Height = 12
-	lc0.X = 0
-	lc0.Y = 0
+	lc0 := widgets.NewLineChart()
+	lc0.Title = "braille-mode Line Chart"
+	lc0.Data = sinData
+	lc0.SetRect(0, 0, 50, 15)
 	lc0.AxesColor = ui.ColorWhite
-	lc0.LineColor["first"] = ui.ColorGreen | ui.AttrBold
+	lc0.LineColors[0] = ui.ColorGreen
 
-	lc1 := ui.NewLineChart()
-	lc1.BorderLabel = "dot-mode Line Chart"
-	lc1.Mode = "dot"
-	lc1.Data = sinps
-	lc1.Width = 26
-	lc1.Height = 12
-	lc1.X = 51
-	lc1.DotStyle = '+'
+	lc1 := widgets.NewLineChart()
+	lc1.Title = "custom Line Chart"
+	lc1.LineType = widgets.DotLine
+	lc1.Data = [][]float64{[]float64{1, 2, 3, 4, 5}}
+	lc1.SetRect(50, 0, 75, 10)
+	lc1.DotChar = '+'
 	lc1.AxesColor = ui.ColorWhite
-	lc1.LineColor["first"] = ui.ColorYellow | ui.AttrBold
+	lc1.LineColors[0] = ui.ColorYellow
+	lc1.DrawDirection = widgets.DrawLeft
 
-	lc2 := ui.NewLineChart()
-	lc2.BorderLabel = "dot-mode Line Chart"
-	lc2.Mode = "dot"
-	lc2.Data["first"] = sinps["first"][4:]
-	lc2.Data["second"] = sinps["second"][4:]
-	lc2.Width = 77
-	lc2.Height = 16
-	lc2.X = 0
-	lc2.Y = 12
+	lc2 := widgets.NewLineChart()
+	lc2.Title = "dot-mode Line Chart"
+	lc2.LineType = widgets.DotLine
+	lc2.Data = make([][]float64, 2)
+	lc2.Data[0] = sinData[0][4:]
+	lc2.Data[1] = sinData[1][4:]
+	lc2.SetRect(0, 15, 50, 30)
 	lc2.AxesColor = ui.ColorWhite
-	lc2.LineColor["first"] = ui.ColorCyan | ui.AttrBold
+	lc2.LineColors[0] = ui.ColorCyan
 
 	ui.Render(lc0, lc1, lc2)
 

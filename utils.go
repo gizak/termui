@@ -5,246 +5,172 @@
 package termui
 
 import (
-	"regexp"
-	"strings"
+	"fmt"
+	"math"
+	"reflect"
 
 	rw "github.com/mattn/go-runewidth"
-	tb "github.com/nsf/termbox-go"
+	wordwrap "github.com/mitchellh/go-wordwrap"
 )
 
-/* ---------------Port from termbox-go --------------------- */
-
-// Attribute is printable cell's color and style.
-type Attribute uint16
-
-// 8 basic clolrs
-const (
-	ColorDefault Attribute = iota
-	ColorBlack
-	ColorRed
-	ColorGreen
-	ColorYellow
-	ColorBlue
-	ColorMagenta
-	ColorCyan
-	ColorWhite
-)
-
-// Have a constant that defines number of colors
-const NumberofColors = 8
-
-// Text style
-const (
-	AttrBold Attribute = 1 << (iota + 9)
-	AttrUnderline
-	AttrReverse
-)
-
-var (
-	dot  = "…"
-	dotw = rw.StringWidth(dot)
-)
-
-// termbox passthrough
-type OutputMode int
-
-// termbox passthrough
-const (
-	OutputCurrent OutputMode = iota
-	OutputNormal
-	Output256
-	Output216
-	OutputGrayscale
-)
-
-/* ----------------------- End ----------------------------- */
-
-func toTmAttr(x Attribute) tb.Attribute {
-	return tb.Attribute(x)
-}
-
-func str2runes(s string) []rune {
-	return []rune(s)
-}
-
-// Here for backwards-compatibility.
-func trimStr2Runes(s string, w int) []rune {
-	return TrimStr2Runes(s, w)
-}
-
-// TrimStr2Runes trims string to w[-1 rune], appends …, and returns the runes
-// of that string if string is grather then n. If string is small then w,
-// return the runes.
-func TrimStr2Runes(s string, w int) []rune {
-	if w <= 0 {
-		return []rune{}
+// https://stackoverflow.com/questions/12753805/type-converting-slices-of-interfaces-in-go
+func InterfaceSlice(slice interface{}) []interface{} {
+	s := reflect.ValueOf(slice)
+	if s.Kind() != reflect.Slice {
+		panic("InterfaceSlice() given a non-slice type")
 	}
 
-	sw := rw.StringWidth(s)
-	if sw > w {
-		return []rune(rw.Truncate(s, w, dot))
+	ret := make([]interface{}, s.Len())
+
+	for i := 0; i < s.Len(); i++ {
+		ret[i] = s.Index(i).Interface()
 	}
-	return str2runes(s)
+
+	return ret
 }
 
-// TrimStrIfAppropriate trim string to "s[:-1] + …"
-// if string > width otherwise return string
-func TrimStrIfAppropriate(s string, w int) string {
+func MaxInt(x, y int) int {
+	if x > y {
+		return x
+	}
+	return y
+}
+
+func MinInt(x, y int) int {
+	if x < y {
+		return x
+	}
+	return y
+}
+
+func TrimString(s string, w int) string {
 	if w <= 0 {
 		return ""
 	}
-
-	sw := rw.StringWidth(s)
-	if sw > w {
-		return rw.Truncate(s, w, dot)
+	if rw.StringWidth(s) > w {
+		return rw.Truncate(s, w, string(DOTS))
 	}
-
 	return s
 }
 
-func strWidth(s string) int {
-	return rw.StringWidth(s)
-}
-
-func charWidth(ch rune) int {
-	return rw.RuneWidth(ch)
-}
-
-var whiteSpaceRegex = regexp.MustCompile(`\s`)
-
-// StringToAttribute converts text to a termui attribute. You may specify more
-// then one attribute like that: "BLACK, BOLD, ...". All whitespaces
-// are ignored.
-func StringToAttribute(text string) Attribute {
-	text = whiteSpaceRegex.ReplaceAllString(strings.ToLower(text), "")
-	attributes := strings.Split(text, ",")
-	result := Attribute(0)
-
-	for _, theAttribute := range attributes {
-		var match Attribute
-		switch theAttribute {
-		case "reset", "default":
-			match = ColorDefault
-
-		case "black":
-			match = ColorBlack
-
-		case "red":
-			match = ColorRed
-
-		case "green":
-			match = ColorGreen
-
-		case "yellow":
-			match = ColorYellow
-
-		case "blue":
-			match = ColorBlue
-
-		case "magenta":
-			match = ColorMagenta
-
-		case "cyan":
-			match = ColorCyan
-
-		case "white":
-			match = ColorWhite
-
-		case "bold":
-			match = AttrBold
-
-		case "underline":
-			match = AttrUnderline
-
-		case "reverse":
-			match = AttrReverse
+func GetMaxIntFromSlice(slice []int) (int, error) {
+	if len(slice) == 0 {
+		return 0, fmt.Errorf("cannot get max value from empty slice")
+	}
+	var max int
+	for _, val := range slice {
+		if val > max {
+			max = val
 		}
-
-		result |= match
 	}
-
-	return result
+	return max, nil
 }
 
-// TextCells returns a coloured text cells []Cell
-func TextCells(s string, fg, bg Attribute) []Cell {
-	cs := make([]Cell, 0, len(s))
-
-	// sequence := MarkdownTextRendererFactory{}.TextRenderer(s).Render(fg, bg)
-	// runes := []rune(sequence.NormalizedText)
-	runes := str2runes(s)
-
-	for n := range runes {
-		// point, _ := sequence.PointAt(n, 0, 0)
-		// cs = append(cs, Cell{point.Ch, point.Fg, point.Bg})
-		cs = append(cs, Cell{runes[n], fg, bg})
+func GetMaxFloat64FromSlice(slice []float64) (float64, error) {
+	if len(slice) == 0 {
+		return 0, fmt.Errorf("cannot get max value from empty slice")
 	}
-	return cs
-}
-
-// Width returns the actual screen space the cell takes (usually 1 or 2).
-func (c Cell) Width() int {
-	return charWidth(c.Ch)
-}
-
-// Copy return a copy of c
-func (c Cell) Copy() Cell {
-	return c
-}
-
-// TrimTxCells trims the overflowed text cells sequence.
-func TrimTxCells(cs []Cell, w int) []Cell {
-	if len(cs) <= w {
-		return cs
+	var max float64
+	for _, val := range slice {
+		if val > max {
+			max = val
+		}
 	}
-	return cs[:w]
+	return max, nil
 }
 
-// DTrimTxCls trims the overflowed text cells sequence and append dots at the end.
-func DTrimTxCls(cs []Cell, w int) []Cell {
-	l := len(cs)
-	if l <= 0 {
-		return []Cell{}
+func GetMaxFloat64From2dSlice(slices [][]float64) (float64, error) {
+	if len(slices) == 0 {
+		return 0, fmt.Errorf("cannot get max value from empty slice")
 	}
+	var max float64
+	for _, slice := range slices {
+		for _, val := range slice {
+			if val > max {
+				max = val
+			}
+		}
+	}
+	return max, nil
+}
 
-	rt := make([]Cell, 0, w)
-	csw := 0
-	for i := 0; i < l && csw <= w; i++ {
-		c := cs[i]
-		cw := c.Width()
+func SelectColor(colors []Color, index int) Color {
+	return colors[index%len(colors)]
+}
 
-		if cw+csw < w {
-			rt = append(rt, c)
-			csw += cw
+func SelectStyle(styles []Style, index int) Style {
+	return styles[index%len(styles)]
+}
+
+func CellsToString(cells []Cell) string {
+	runes := make([]rune, len(cells))
+	for i, cell := range cells {
+		runes[i] = cell.Rune
+	}
+	return string(runes)
+}
+
+func RoundFloat64(x float64) float64 {
+	return math.Floor(x + 0.5)
+}
+
+func SumIntSlice(slice []int) int {
+	sum := 0
+	for _, val := range slice {
+		sum += val
+	}
+	return sum
+}
+
+func SumFloat64Slice(data []float64) float64 {
+	sum := 0.0
+	for _, v := range data {
+		sum += v
+	}
+	return sum
+}
+
+func AbsInt(x int) int {
+	if x >= 0 {
+		return x
+	}
+	return -x
+}
+
+func MinFloat64(x, y float64) float64 {
+	if x < y {
+		return x
+	}
+	return y
+}
+
+func MaxFloat64(x, y float64) float64 {
+	if x > y {
+		return x
+	}
+	return y
+}
+
+func WrapCells(cells []Cell, width uint) []Cell {
+	str := CellsToString(cells)
+	wrapped := wordwrap.WrapString(str, width)
+	wrappedCells := []Cell{}
+	i := 0
+	for _, _rune := range wrapped {
+		if _rune == '\n' {
+			wrappedCells = append(wrappedCells, Cell{_rune, StyleClear})
 		} else {
-			rt = append(rt, Cell{'…', c.Fg, c.Bg})
-			break
+			wrappedCells = append(wrappedCells, Cell{_rune, cells[i].Style})
 		}
+		i++
 	}
-
-	return rt
+	return wrappedCells
 }
 
-func CellsToStr(cs []Cell) string {
-	str := ""
-	for _, c := range cs {
-		str += string(c.Ch)
+func RunesToStyledCells(runes []rune, style Style) []Cell {
+	cells := []Cell{}
+	for _, _rune := range runes {
+		cells = append(cells, Cell{_rune, style})
 	}
-	return str
-}
-
-// Passthrough to termbox using termbox constants above
-func SetOutputMode(mode OutputMode) {
-	switch mode {
-	case OutputCurrent:
-		tb.SetOutputMode(tb.OutputCurrent)
-	case OutputNormal:
-		tb.SetOutputMode(tb.OutputNormal)
-	case Output256:
-		tb.SetOutputMode(tb.Output256)
-	case Output216:
-		tb.SetOutputMode(tb.Output216)
-	case OutputGrayscale:
-		tb.SetOutputMode(tb.OutputGrayscale)
-	}
+	return cells
 }

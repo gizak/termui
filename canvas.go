@@ -1,72 +1,63 @@
-// Copyright 2017 Zack Guo <zack.y.guo@gmail.com>. All rights reserved.
-// Use of this source code is governed by a MIT license that can
-// be found in the LICENSE file.
-
 package termui
 
-/*
-dots:
-   ,___,
-   |1 4|
-   |2 5|
-   |3 6|
-   |7 8|
-   `````
-*/
+import (
+	"image"
+)
 
-var brailleBase = '\u2800'
-
-var brailleOftMap = [4][2]rune{
-	{'\u0001', '\u0008'},
-	{'\u0002', '\u0010'},
-	{'\u0004', '\u0020'},
-	{'\u0040', '\u0080'}}
-
-// Canvas contains drawing map: i,j -> rune
-type Canvas map[[2]int]rune
-
-// NewCanvas returns an empty Canvas
-func NewCanvas() Canvas {
-	return make(map[[2]int]rune)
+type Canvas struct {
+	CellMap map[image.Point]Cell
+	Block
 }
 
-func chOft(x, y int) rune {
-	return brailleOftMap[y%4][x%2]
-}
-
-func (c Canvas) rawCh(x, y int) rune {
-	if ch, ok := c[[2]int{x, y}]; ok {
-		return ch
+func NewCanvas() *Canvas {
+	return &Canvas{
+		Block:   *NewBlock(),
+		CellMap: make(map[image.Point]Cell),
 	}
-	return '\u0000' //brailleOffset
 }
 
-// return coordinate in terminal
-func chPos(x, y int) (int, int) {
-	return y / 4, x / 2
-}
-
-// Set sets a point (x,y) in the virtual coordinate
-func (c Canvas) Set(x, y int) {
-	i, j := chPos(x, y)
-	ch := c.rawCh(i, j)
-	ch |= chOft(x, y)
-	c[[2]int{i, j}] = ch
-}
-
-// Unset removes point (x,y)
-func (c Canvas) Unset(x, y int) {
-	i, j := chPos(x, y)
-	ch := c.rawCh(i, j)
-	ch &= ^chOft(x, y)
-	c[[2]int{i, j}] = ch
-}
-
-// Buffer returns un-styled points
-func (c Canvas) Buffer() Buffer {
-	buf := NewBuffer()
-	for k, v := range c {
-		buf.Set(k[0], k[1], Cell{Ch: v + brailleBase})
+// points given as arguments correspond to dots within a braille character
+// and therefore have 2x4 times the resolution of a normal cell
+func (self *Canvas) Line(p0, p1 image.Point, color Color) {
+	leftPoint, rightPoint := p0, p1
+	if leftPoint.X > rightPoint.X {
+		leftPoint, rightPoint = rightPoint, leftPoint
 	}
-	return buf
+
+	xDistance := AbsInt(leftPoint.X - rightPoint.X)
+	yDistance := AbsInt(leftPoint.Y - rightPoint.Y)
+	slope := float64(yDistance) / float64(xDistance)
+	slopeDirection := 1
+	if rightPoint.Y < leftPoint.Y {
+		slopeDirection = -1
+	}
+
+	targetYCoordinate := float64(leftPoint.Y)
+	currentYCoordinate := leftPoint.Y
+	for i := leftPoint.X; i < rightPoint.X; i++ {
+		targetYCoordinate += (slope * float64(slopeDirection))
+		if currentYCoordinate == int(targetYCoordinate) {
+			point := image.Pt(i/2, currentYCoordinate/4)
+			self.CellMap[point] = Cell{
+				self.CellMap[point].Rune | BRAILLE[currentYCoordinate%4][i%2],
+				NewStyle(color),
+			}
+		}
+		for currentYCoordinate != int(targetYCoordinate) {
+			point := image.Pt(i/2, currentYCoordinate/4)
+			self.CellMap[point] = Cell{
+				self.CellMap[point].Rune | BRAILLE[currentYCoordinate%4][i%2],
+				NewStyle(color),
+			}
+			currentYCoordinate += slopeDirection
+		}
+	}
+}
+
+func (self *Canvas) Draw(buf *Buffer) {
+	for point, cell := range self.CellMap {
+		if point.In(self.Rectangle) {
+			buf.SetCell(Cell{cell.Rune + BRAILLE_OFFSET, cell.Style}, point)
+		}
+	}
 }

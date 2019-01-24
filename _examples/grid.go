@@ -7,93 +7,88 @@
 package main
 
 import (
+	"log"
 	"math"
 	"time"
 
 	ui "github.com/gizak/termui"
+	"github.com/gizak/termui/widgets"
 )
 
 func main() {
-	err := ui.Init()
-	if err != nil {
-		panic(err)
+	if err := ui.Init(); err != nil {
+		log.Fatalf("failed to initialize termui: %v", err)
 	}
 	defer ui.Close()
 
-	sinps := (func() []float64 {
+	sinFloat64 := (func() []float64 {
 		n := 400
-		ps := make([]float64, n)
-		for i := range ps {
-			ps[i] = 1 + math.Sin(float64(i)/5)
+		data := make([]float64, n)
+		for i := range data {
+			data[i] = 1 + math.Sin(float64(i)/5)
 		}
-		return ps
-	})()
-	sinpsint := (func() []int {
-		ps := make([]int, len(sinps))
-		for i, v := range sinps {
-			ps[i] = int(100*v + 10)
-		}
-		return ps
+		return data
 	})()
 
-	spark := ui.Sparkline{}
-	spark.Height = 8
-	spdata := sinpsint
-	spark.Data = spdata[:100]
-	spark.LineColor = ui.ColorCyan
-	spark.TitleColor = ui.ColorWhite
+	sl := widgets.NewSparkline()
+	sl.Data = sinFloat64[:100]
+	sl.LineColor = ui.ColorCyan
+	sl.TitleStyle.Fg = ui.ColorWhite
 
-	sp := ui.NewSparklines(spark)
-	sp.Height = 11
-	sp.BorderLabel = "Sparkline"
+	slg := widgets.NewSparklineGroup(sl)
+	slg.Title = "Sparkline"
 
-	lc := ui.NewLineChart()
-	lc.BorderLabel = "braille-mode Line Chart"
-	lc.Data["default"] = sinps
-	lc.Height = 11
+	lc := widgets.NewLineChart()
+	lc.Title = "braille-mode Line Chart"
+	lc.Data = append(lc.Data, sinFloat64)
 	lc.AxesColor = ui.ColorWhite
-	lc.LineColor["default"] = ui.ColorYellow | ui.AttrBold
+	lc.LineColors[0] = ui.ColorYellow
 
-	gs := make([]*ui.Gauge, 3)
+	gs := make([]*widgets.Gauge, 3)
 	for i := range gs {
-		gs[i] = ui.NewGauge()
-		//gs[i].LabelAlign = ui.AlignCenter
-		gs[i].Height = 2
-		gs[i].Border = false
+		gs[i] = widgets.NewGauge()
 		gs[i].Percent = i * 10
-		gs[i].PaddingBottom = 1
 		gs[i].BarColor = ui.ColorRed
 	}
 
-	ls := ui.NewList()
-	ls.Border = false
-	ls.Items = []string{
+	ls := widgets.NewList()
+	ls.Rows = []string{
 		"[1] Downloading File 1",
-		"", // == \newline
+		"",
+		"",
+		"",
 		"[2] Downloading File 2",
+		"",
+		"",
 		"",
 		"[3] Uploading File 3",
 	}
-	ls.Height = 5
 
-	p := ui.NewParagraph("<> This row has 3 columns\n<- Widgets can be stacked up like left side\n<- Stacked widgets are treated as a single widget")
-	p.Height = 5
-	p.BorderLabel = "Demonstration"
+	p := widgets.NewParagraph()
+	p.Text = "<> This row has 3 columns\n<- Widgets can be stacked up like left side\n<- Stacked widgets are treated as a single widget"
+	p.Title = "Demonstration"
 
-	// build layout
-	ui.Body.AddRows(
-		ui.NewRow(
-			ui.NewCol(6, 0, sp),
-			ui.NewCol(6, 0, lc)),
-		ui.NewRow(
-			ui.NewCol(3, 0, ls),
-			ui.NewCol(3, 0, gs[0], gs[1], gs[2]),
-			ui.NewCol(6, 0, p)))
+	grid := ui.NewGrid()
+	termWidth, termHeight := ui.TerminalDimensions()
+	grid.SetRect(0, 0, termWidth, termHeight)
 
-	// calculate layout
-	ui.Body.Align()
+	grid.Set(
+		ui.NewRow(1.0/2,
+			ui.NewCol(1.0/2, slg),
+			ui.NewCol(1.0/2, lc),
+		),
+		ui.NewRow(1.0/2,
+			ui.NewCol(1.0/4, ls),
+			ui.NewCol(1.0/4,
+				ui.NewRow(.9/3, gs[0]),
+				ui.NewRow(.9/3, gs[1]),
+				ui.NewRow(1.2/3, gs[2]),
+			),
+			ui.NewCol(1.0/2, p),
+		),
+	)
 
-	ui.Render(ui.Body)
+	ui.Render(grid)
 
 	tickerCount := 1
 	uiEvents := ui.PollEvents()
@@ -106,21 +101,20 @@ func main() {
 				return
 			case "<Resize>":
 				payload := e.Payload.(ui.Resize)
-				ui.Body.Width = payload.Width
-				ui.Body.Align()
+				grid.SetRect(0, 0, payload.Width, payload.Height)
 				ui.Clear()
-				ui.Render(ui.Body)
+				ui.Render(grid)
 			}
 		case <-ticker:
-			if tickerCount > 103 {
+			if tickerCount == 100 {
 				return
 			}
 			for _, g := range gs {
 				g.Percent = (g.Percent + 3) % 100
 			}
-			sp.Lines[0].Data = spdata[:100+tickerCount]
-			lc.Data["default"] = sinps[2*tickerCount:]
-			ui.Render(ui.Body)
+			slg.Sparklines[0].Data = sinFloat64[tickerCount : tickerCount+100]
+			lc.Data[0] = sinFloat64[2*tickerCount:]
+			ui.Render(grid)
 			tickerCount++
 		}
 	}

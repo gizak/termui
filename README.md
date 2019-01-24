@@ -1,12 +1,8 @@
 # termui
 
-[![Build Status](https://travis-ci.org/gizak/termui.svg?branch=master)](https://travis-ci.org/gizak/termui) [![Doc Status](https://godoc.org/github.com/gizak/termui?status.png)](https://godoc.org/github.com/gizak/termui)
+<img src="./_assets/dashboard1.gif" alt="demo cast under osx 10.10; Terminal.app; Menlo Regular 12pt.)" width="100%">
 
-<img src="./_examples/dashboard.gif" alt="demo cast under osx 10.10; Terminal.app; Menlo Regular 12pt.)" width="100%">
-
-`termui` is a cross-platform, easy-to-compile, and fully-customizable terminal dashboard built on top of [termbox-go](https://github.com/nsf/termbox-go). It is inspired by [blessed-contrib](https://github.com/yaronn/blessed-contrib) and written purely in Go.
-
-**termui is currently undergoing some API changes so make sure to check the changelog when upgrading**
+termui is a cross-platform and fully-customizable terminal dashboard and widget library built on top of [termbox-go](https://github.com/nsf/termbox-go). It is inspired by [blessed-contrib](https://github.com/yaronn/blessed-contrib) and written purely in Go.
 
 ## Installation
 
@@ -16,6 +12,9 @@ Installing from the master branch is recommended:
 go get -u github.com/gizak/termui@master
 ```
 
+**Note**: termui is currently undergoing API changes so make sure to check the changelog when upgrading.
+If you upgrade and notice something is missing or don't like a change, revert the upgrade and open an issue.
+
 ## Usage
 
 ### Hello World
@@ -23,18 +22,23 @@ go get -u github.com/gizak/termui@master
 ```go
 package main
 
-import ui "github.com/gizak/termui"
+import (
+	"log"
+
+	ui "github.com/gizak/termui"
+	"github.com/gizak/termui/widgets"
+)
 
 func main() {
-	err := ui.Init()
-	if err != nil {
-		panic(err)
+	if err := ui.Init(); err != nil {
+		log.Fatalf("failed to initialize termui: %v", err)
 	}
 	defer ui.Close()
 
-	p := ui.NewParagraph("Hello World!")
-	p.Width = 25
-	p.Height = 5
+	p := widgets.NewParagraph()
+	p.Text = "Hello World!"
+	p.SetRect(0, 0, 25, 5)
+
 	ui.Render(p)
 
 	for e := range ui.PollEvents() {
@@ -49,26 +53,26 @@ func main() {
 
 Click image to see the corresponding demo codes.
 
-[<img src="./_examples/barchart.png" alt="barchart" type="image/png" width="45%">](https://github.com/gizak/termui/blob/master/_examples/barchart.go)
-[<img src="./_examples/gauge.png" alt="gauge" type="image/png" width="45%">](https://github.com/gizak/termui/blob/master/_examples/gauge.go)
-[<img src="./_examples/linechart.png" alt="linechart" type="image/png" width="45%">](https://github.com/gizak/termui/blob/master/_examples/linechart.go)
-[<img src="./_examples/list.png" alt="list" type="image/png" width="45%">](https://github.com/gizak/termui/blob/master/_examples/list.go)
-[<img src="./_examples/paragraph.png" alt="paragraph" type="image/png" width="45%">](https://github.com/gizak/termui/blob/master/_examples/paragraph.go)
-[<img src="./_examples/sparklines.png" alt="sparklines" type="image/png" width="45%">](https://github.com/gizak/termui/blob/master/_examples/sparklines.go)
-[<img src="./_examples/stackedbarchart.png" alt="stackedbarchart" type="image/png" width="45%">](https://github.com/gizak/termui/blob/master/_examples/stackedbarchart.go)
-[<img src="./_examples/table.png" alt="table" type="image/png" width="45%">](https://github.com/gizak/termui/blob/master/_examples/table.go)
+[<img src="./_assets/barchart.png" alt="barchart" type="image/png" width="45%">](https://github.com/gizak/termui/blob/master/_examples/barchart.go)
+[<img src="./_assets/gauge.png" alt="gauge" type="image/png" width="45%">](https://github.com/gizak/termui/blob/master/_examples/gauge.go)
+[<img src="./_assets/linechart.png" alt="linechart" type="image/png" width="45%">](https://github.com/gizak/termui/blob/master/_examples/linechart.go)
+[<img src="./_assets/list.png" alt="list" type="image/png" width="45%">](https://github.com/gizak/termui/blob/master/_examples/list.go)
+[<img src="./_assets/paragraph.png" alt="paragraph" type="image/png" width="45%">](https://github.com/gizak/termui/blob/master/_examples/paragraph.go)
+[<img src="./_assets/sparkline.png" alt="sparkline" type="image/png" width="45%">](https://github.com/gizak/termui/blob/master/_examples/sparkline.go)
+[<img src="./_assets/stacked_barchart.png" alt="stacked_barchart" type="image/png" width="45%">](https://github.com/gizak/termui/blob/master/_examples/stacked_barchart.go)
+[<img src="./_assets/table.png" alt="table" type="image/png" width="45%">](https://github.com/gizak/termui/blob/master/_examples/table.go)
 
 ### Examples
 
-Examples can be found in [\_examples](./_examples). Run with `go run _examples/...` or run all of them consecutively with `./scripts/run_examples.py`.
+Examples can be found in [\_examples](./_examples). Run an example with `go run _examples/{example}.go` or run all of them consecutively with `make run-examples`.
 
-## Documentation
+### Documentation
 
-- [godoc](https://godoc.org/github.com/gizak/termui) for code documentation
-- [wiki](https://github.com/gizak/termui/wiki) for general information
+- [wiki](https://github.com/gizak/termui/wiki)
 
 ## Uses
 
+- [cjbassi/gotop](https://github.com/cjbassi/gotop)
 - [go-ethereum/monitorcmd](https://github.com/ethereum/go-ethereum/blob/96116758d22ddbff4dbef2050d6b63a7b74502d8/cmd/geth/monitorcmd.go)
 
 ## Related Works
@@ -79,4 +83,4 @@ Examples can be found in [\_examples](./_examples). Run with `go run _examples/.
 
 ## License
 
-This library is under the [MIT License](http://opensource.org/licenses/MIT)
+[MIT](http://opensource.org/licenses/MIT)
