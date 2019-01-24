@@ -1,6 +1,6 @@
 Feel free to search/open an issue if something is missing or confusing from the changelog, since many things have been in flux.
 
-## TODO
+## 2019/01/23
 
 - moved widgets to `github.com/gizak/termui/widgets`
 - rewrote widgets (check examples and code)
@@ -27,12 +27,12 @@ Feel free to search/open an issue if something is missing or confusing from the 
   - style items changed from `fg-color` to `fg:color`
   - added mod item like `mod:reverse`
 
-## 18/11/29
+## 2018/11/29
 
 - Move Tabpane from termui/extra to termui and rename it to TabPane
 - Rename PollEvent to PollEvents
 
-## 18/11/28
+## 2018/11/28
 
 - Migrated from Dep to vgo
 - Overhauled the event system
