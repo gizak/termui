@@ -8,6 +8,7 @@ package main
 
 import (
 	"fmt"
+	"log"
 
 	ui "github.com/gizak/termui"
 )
@@ -16,15 +17,18 @@ import (
 // stdout can also be redirected to a file and read with `tail -f`
 func main() {
 	if err := ui.Init(); err != nil {
-		panic(err)
+		log.Fatalf("failed to initialize termui: %v", err)
 	}
 	defer ui.Close()
 
+	events := ui.PollEvents()
 	for {
-		e := <-ui.PollEvents()
+		e := <-events
 		fmt.Printf("%v", e)
 		switch e.ID {
 		case "q", "<C-c>":
+			return
+		case "<MouseLeft>":
 			return
 		}
 	}

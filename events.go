@@ -5,7 +5,7 @@
 package termui
 
 import (
-	"strconv"
+	"fmt"
 
 	tb "github.com/nsf/termbox-go"
 )
@@ -68,51 +68,151 @@ func PollEvents() <-chan Event {
 // convertTermboxKeyboardEvent converts a termbox keyboard event to a more friendly string format.
 // Combines modifiers into the string instead of having them as additional fields in an event.
 func convertTermboxKeyboardEvent(e tb.Event) Event {
-	k := string(e.Ch)
-	pre := ""
-	mod := ""
-
+	ID := "%s"
 	if e.Mod == tb.ModAlt {
-		mod = "<M-"
+		ID = "<M-%s>"
 	}
-	if e.Ch == 0 {
-		if e.Key > 0xFFFF-12 {
-			k = "<f" + strconv.Itoa(0xFFFF-int(e.Key)+1) + ">"
-		} else if e.Key > 0xFFFF-25 {
-			ks := []string{"<Insert>", "<Delete>", "<Home>", "<End>", "<Previous>", "<Next>", "<Up>", "<Down>", "<Left>", "<Right>"}
-			k = ks[0xFFFF-int(e.Key)-12]
-		}
 
-		if e.Key <= 0x7F {
-			pre = "<C-"
-			k = string('a' - 1 + int(e.Key))
-			kmap := map[tb.Key][2]string{
-				tb.KeyCtrlSpace:     {"C-", "<Space>"},
-				tb.KeyBackspace:     {"", "<Backspace>"},
-				tb.KeyTab:           {"", "<Tab>"},
-				tb.KeyEnter:         {"", "<Enter>"},
-				tb.KeyEsc:           {"", "<Escape>"},
-				tb.KeyCtrlBackslash: {"C-", "\\"},
-				tb.KeyCtrlSlash:     {"C-", "/"},
-				tb.KeySpace:         {"", "<Space>"},
-				tb.KeyCtrl8:         {"C-", "8"},
+	if e.Ch != 0 {
+		ID = fmt.Sprintf(ID, string(e.Ch))
+	} else {
+		switchExpression := func() string {
+			switch e.Key {
+			case tb.KeyF1:
+				return "<F1>"
+			case tb.KeyF2:
+				return "<F2>"
+			case tb.KeyF3:
+				return "<F3>"
+			case tb.KeyF4:
+				return "<F4>"
+			case tb.KeyF5:
+				return "<F5>"
+			case tb.KeyF6:
+				return "<F6>"
+			case tb.KeyF7:
+				return "<F7>"
+			case tb.KeyF8:
+				return "<F8>"
+			case tb.KeyF9:
+				return "<F9>"
+			case tb.KeyF10:
+				return "<F10>"
+			case tb.KeyF11:
+				return "<F11>"
+			case tb.KeyF12:
+				return "<F12>"
+			case tb.KeyInsert:
+				return "<Insert>"
+			case tb.KeyDelete:
+				return "<Delete>"
+			case tb.KeyHome:
+				return "<Home>"
+			case tb.KeyEnd:
+				return "<End>"
+			case tb.KeyPgup:
+				return "<PageUp>"
+			case tb.KeyPgdn:
+				return "<PageDown>"
+			case tb.KeyArrowUp:
+				return "<Up>"
+			case tb.KeyArrowDown:
+				return "<Down>"
+			case tb.KeyArrowLeft:
+				return "<Left>"
+			case tb.KeyArrowRight:
+				return "<Right>"
+
+			case tb.KeyCtrlTilde: // tb.KeyCtrl2 tb.KeyCtrlSpace
+				// <C-~> doesn't work
+				// <C-2> doesn't work
+				return "<C-<Space>>"
+			case tb.KeyCtrlA:
+				return "<C-a>"
+			case tb.KeyCtrlB:
+				return "<C-b>"
+			case tb.KeyCtrlC:
+				return "<C-c>"
+			case tb.KeyCtrlD:
+				return "<C-d>"
+			case tb.KeyCtrlE:
+				return "<C-e>"
+			case tb.KeyCtrlF:
+				return "<C-f>"
+			case tb.KeyCtrlG:
+				return "<C-g>"
+			case tb.KeyBackspace: // tb.KeyCtrlH
+				// <C-h> doesn't work
+				return "<C-<Backspace>>"
+			case tb.KeyTab: // tb.KeyCtrlI
+				// <C-i> doesn't work
+				return "<Tab>"
+			case tb.KeyCtrlJ:
+				return "<C-j>"
+			case tb.KeyCtrlK:
+				return "<C-k>"
+			case tb.KeyCtrlL:
+				return "<C-l>"
+			case tb.KeyEnter: // tb.KeyCtrlM
+				// <C-m> doesn't work
+				return "<Enter>"
+			case tb.KeyCtrlN:
+				return "<C-n>"
+			case tb.KeyCtrlO:
+				return "<C-o>"
+			case tb.KeyCtrlP:
+				return "<C-p>"
+			case tb.KeyCtrlQ:
+				return "<C-q>"
+			case tb.KeyCtrlR:
+				return "<C-r>"
+			case tb.KeyCtrlS:
+				return "<C-s>"
+			case tb.KeyCtrlT:
+				return "<C-t>"
+			case tb.KeyCtrlU:
+				return "<C-u>"
+			case tb.KeyCtrlV:
+				return "<C-v>"
+			case tb.KeyCtrlW:
+				return "<C-w>"
+			case tb.KeyCtrlX:
+				return "<C-x>"
+			case tb.KeyCtrlY:
+				return "<C-y>"
+			case tb.KeyCtrlZ:
+				return "<C-z>"
+			case tb.KeyEsc: // tb.KeyCtrlLsqBracket tb.KeyCtrl3
+				// <C-[> doesn't work
+				// <C-3> doesn't work
+				return "<Escape>"
+			case tb.KeyCtrl4: // tb.KeyCtrlBackslash
+				// <C-\\> doesn't work
+				return "<C-4>"
+			case tb.KeyCtrl5: // tb.KeyCtrlRsqBracket
+				// <C-]> doesn't work
+				return "<C-5>"
+			case tb.KeyCtrl6:
+				return "<C-6>"
+			case tb.KeyCtrl7: // tb.KeyCtrlSlash tb.KeyCtrlUnderscore
+				// <C-/> doesn't work
+				// <C-_> doesn't work
+				return "<C-7>"
+			case tb.KeySpace:
+				return "<Space>"
+			case tb.KeyBackspace2: // tb.KeyCtrl8:
+				// <C-8> doesn't work
+				return "<Backspace>"
 			}
-			if sk, ok := kmap[e.Key]; ok {
-				pre = sk[0]
-				k = sk[1]
-			}
+			// <C--> doesn't work
+			return ""
 		}
+		ID = fmt.Sprintf(ID, switchExpression())
 	}
-
-	if pre != "" {
-		k += ">"
-	}
-
-	id := pre + mod + k
 
 	return Event{
 		Type: KeyboardEvent,
-		ID:   id,
+		ID:   ID,
 	}
 }
 
