@@ -13,6 +13,7 @@ import (
 	wordwrap "github.com/mitchellh/go-wordwrap"
 )
 
+// InterfaceSlice takes an []interface{} represented as an interface{} and converts it
 // https://stackoverflow.com/questions/12753805/type-converting-slices-of-interfaces-in-go
 func InterfaceSlice(slice interface{}) []interface{} {
 	s := reflect.ValueOf(slice)
@@ -43,6 +44,7 @@ func MinInt(x, y int) int {
 	return y
 }
 
+// TrimString trims a string to a max length and adds '…' to the end if it was trimmed.
 func TrimString(s string, w int) string {
 	if w <= 0 {
 		return ""
@@ -151,6 +153,7 @@ func MaxFloat64(x, y float64) float64 {
 	return y
 }
 
+// WrapCells takes []Cell and inserts Cells containing '\n' wherever a linebreak should go.
 func WrapCells(cells []Cell, width uint) []Cell {
 	str := CellsToString(cells)
 	wrapped := wordwrap.WrapString(str, width)
