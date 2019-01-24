@@ -79,15 +79,17 @@ func (self *StackedBarChart) Draw(buf *Buffer) {
 		}
 
 		// draw label
-		labelXCoordinate := barXCoordinate + MaxInt(
-			int((float64(self.BarWidth)/2))-int((float64(rw.StringWidth(self.Labels[i]))/2)),
-			0,
-		)
-		buf.SetString(
-			TrimString(self.Labels[i], self.BarWidth),
-			SelectStyle(self.LabelStyles, i),
-			image.Pt(labelXCoordinate, self.Inner.Max.Y-1),
-		)
+		if i < len(self.Labels) {
+			labelXCoordinate := barXCoordinate + MaxInt(
+				int((float64(self.BarWidth)/2))-int((float64(rw.StringWidth(self.Labels[i]))/2)),
+				0,
+			)
+			buf.SetString(
+				TrimString(self.Labels[i], self.BarWidth),
+				SelectStyle(self.LabelStyles, i),
+				image.Pt(labelXCoordinate, self.Inner.Max.Y-1),
+			)
+		}
 
 		barXCoordinate += (self.BarWidth + self.BarGap)
 	}
