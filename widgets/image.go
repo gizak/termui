@@ -48,10 +48,30 @@ func (self *Image) Draw(buf *Buffer) {
 		}
 		for bx := 0; bx < bufWidth; bx++ {
 			for by := 0; by < bufHeight; by++ {
-				ul := self.colorAverage(2*bx*imageWidth/bufWidth/2, (2*bx+1)*imageWidth/bufWidth/2, 2*by*imageHeight/bufHeight/2, (2*by+1)*imageHeight/bufHeight/2)
-				ur := self.colorAverage((2*bx+1)*imageWidth/bufWidth/2, (2*bx+2)*imageWidth/bufWidth/2, 2*by*imageHeight/bufHeight/2, (2*by+1)*imageHeight/bufHeight/2)
-				ll := self.colorAverage(2*bx*imageWidth/bufWidth/2, (2*bx+1)*imageWidth/bufWidth/2, (2*by+1)*imageHeight/bufHeight/2, (2*by+2)*imageHeight/bufHeight/2)
-				lr := self.colorAverage((2*bx+1)*imageWidth/bufWidth/2, (2*bx+2)*imageWidth/bufWidth/2, (2*by+1)*imageHeight/bufHeight/2, (2*by+2)*imageHeight/bufHeight/2)
+				ul := self.colorAverage(
+					2*bx*imageWidth/bufWidth/2,
+					(2*bx+1)*imageWidth/bufWidth/2,
+					2*by*imageHeight/bufHeight/2,
+					(2*by+1)*imageHeight/bufHeight/2,
+				)
+				ur := self.colorAverage(
+					(2*bx+1)*imageWidth/bufWidth/2,
+					(2*bx+2)*imageWidth/bufWidth/2,
+					2*by*imageHeight/bufHeight/2,
+					(2*by+1)*imageHeight/bufHeight/2,
+				)
+				ll := self.colorAverage(
+					2*bx*imageWidth/bufWidth/2,
+					(2*bx+1)*imageWidth/bufWidth/2,
+					(2*by+1)*imageHeight/bufHeight/2,
+					(2*by+2)*imageHeight/bufHeight/2,
+				)
+				lr := self.colorAverage(
+					(2*bx+1)*imageWidth/bufWidth/2,
+					(2*bx+2)*imageWidth/bufWidth/2,
+					(2*by+1)*imageHeight/bufHeight/2,
+					(2*by+2)*imageHeight/bufHeight/2,
+				)
 				buf.SetCell(
 					NewCell(blocksChar(ul, ur, ll, lr, self.MonochromeThreshold, self.MonochromeInvert)),
 					image.Pt(self.Inner.Min.X+bx, self.Inner.Min.Y+by),
@@ -74,13 +94,7 @@ func (self *Image) Draw(buf *Buffer) {
 					(by+1)*imageHeight/bufHeight,
 				)
 				buf.SetCell(
-					Cell{
-						Rune: c.ch(),
-						Style: NewStyle(
-							c.fgColor(),
-							ColorBlack,
-						),
-					},
+					NewCell(c.ch(), NewStyle(c.fgColor(), ColorBlack)),
 					image.Pt(self.Inner.Min.X+bx, self.Inner.Min.Y+by),
 				)
 			}
@@ -92,7 +106,12 @@ func (self *Image) colorAverage(x0, x1, y0, y1 int) colorAverager {
 	var c colorAverager
 	for x := x0; x < x1; x++ {
 		for y := y0; y < y1; y++ {
-			c = c.add(self.Image.At(x+self.Image.Bounds().Min.X, y+self.Image.Bounds().Min.Y))
+			c = c.add(
+				self.Image.At(
+					x+self.Image.Bounds().Min.X,
+					y+self.Image.Bounds().Min.Y,
+				),
+			)
 		}
 	}
 	return c
