@@ -56,7 +56,7 @@ func (self *PieChart) Draw(buf *Buffer) {
 		for j := 0.0; j < size; j += resolutionFactor {
 			borderPoint := borderCircle.at(phi + j)
 			line := line{P1: center, P2: borderPoint}
-			line.draw(NewCell(SHADED_BLOCK, NewStyle(SelectColor(self.Colors, i))), buf)
+			line.draw(NewCell(SHADED_BLOCKS[1], NewStyle(SelectColor(self.Colors, i))), buf)
 		}
 		phi += size
 	}

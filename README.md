@@ -28,6 +28,7 @@ If you upgrade and notice something is missing or don't like a change, revert th
 - [BarChart](./_examples/barchart.go)
 - [Canvas](./_examples/canvas.go)
 - [Gauge](./_examples/gauge.go)
+- [Image](./_examples/image.go)
 - [List](./_examples/list.go)
 - [Paragraph](./_examples/paragraph.go)
 - [PieChart](./_examples/piechart.go)
