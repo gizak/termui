@@ -2,7 +2,15 @@
 
 [<img src="./_assets/demo.gif" alt="demo cast under osx 10.10; Terminal.app; Menlo Regular 12pt.)" width="100%">](./_examples/demo.go)
 
-termui is a cross-platform and fully-customizable terminal dashboard and widget library built on top of [termbox-go](https://github.com/nsf/termbox-go). It is inspired by [blessed-contrib](https://github.com/yaronn/blessed-contrib) and written purely in Go.
+termui is a cross-platform and fully-customizable terminal dashboard and widget library built on top of [termbox-go](https://github.com/nsf/termbox-go). It is inspired by [blessed-contrib](https://github.com/yaronn/blessed-contrib) and [tui-rs](https://github.com/fdehau/tui-rs) and written purely in Go.
+
+The core components of termui include:
+
+- built in widget implementations for common use cases
+- utilities to create custom widgets
+- a Grid for relative widget positioning
+- an event system for keyboard, mouse and resizing events
+- colors and styling
 
 ## Installation
 
