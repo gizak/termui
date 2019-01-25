@@ -38,7 +38,7 @@ func main() {
 	slg := widgets.NewSparklineGroup(sl)
 	slg.Title = "Sparkline"
 
-	lc := widgets.NewLineChart()
+	lc := widgets.NewPlot()
 	lc.Title = "braille-mode Line Chart"
 	lc.Data = append(lc.Data, sinFloat64)
 	lc.AxesColor = ui.ColorWhite
@@ -63,7 +63,7 @@ func main() {
 		"",
 		"[3] Uploading File 3",
 	}
-    ls.Border = false
+	ls.Border = false
 
 	p := widgets.NewParagraph()
 	p.Text = "<> This row has 3 columns\n<- Widgets can be stacked up like left side\n<- Stacked widgets are treated as a single widget"

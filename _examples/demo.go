@@ -88,7 +88,7 @@ func main() {
 		return ps
 	})()
 
-	lc := widgets.NewLineChart()
+	lc := widgets.NewPlot()
 	lc.Title = "dot-mode Line Chart"
 	lc.Data = make([][]float64, 1)
 	lc.Data[0] = sinData
@@ -106,7 +106,7 @@ func main() {
 	bc.BarColors[0] = ui.ColorGreen
 	bc.NumStyles[0] = ui.NewStyle(ui.ColorBlack)
 
-	lc2 := widgets.NewLineChart()
+	lc2 := widgets.NewPlot()
 	lc2.Title = "braille-mode Line Chart"
 	lc2.Data = make([][]float64, 1)
 	lc2.Data[0] = sinData
