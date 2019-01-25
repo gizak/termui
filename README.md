@@ -26,13 +26,13 @@ If you upgrade and notice something is missing or don't like a change, revert th
 ## Widgets
 
 - [BarChart](./_examples/barchart.go)
-- [Canvas](./_examples/canvas.go)
+- [Canvas](./_examples/canvas.go) (for drawing braille dots)
 - [Gauge](./_examples/gauge.go)
 - [Image](./_examples/image.go)
 - [List](./_examples/list.go)
 - [Paragraph](./_examples/paragraph.go)
 - [PieChart](./_examples/piechart.go)
-- [Plot](./_examples/plot.go)
+- [Plot](./_examples/plot.go) (for scatterplots and linecharts)
 - [Sparkline](./_examples/sparkline.go)
 - [StackedBarChart](./_examples/stacked_barchart.go)
 - [Table](./_examples/table.go)
