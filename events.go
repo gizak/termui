@@ -24,10 +24,22 @@ List of events:
 		<Backspace> <Tab> <Enter> <Escape> <Space>
 		<C-<Space>> etc
 	terminal events:
-		<Resize>
+        <Resize>
+
+    keyboard events that do not work:
+        <C-->
+        <C-2> <C-~>
+        <C-h>
+        <C-i>
+        <C-m>
+        <C-[> <C-3>
+        <C-\\>
+        <C-]>
+        <C-/> <C-_>
+        <C-8>
 */
 
-type EventType int
+type EventType uint
 
 const (
 	KeyboardEvent EventType = iota
@@ -65,6 +77,66 @@ func PollEvents() <-chan Event {
 	return ch
 }
 
+var keyboardMap = map[tb.Key]string{
+	tb.KeyF1:         "<F1>",
+	tb.KeyF2:         "<F2>",
+	tb.KeyF3:         "<F3>",
+	tb.KeyF4:         "<F4>",
+	tb.KeyF5:         "<F5>",
+	tb.KeyF6:         "<F6>",
+	tb.KeyF7:         "<F7>",
+	tb.KeyF8:         "<F8>",
+	tb.KeyF9:         "<F9>",
+	tb.KeyF10:        "<F10>",
+	tb.KeyF11:        "<F11>",
+	tb.KeyF12:        "<F12>",
+	tb.KeyInsert:     "<Insert>",
+	tb.KeyDelete:     "<Delete>",
+	tb.KeyHome:       "<Home>",
+	tb.KeyEnd:        "<End>",
+	tb.KeyPgup:       "<PageUp>",
+	tb.KeyPgdn:       "<PageDown>",
+	tb.KeyArrowUp:    "<Up>",
+	tb.KeyArrowDown:  "<Down>",
+	tb.KeyArrowLeft:  "<Left>",
+	tb.KeyArrowRight: "<Right>",
+
+	tb.KeyCtrlSpace:  "<C-<Space>>", // tb.KeyCtrl2 tb.KeyCtrlTilde
+	tb.KeyCtrlA:      "<C-a>",
+	tb.KeyCtrlB:      "<C-b>",
+	tb.KeyCtrlC:      "<C-c>",
+	tb.KeyCtrlD:      "<C-d>",
+	tb.KeyCtrlE:      "<C-e>",
+	tb.KeyCtrlF:      "<C-f>",
+	tb.KeyCtrlG:      "<C-g>",
+	tb.KeyBackspace:  "<C-<Backspace>>", // tb.KeyCtrlH
+	tb.KeyTab:        "<Tab>",           // tb.KeyCtrlI
+	tb.KeyCtrlJ:      "<C-j>",
+	tb.KeyCtrlK:      "<C-k>",
+	tb.KeyCtrlL:      "<C-l>",
+	tb.KeyEnter:      "<Enter>", // tb.KeyCtrlM
+	tb.KeyCtrlN:      "<C-n>",
+	tb.KeyCtrlO:      "<C-o>",
+	tb.KeyCtrlP:      "<C-p>",
+	tb.KeyCtrlQ:      "<C-q>",
+	tb.KeyCtrlR:      "<C-r>",
+	tb.KeyCtrlS:      "<C-s>",
+	tb.KeyCtrlT:      "<C-t>",
+	tb.KeyCtrlU:      "<C-u>",
+	tb.KeyCtrlV:      "<C-v>",
+	tb.KeyCtrlW:      "<C-w>",
+	tb.KeyCtrlX:      "<C-x>",
+	tb.KeyCtrlY:      "<C-y>",
+	tb.KeyCtrlZ:      "<C-z>",
+	tb.KeyEsc:        "<Escape>", // tb.KeyCtrlLsqBracket tb.KeyCtrl3
+	tb.KeyCtrl4:      "<C-4>",    // tb.KeyCtrlBackslash
+	tb.KeyCtrl5:      "<C-5>",    // tb.KeyCtrlRsqBracket
+	tb.KeyCtrl6:      "<C-6>",
+	tb.KeyCtrl7:      "<C-7>", // tb.KeyCtrlSlash tb.KeyCtrlUnderscore
+	tb.KeySpace:      "<Space>",
+	tb.KeyBackspace2: "<Backspace>", // tb.KeyCtrl8:
+}
+
 // convertTermboxKeyboardEvent converts a termbox keyboard event to a more friendly string format.
 // Combines modifiers into the string instead of having them as additional fields in an event.
 func convertTermboxKeyboardEvent(e tb.Event) Event {
@@ -76,138 +148,11 @@ func convertTermboxKeyboardEvent(e tb.Event) Event {
 	if e.Ch != 0 {
 		ID = fmt.Sprintf(ID, string(e.Ch))
 	} else {
-		switchExpression := func() string {
-			switch e.Key {
-			case tb.KeyF1:
-				return "<F1>"
-			case tb.KeyF2:
-				return "<F2>"
-			case tb.KeyF3:
-				return "<F3>"
-			case tb.KeyF4:
-				return "<F4>"
-			case tb.KeyF5:
-				return "<F5>"
-			case tb.KeyF6:
-				return "<F6>"
-			case tb.KeyF7:
-				return "<F7>"
-			case tb.KeyF8:
-				return "<F8>"
-			case tb.KeyF9:
-				return "<F9>"
-			case tb.KeyF10:
-				return "<F10>"
-			case tb.KeyF11:
-				return "<F11>"
-			case tb.KeyF12:
-				return "<F12>"
-			case tb.KeyInsert:
-				return "<Insert>"
-			case tb.KeyDelete:
-				return "<Delete>"
-			case tb.KeyHome:
-				return "<Home>"
-			case tb.KeyEnd:
-				return "<End>"
-			case tb.KeyPgup:
-				return "<PageUp>"
-			case tb.KeyPgdn:
-				return "<PageDown>"
-			case tb.KeyArrowUp:
-				return "<Up>"
-			case tb.KeyArrowDown:
-				return "<Down>"
-			case tb.KeyArrowLeft:
-				return "<Left>"
-			case tb.KeyArrowRight:
-				return "<Right>"
-
-			case tb.KeyCtrlTilde: // tb.KeyCtrl2 tb.KeyCtrlSpace
-				// <C-~> doesn't work
-				// <C-2> doesn't work
-				return "<C-<Space>>"
-			case tb.KeyCtrlA:
-				return "<C-a>"
-			case tb.KeyCtrlB:
-				return "<C-b>"
-			case tb.KeyCtrlC:
-				return "<C-c>"
-			case tb.KeyCtrlD:
-				return "<C-d>"
-			case tb.KeyCtrlE:
-				return "<C-e>"
-			case tb.KeyCtrlF:
-				return "<C-f>"
-			case tb.KeyCtrlG:
-				return "<C-g>"
-			case tb.KeyBackspace: // tb.KeyCtrlH
-				// <C-h> doesn't work
-				return "<C-<Backspace>>"
-			case tb.KeyTab: // tb.KeyCtrlI
-				// <C-i> doesn't work
-				return "<Tab>"
-			case tb.KeyCtrlJ:
-				return "<C-j>"
-			case tb.KeyCtrlK:
-				return "<C-k>"
-			case tb.KeyCtrlL:
-				return "<C-l>"
-			case tb.KeyEnter: // tb.KeyCtrlM
-				// <C-m> doesn't work
-				return "<Enter>"
-			case tb.KeyCtrlN:
-				return "<C-n>"
-			case tb.KeyCtrlO:
-				return "<C-o>"
-			case tb.KeyCtrlP:
-				return "<C-p>"
-			case tb.KeyCtrlQ:
-				return "<C-q>"
-			case tb.KeyCtrlR:
-				return "<C-r>"
-			case tb.KeyCtrlS:
-				return "<C-s>"
-			case tb.KeyCtrlT:
-				return "<C-t>"
-			case tb.KeyCtrlU:
-				return "<C-u>"
-			case tb.KeyCtrlV:
-				return "<C-v>"
-			case tb.KeyCtrlW:
-				return "<C-w>"
-			case tb.KeyCtrlX:
-				return "<C-x>"
-			case tb.KeyCtrlY:
-				return "<C-y>"
-			case tb.KeyCtrlZ:
-				return "<C-z>"
-			case tb.KeyEsc: // tb.KeyCtrlLsqBracket tb.KeyCtrl3
-				// <C-[> doesn't work
-				// <C-3> doesn't work
-				return "<Escape>"
-			case tb.KeyCtrl4: // tb.KeyCtrlBackslash
-				// <C-\\> doesn't work
-				return "<C-4>"
-			case tb.KeyCtrl5: // tb.KeyCtrlRsqBracket
-				// <C-]> doesn't work
-				return "<C-5>"
-			case tb.KeyCtrl6:
-				return "<C-6>"
-			case tb.KeyCtrl7: // tb.KeyCtrlSlash tb.KeyCtrlUnderscore
-				// <C-/> doesn't work
-				// <C-_> doesn't work
-				return "<C-7>"
-			case tb.KeySpace:
-				return "<Space>"
-			case tb.KeyBackspace2: // tb.KeyCtrl8:
-				// <C-8> doesn't work
-				return "<Backspace>"
-			}
-			// <C--> doesn't work
-			return ""
+		converted, ok := keyboardMap[e.Key]
+		if !ok {
+			converted = ""
 		}
-		ID = fmt.Sprintf(ID, switchExpression())
+		ID = fmt.Sprintf(ID, converted)
 	}
 
 	return Event{
@@ -216,26 +161,21 @@ func convertTermboxKeyboardEvent(e tb.Event) Event {
 	}
 }
 
-func convertTermboxMouseEvent(e tb.Event) Event {
-	mouseButtonMap := map[tb.Key]string{
-		tb.MouseLeft:      "<MouseLeft>",
-		tb.MouseMiddle:    "<MouseMiddle>",
-		tb.MouseRight:     "<MouseRight>",
-		tb.MouseRelease:   "<MouseRelease>",
-		tb.MouseWheelUp:   "<MouseWheelUp>",
-		tb.MouseWheelDown: "<MouseWheelDown>",
-	}
+var mouseButtonMap = map[tb.Key]string{
+	tb.MouseLeft:      "<MouseLeft>",
+	tb.MouseMiddle:    "<MouseMiddle>",
+	tb.MouseRight:     "<MouseRight>",
+	tb.MouseRelease:   "<MouseRelease>",
+	tb.MouseWheelUp:   "<MouseWheelUp>",
+	tb.MouseWheelDown: "<MouseWheelDown>",
+}
 
+func convertTermboxMouseEvent(e tb.Event) Event {
 	converted, ok := mouseButtonMap[e.Key]
 	if !ok {
 		converted = "Unknown_Mouse_Button"
 	}
-
-	Drag := false
-	if e.Mod == tb.ModMotion {
-		Drag = true
-	}
-
+	Drag := e.Mod == tb.ModMotion
 	return Event{
 		Type: MouseEvent,
 		ID:   converted,
@@ -252,16 +192,13 @@ func convertTermboxEvent(e tb.Event) Event {
 	if e.Type == tb.EventError {
 		panic(e.Err)
 	}
-
-	var event Event
-
 	switch e.Type {
 	case tb.EventKey:
-		event = convertTermboxKeyboardEvent(e)
+		return convertTermboxKeyboardEvent(e)
 	case tb.EventMouse:
-		event = convertTermboxMouseEvent(e)
+		return convertTermboxMouseEvent(e)
 	case tb.EventResize:
-		event = Event{
+		return Event{
 			Type: ResizeEvent,
 			ID:   "<Resize>",
 			Payload: Resize{
@@ -270,6 +207,5 @@ func convertTermboxEvent(e tb.Event) Event {
 			},
 		}
 	}
-
-	return event
+	return Event{}
 }
