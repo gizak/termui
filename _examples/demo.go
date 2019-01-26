@@ -89,13 +89,13 @@ func main() {
 	})()
 
 	lc := widgets.NewPlot()
-	lc.Title = "dot-mode Line Chart"
+	lc.Title = "dot-marker Line Chart"
 	lc.Data = make([][]float64, 1)
 	lc.Data[0] = sinData
 	lc.SetRect(0, 15, 50, 25)
 	lc.AxesColor = ui.ColorWhite
 	lc.LineColors[0] = ui.ColorRed
-	lc.LineType = widgets.DotLine
+	lc.Marker = widgets.MarkerDot
 
 	barchartData := []float64{3, 2, 5, 3, 9, 5, 3, 2, 5, 8, 3, 2, 4, 5, 3, 2, 5, 7, 5, 3, 2, 6, 7, 4, 6, 3, 6, 7, 8, 3, 6, 4, 5, 3, 2, 4, 6, 4, 8, 5, 9, 4, 3, 6, 5, 3, 6}
 
