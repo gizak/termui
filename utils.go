@@ -203,7 +203,7 @@ func SplitCells(cells []Cell, r rune) [][]Cell {
 			temp = append(temp, cell)
 		}
 	}
-	if len(splitCells) > 0 {
+	if len(temp) > 0 {
 		splitCells = append(splitCells, temp)
 	}
 	return splitCells
