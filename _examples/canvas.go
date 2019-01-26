@@ -17,8 +17,7 @@ func main() {
 
 	c := ui.NewCanvas()
 	c.SetRect(0, 0, 50, 50)
-	c.Line(image.Pt(0, 0), image.Pt(80, 50), ui.ColorClear)
-	c.Line(image.Pt(0, 5), image.Pt(3, 10), ui.ColorClear)
+	c.SetLine(image.Pt(0, 0), image.Pt(10, 20), ui.ColorWhite)
 
 	ui.Render(c)
 

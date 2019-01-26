@@ -85,7 +85,7 @@ func (self *Plot) renderBraille(buf *Buffer, drawArea image.Rectangle, maxVal fl
 		for i, line := range self.Data {
 			for j, val := range line {
 				height := int((val / maxVal) * float64(drawArea.Dy()-1))
-				canvas.Point(
+				canvas.SetPoint(
 					image.Pt(
 						(drawArea.Min.X+(j*self.HorizontalScale))*2,
 						(drawArea.Max.Y-height-1)*4,
@@ -99,7 +99,7 @@ func (self *Plot) renderBraille(buf *Buffer, drawArea image.Rectangle, maxVal fl
 			previousHeight := int((line[1] / maxVal) * float64(drawArea.Dy()-1))
 			for j, val := range line[1:] {
 				height := int((val / maxVal) * float64(drawArea.Dy()-1))
-				canvas.Line(
+				canvas.SetLine(
 					image.Pt(
 						(drawArea.Min.X+(j*self.HorizontalScale))*2,
 						(drawArea.Max.Y-previousHeight-1)*4,
