@@ -39,7 +39,7 @@ func (self *List) Draw(buf *Buffer) {
 				point = image.Pt(self.Inner.Min.X, point.Y+1)
 			} else {
 				if point.X+1 == self.Inner.Max.X+1 && len(cells) > self.Inner.Dx() {
-					buf.SetCell(NewCell(DOTS, cells[j].Style), point.Add(image.Pt(-1, 0)))
+					buf.SetCell(NewCell(ELLIPSES, cells[j].Style), point.Add(image.Pt(-1, 0)))
 					break
 				} else {
 					buf.SetCell(cells[j], point)

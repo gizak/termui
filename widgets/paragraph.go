@@ -14,27 +14,34 @@ type Paragraph struct {
 	Block
 	Text      string
 	TextStyle Style
+	WrapText  bool
 }
 
 func NewParagraph() *Paragraph {
 	return &Paragraph{
 		Block:     *NewBlock(),
 		TextStyle: Theme.Paragraph.Text,
+		WrapText:  true,
 	}
 }
 
 func (self *Paragraph) Draw(buf *Buffer) {
 	self.Block.Draw(buf)
 
-	point := self.Inner.Min
-	cells := WrapCells(ParseText(self.Text, self.TextStyle), uint(self.Inner.Dx()))
+	cells := ParseText(self.Text, self.TextStyle)
+	if self.WrapText {
+		cells = WrapCells(cells, uint(self.Inner.Dx()))
+	}
 
-	for i := 0; i < len(cells) && point.Y < self.Inner.Max.Y; i++ {
-		if cells[i].Rune == '\n' {
-			point = image.Pt(self.Inner.Min.X, point.Y+1)
-		} else {
-			buf.SetCell(cells[i], point)
-			point = point.Add(image.Pt(1, 0))
+	rows := SplitCells(cells, '\n')
+
+	for y, row := range rows {
+		if y+self.Inner.Min.Y >= self.Inner.Max.Y {
+			break
+		}
+		row = TrimCells(row, self.Inner.Dx())
+		for x, cell := range row {
+			buf.SetCell(cell, image.Pt(x, y).Add(self.Inner.Min))
 		}
 	}
 }

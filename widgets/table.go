@@ -61,7 +61,7 @@ func (self *Table) Draw(buf *Buffer) {
 			if len(col) > columnWidths[j] || self.TextAlign == AlignLeft {
 				for k, cell := range col {
 					if k == columnWidths[j] || colXCoordinate+k == self.Inner.Max.X {
-						cell.Rune = DOTS
+						cell.Rune = ELLIPSES
 						buf.SetCell(cell, image.Pt(colXCoordinate+k-1, yCoordinate))
 						break
 					} else {

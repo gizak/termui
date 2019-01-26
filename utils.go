@@ -30,29 +30,41 @@ func InterfaceSlice(slice interface{}) []interface{} {
 	return ret
 }
 
-func MaxInt(x, y int) int {
-	if x > y {
-		return x
-	}
-	return y
-}
-
-func MinInt(x, y int) int {
-	if x < y {
-		return x
-	}
-	return y
-}
-
 // TrimString trims a string to a max length and adds '…' to the end if it was trimmed.
 func TrimString(s string, w int) string {
 	if w <= 0 {
 		return ""
 	}
 	if rw.StringWidth(s) > w {
-		return rw.Truncate(s, w, string(DOTS))
+		return rw.Truncate(s, w, string(ELLIPSES))
 	}
 	return s
+}
+
+func SelectColor(colors []Color, index int) Color {
+	return colors[index%len(colors)]
+}
+
+func SelectStyle(styles []Style, index int) Style {
+	return styles[index%len(styles)]
+}
+
+// Math ------------------------------------------------------------------------
+
+func SumIntSlice(slice []int) int {
+	sum := 0
+	for _, val := range slice {
+		sum += val
+	}
+	return sum
+}
+
+func SumFloat64Slice(data []float64) float64 {
+	sum := 0.0
+	for _, v := range data {
+		sum += v
+	}
+	return sum
 }
 
 func GetMaxIntFromSlice(slice []int) (int, error) {
@@ -96,40 +108,8 @@ func GetMaxFloat64From2dSlice(slices [][]float64) (float64, error) {
 	return max, nil
 }
 
-func SelectColor(colors []Color, index int) Color {
-	return colors[index%len(colors)]
-}
-
-func SelectStyle(styles []Style, index int) Style {
-	return styles[index%len(styles)]
-}
-
-func CellsToString(cells []Cell) string {
-	runes := make([]rune, len(cells))
-	for i, cell := range cells {
-		runes[i] = cell.Rune
-	}
-	return string(runes)
-}
-
 func RoundFloat64(x float64) float64 {
 	return math.Floor(x + 0.5)
-}
-
-func SumIntSlice(slice []int) int {
-	sum := 0
-	for _, val := range slice {
-		sum += val
-	}
-	return sum
-}
-
-func SumFloat64Slice(data []float64) float64 {
-	sum := 0.0
-	for _, v := range data {
-		sum += v
-	}
-	return sum
 }
 
 func AbsInt(x int) int {
@@ -152,6 +132,22 @@ func MaxFloat64(x, y float64) float64 {
 	}
 	return y
 }
+
+func MaxInt(x, y int) int {
+	if x > y {
+		return x
+	}
+	return y
+}
+
+func MinInt(x, y int) int {
+	if x < y {
+		return x
+	}
+	return y
+}
+
+// []Cell ----------------------------------------------------------------------
 
 // WrapCells takes []Cell and inserts Cells containing '\n' wherever a linebreak should go.
 func WrapCells(cells []Cell, width uint) []Cell {
@@ -176,4 +172,39 @@ func RunesToStyledCells(runes []rune, style Style) []Cell {
 		cells = append(cells, Cell{_rune, style})
 	}
 	return cells
+}
+
+func CellsToString(cells []Cell) string {
+	runes := make([]rune, len(cells))
+	for i, cell := range cells {
+		runes[i] = cell.Rune
+	}
+	return string(runes)
+}
+
+func TrimCells(cells []Cell, w int) []Cell {
+	s := CellsToString(cells)
+	s = TrimString(s, w)
+	newCells := []Cell{}
+	for i, r := range s {
+		newCells = append(newCells, Cell{r, cells[i].Style})
+	}
+	return newCells
+}
+
+func SplitCells(cells []Cell, r rune) [][]Cell {
+	splitCells := [][]Cell{}
+	temp := []Cell{}
+	for _, cell := range cells {
+		if cell.Rune == r {
+			splitCells = append(splitCells, temp)
+			temp = []Cell{}
+		} else {
+			temp = append(temp, cell)
+		}
+	}
+	if len(splitCells) > 0 {
+		splitCells = append(splitCells, temp)
+	}
+	return splitCells
 }

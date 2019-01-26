@@ -1,8 +1,8 @@
 package termui
 
 const (
-	DOT  = '•'
-	DOTS = '…'
+	DOT      = '•'
+	ELLIPSES = '…'
 )
 
 var (
