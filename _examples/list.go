@@ -32,8 +32,8 @@ func main() {
 		"[7] nsf/termbox-go",
 	}
 	l.TextStyle = ui.NewStyle(ui.ColorYellow)
-	l.Wrap = false
-	l.SetRect(0, 0, 25, 50)
+	l.WrapText = false
+	l.SetRect(0, 0, 25, 5)
 
 	ui.Render(l)
 
@@ -43,6 +43,12 @@ func main() {
 		switch e.ID {
 		case "q", "<C-c>":
 			return
+		case "j", "<Down>":
+			l.ScrollDown()
+			ui.Render(l)
+		case "k", "<Up>":
+			l.ScrollUp()
+			ui.Render(l)
 		}
 	}
 }

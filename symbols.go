@@ -3,6 +3,9 @@ package termui
 const (
 	DOT      = '•'
 	ELLIPSES = '…'
+
+	UP_ARROW   = '▲'
+	DOWN_ARROW = '▼'
 )
 
 var (

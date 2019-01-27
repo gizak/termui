@@ -12,15 +12,19 @@ import (
 
 type List struct {
 	Block
-	Rows      []string
-	Wrap      bool
-	TextStyle Style
+	Rows             []string
+	WrapText         bool
+	TextStyle        Style
+	SelectedRow      uint
+	topRow           uint
+	SelectedRowStyle Style
 }
 
 func NewList() *List {
 	return &List{
-		Block:     *NewBlock(),
-		TextStyle: Theme.List.Text,
+		Block:            *NewBlock(),
+		TextStyle:        Theme.List.Text,
+		SelectedRowStyle: Theme.List.Text,
 	}
 }
 
@@ -29,24 +33,59 @@ func (self *List) Draw(buf *Buffer) {
 
 	point := self.Inner.Min
 
-	for row := 0; row < len(self.Rows) && point.Y < self.Inner.Max.Y; row++ {
+	for row := self.topRow; row < uint(len(self.Rows)) && point.Y < self.Inner.Max.Y; row++ {
 		cells := ParseText(self.Rows[row], self.TextStyle)
-		if self.Wrap {
+		if self.WrapText {
 			cells = WrapCells(cells, uint(self.Inner.Dx()))
 		}
 		for j := 0; j < len(cells) && point.Y < self.Inner.Max.Y; j++ {
+			style := cells[j].Style
+			if row == self.SelectedRow {
+				style = self.SelectedRowStyle
+			}
 			if cells[j].Rune == '\n' {
 				point = image.Pt(self.Inner.Min.X, point.Y+1)
 			} else {
 				if point.X+1 == self.Inner.Max.X+1 && len(cells) > self.Inner.Dx() {
-					buf.SetCell(NewCell(ELLIPSES, cells[j].Style), point.Add(image.Pt(-1, 0)))
+					buf.SetCell(NewCell(ELLIPSES, style), point.Add(image.Pt(-1, 0)))
 					break
 				} else {
-					buf.SetCell(cells[j], point)
+					buf.SetCell(NewCell(cells[j].Rune, style), point)
 					point = point.Add(image.Pt(1, 0))
 				}
 			}
 		}
 		point = image.Pt(self.Inner.Min.X, point.Y+1)
+	}
+
+	if self.topRow > 0 {
+		buf.SetCell(
+			NewCell(UP_ARROW, NewStyle(ColorWhite)),
+			image.Pt(self.Inner.Max.X-1, self.Inner.Min.Y),
+		)
+	}
+	if len(self.Rows) > int(self.topRow)+self.Inner.Dy() {
+		buf.SetCell(
+			NewCell(DOWN_ARROW, NewStyle(ColorWhite)),
+			image.Pt(self.Inner.Max.X-1, self.Inner.Max.Y-1),
+		)
+	}
+}
+
+func (self *List) ScrollUp() {
+	if self.SelectedRow > 0 {
+		self.SelectedRow--
+		if self.SelectedRow < self.topRow {
+			self.topRow--
+		}
+	}
+}
+
+func (self *List) ScrollDown() {
+	if self.SelectedRow < uint(len(self.Rows))-1 {
+		self.SelectedRow++
+		if self.SelectedRow-self.topRow > uint(self.Inner.Dy()-1) {
+			self.topRow++
+		}
 	}
 }
