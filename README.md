@@ -14,7 +14,7 @@ The core components of termui include:
 
 ## Installation
 
-Installing from the master branch is recommended:
+Installing from the master branch is recommended. termui has been completely reworked since the latest release, and the latest release also doesn't support Go modules.
 
 ```bash
 go get -u github.com/gizak/termui@master
