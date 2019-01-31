@@ -95,3 +95,21 @@ func (self *List) ScrollDown() {
 		}
 	}
 }
+
+func (self *List) PageUp() {   // Goes up one whole page.
+	if int(self.SelectedRow)-self.Inner.Dy() >= 0 {
+		self.topRow -= uint(self.Inner.Dy())
+	} else {			// If at the first 'page', then go to the top and select the first item.
+		self.topRow = 0
+	}
+	self.SelectedRow = self.topRow
+}
+
+func (self *List) PageDown() {  // Down one whole page
+	if len(self.Rows)-int(self.topRow) > self.Inner.Dy() {
+		self.topRow += uint(self.Inner.Dy())
+		self.SelectedRow = self.topRow
+	} else {   // If at last 'page', then select last item.
+		self.SelectedRow = uint(len(self.Rows)-1)
+	}
+}
