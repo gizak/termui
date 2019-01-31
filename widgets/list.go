@@ -33,6 +33,12 @@ func (self *List) Draw(buf *Buffer) {
 
 	point := self.Inner.Min
 
+	if self.SelectedRow >= uint(self.Inner.Max.Y)+self.topRow-2 {
+		self.topRow = self.SelectedRow-uint(self.Inner.Max.Y)+2
+	} else if self.SelectedRow < self.topRow {
+		self.topRow = self.SelectedRow
+	}
+
 	for row := self.topRow; row < uint(len(self.Rows)) && point.Y < self.Inner.Max.Y; row++ {
 		cells := ParseText(self.Rows[row], self.TextStyle)
 		if self.WrapText {
