@@ -79,9 +79,10 @@ Run an example with `go run _examples/{example}.go` or run all of them consecuti
 
 ## Uses
 
-- [cjbassi/gotop](https://github.com/cjbassi/gotop)
-- [ethereum/go-ethereum/monitorcmd](https://github.com/ethereum/go-ethereum/blob/master/cmd/geth/monitorcmd.go)
-- [mikepea/go-jira-ui](https://github.com/mikepea/go-jira-ui)
+- [go-ethereum/monitorcmd](https://github.com/ethereum/go-ethereum/blob/master/cmd/geth/monitorcmd.go)
+- [go-jira-ui](https://github.com/mikepea/go-jira-ui)
+- [gotop](https://github.com/cjbassi/gotop)
+- [termeter](https://github.com/atsaki/termeter)
 
 ## Related Works
 
