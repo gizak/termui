@@ -49,6 +49,12 @@ func main() {
 		case "k", "<Up>":
 			l.ScrollUp()
 			ui.Render(l)
+		case "<C-f>":
+			l.PageDown()
+			ui.Render(l)
+		case "<C-b>":
+			l.PageUp()
+			ui.Render(l)
 		}
 	}
 }
