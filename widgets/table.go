@@ -100,13 +100,16 @@ func (self *Table) Draw(buf *Buffer) {
 
 		// draw vertical separators
 		separatorStyle := self.Block.BorderStyle
-		if self.FillRow {
-			separatorStyle.Bg = rowStyle.Bg
-		}
 
 		separatorXCoordinate := self.Inner.Min.X
 		verticalCell := NewCell(VERTICAL_LINE, separatorStyle)
-		for _, width := range columnWidths {
+		for i, width := range columnWidths {
+			if self.FillRow && i < len(columnWidths)-1 {
+				verticalCell.Style.Bg = rowStyle.Bg
+			} else {
+				verticalCell.Style.Bg = self.Block.BorderStyle.Bg
+			}
+
 			separatorXCoordinate += width
 			buf.SetCell(verticalCell, image.Pt(separatorXCoordinate, yCoordinate))
 			separatorXCoordinate++
