@@ -26,6 +26,7 @@ type Table struct {
 	TextStyle    Style
 	RowSeparator bool
 	TextAlign    Alignment
+	RowStyles    map[int]Style
 }
 
 func NewTable() *Table {
@@ -33,6 +34,7 @@ func NewTable() *Table {
 		Block:        *NewBlock(),
 		TextStyle:    Theme.Table.Text,
 		RowSeparator: true,
+		RowStyles:    make(map[int]Style),
 	}
 }
 
@@ -56,7 +58,12 @@ func (self *Table) Draw(buf *Buffer) {
 		colXCoordinate := self.Inner.Min.X
 		// draw row cells
 		for j := 0; j < len(row); j++ {
-			col := ParseText(row[j], self.TextStyle)
+			rowStyle := self.TextStyle
+			// get the row style if one exists
+			if style, ok := self.RowStyles[i]; ok {
+				rowStyle = style
+			}
+			col := ParseText(row[j], rowStyle)
 			// draw row cell
 			if len(col) > columnWidths[j] || self.TextAlign == AlignLeft {
 				for k, cell := range col {
