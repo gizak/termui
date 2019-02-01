@@ -34,7 +34,7 @@ func (self *List) Draw(buf *Buffer) {
 	point := self.Inner.Min
 
 	if self.SelectedRow >= uint(self.Inner.Max.Y)+self.topRow-2 {
-		self.topRow = self.SelectedRow-uint(self.Inner.Max.Y)+2
+		self.topRow = self.SelectedRow - uint(self.Inner.Max.Y) + 2
 	} else if self.SelectedRow < self.topRow {
 		self.topRow = self.SelectedRow
 	}
@@ -93,5 +93,23 @@ func (self *List) ScrollDown() {
 		if self.SelectedRow-self.topRow > uint(self.Inner.Dy()-1) {
 			self.topRow++
 		}
+	}
+}
+
+func (self *List) PageUp() { // Goes up one whole page.
+	if int(self.SelectedRow)-self.Inner.Dy() >= 0 {
+		self.topRow -= uint(self.Inner.Dy())
+	} else { // If at the first 'page', then go to the top and select the first item.
+		self.topRow = 0
+	}
+	self.SelectedRow = self.topRow
+}
+
+func (self *List) PageDown() { // Down one whole page
+	if len(self.Rows)-int(self.topRow) > self.Inner.Dy() {
+		self.topRow += uint(self.Inner.Dy())
+		self.SelectedRow = self.topRow
+	} else { // If at last 'page', then select last item.
+		self.SelectedRow = uint(len(self.Rows) - 1)
 	}
 }
