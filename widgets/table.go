@@ -85,7 +85,7 @@ func (self *Table) Draw(buf *Buffer) {
 
 		// draw vertical separators
 		separatorXCoordinate := self.Inner.Min.X
-		verticalCell := NewCell(VERTICAL_LINE, NewStyle(ColorWhite))
+		verticalCell := NewCell(VERTICAL_LINE, self.Block.BorderStyle)
 		for _, width := range columnWidths {
 			separatorXCoordinate += width
 			buf.SetCell(verticalCell, image.Pt(separatorXCoordinate, yCoordinate))
@@ -95,7 +95,7 @@ func (self *Table) Draw(buf *Buffer) {
 		yCoordinate++
 
 		// draw horizontal separator
-		horizontalCell := NewCell(HORIZONTAL_LINE, NewStyle(ColorWhite))
+		horizontalCell := NewCell(HORIZONTAL_LINE, self.Block.BorderStyle)
 		if self.RowSeparator && yCoordinate < self.Inner.Max.Y && i != len(self.Rows)-1 {
 			buf.Fill(horizontalCell, image.Rect(self.Inner.Min.X, yCoordinate, self.Inner.Max.X, yCoordinate+1))
 			yCoordinate++
