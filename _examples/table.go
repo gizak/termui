@@ -54,6 +54,7 @@ func main() {
 	table3.RowSeparator = true
 	table3.BorderStyle = ui.NewStyle(ui.ColorGreen)
 	table3.SetRect(0, 30, 70, 20)
+	table3.FillRow = true
 	table3.RowStyles[0] = ui.NewStyle(ui.ColorWhite, ui.ColorBlack, ui.ModifierBold)
 	table3.RowStyles[2] = ui.NewStyle(ui.ColorRed)
 	table3.RowStyles[3] = ui.NewStyle(ui.ColorYellow)

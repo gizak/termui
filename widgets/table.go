@@ -27,6 +27,7 @@ type Table struct {
 	RowSeparator bool
 	TextAlign    Alignment
 	RowStyles    map[int]Style
+	FillRow      bool
 }
 
 func NewTable() *Table {
@@ -56,13 +57,20 @@ func (self *Table) Draw(buf *Buffer) {
 	for i := 0; i < len(self.Rows) && yCoordinate < self.Inner.Max.Y; i++ {
 		row := self.Rows[i]
 		colXCoordinate := self.Inner.Min.X
+
+		rowStyle := self.TextStyle
+		// get the row style if one exists
+		if style, ok := self.RowStyles[i]; ok {
+			rowStyle = style
+		}
+
+		if self.FillRow {
+			blankCell := NewCell(' ', rowStyle)
+			buf.Fill(blankCell, image.Rect(self.Inner.Min.X, yCoordinate, self.Inner.Max.X, yCoordinate+1))
+		}
+
 		// draw row cells
 		for j := 0; j < len(row); j++ {
-			rowStyle := self.TextStyle
-			// get the row style if one exists
-			if style, ok := self.RowStyles[i]; ok {
-				rowStyle = style
-			}
 			col := ParseText(row[j], rowStyle)
 			// draw row cell
 			if len(col) > columnWidths[j] || self.TextAlign == AlignLeft {
@@ -91,8 +99,13 @@ func (self *Table) Draw(buf *Buffer) {
 		}
 
 		// draw vertical separators
+		separatorStyle := self.Block.BorderStyle
+		if self.FillRow {
+			separatorStyle.Bg = rowStyle.Bg
+		}
+
 		separatorXCoordinate := self.Inner.Min.X
-		verticalCell := NewCell(VERTICAL_LINE, self.Block.BorderStyle)
+		verticalCell := NewCell(VERTICAL_LINE, separatorStyle)
 		for _, width := range columnWidths {
 			separatorXCoordinate += width
 			buf.SetCell(verticalCell, image.Pt(separatorXCoordinate, yCoordinate))
@@ -102,7 +115,7 @@ func (self *Table) Draw(buf *Buffer) {
 		yCoordinate++
 
 		// draw horizontal separator
-		horizontalCell := NewCell(HORIZONTAL_LINE, self.Block.BorderStyle)
+		horizontalCell := NewCell(HORIZONTAL_LINE, separatorStyle)
 		if self.RowSeparator && yCoordinate < self.Inner.Max.Y && i != len(self.Rows)-1 {
 			buf.Fill(horizontalCell, image.Rect(self.Inner.Min.X, yCoordinate, self.Inner.Max.X, yCoordinate+1))
 			yCoordinate++
