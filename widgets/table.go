@@ -26,6 +26,8 @@ type Table struct {
 	TextStyle    Style
 	RowSeparator bool
 	TextAlign    Alignment
+	RowStyles    map[int]Style
+	FillRow      bool
 }
 
 func NewTable() *Table {
@@ -33,6 +35,7 @@ func NewTable() *Table {
 		Block:        *NewBlock(),
 		TextStyle:    Theme.Table.Text,
 		RowSeparator: true,
+		RowStyles:    make(map[int]Style),
 	}
 }
 
@@ -54,9 +57,21 @@ func (self *Table) Draw(buf *Buffer) {
 	for i := 0; i < len(self.Rows) && yCoordinate < self.Inner.Max.Y; i++ {
 		row := self.Rows[i]
 		colXCoordinate := self.Inner.Min.X
+
+		rowStyle := self.TextStyle
+		// get the row style if one exists
+		if style, ok := self.RowStyles[i]; ok {
+			rowStyle = style
+		}
+
+		if self.FillRow {
+			blankCell := NewCell(' ', rowStyle)
+			buf.Fill(blankCell, image.Rect(self.Inner.Min.X, yCoordinate, self.Inner.Max.X, yCoordinate+1))
+		}
+
 		// draw row cells
 		for j := 0; j < len(row); j++ {
-			col := ParseText(row[j], self.TextStyle)
+			col := ParseText(row[j], rowStyle)
 			// draw row cell
 			if len(col) > columnWidths[j] || self.TextAlign == AlignLeft {
 				for k, cell := range col {
@@ -84,9 +99,17 @@ func (self *Table) Draw(buf *Buffer) {
 		}
 
 		// draw vertical separators
+		separatorStyle := self.Block.BorderStyle
+
 		separatorXCoordinate := self.Inner.Min.X
-		verticalCell := NewCell(VERTICAL_LINE, NewStyle(ColorWhite))
-		for _, width := range columnWidths {
+		verticalCell := NewCell(VERTICAL_LINE, separatorStyle)
+		for i, width := range columnWidths {
+			if self.FillRow && i < len(columnWidths)-1 {
+				verticalCell.Style.Bg = rowStyle.Bg
+			} else {
+				verticalCell.Style.Bg = self.Block.BorderStyle.Bg
+			}
+
 			separatorXCoordinate += width
 			buf.SetCell(verticalCell, image.Pt(separatorXCoordinate, yCoordinate))
 			separatorXCoordinate++
@@ -95,7 +118,7 @@ func (self *Table) Draw(buf *Buffer) {
 		yCoordinate++
 
 		// draw horizontal separator
-		horizontalCell := NewCell(HORIZONTAL_LINE, NewStyle(ColorWhite))
+		horizontalCell := NewCell(HORIZONTAL_LINE, separatorStyle)
 		if self.RowSeparator && yCoordinate < self.Inner.Max.Y && i != len(self.Rows)-1 {
 			buf.Fill(horizontalCell, image.Rect(self.Inner.Min.X, yCoordinate, self.Inner.Max.X, yCoordinate+1))
 			yCoordinate++
