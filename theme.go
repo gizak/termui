@@ -94,6 +94,8 @@ type TableTheme struct {
 	Text Style
 }
 
+// Theme holds the default Styles and Colors for all widgets.
+// You can set default widget Styles by modifying the Theme before creating the widgets.
 var Theme = RootTheme{
 	Default: NewStyle(ColorWhite),
 

@@ -49,7 +49,7 @@ var modifierMap = map[string]Modifier{
 	"reverse":   ModifierReverse,
 }
 
-// AddColorMap allows users to add/override the string to Coloribute mapping
+// AddColorMap allows users to add/override the string to Color mapping
 func AddColorMap(str string, color Color) {
 	colorMap[str] = color
 }
@@ -74,6 +74,10 @@ func readStyle(runes []rune, defaultStyle Style) Style {
 	return style
 }
 
+// ParseText parses a string for embedded Styles and returns []Cell with the correct styling.
+// Uses defaultStyle for any text without an embedded style.
+// Syntax is of the form [text](fg:<color>,mod:<attribute>,bg:<color>).
+// Ordering does not matter. All fields are optional.
 func ParseText(s string, defaultStyle Style) []Cell {
 	cells := []Cell{}
 	runes := []rune(s)

@@ -16,7 +16,8 @@ type Grid struct {
 	Items []*GridItem
 }
 
-// GridItem represents either a Row or Column in a grid and holds sizing information and other GridItems or widgets
+// GridItem represents either a Row or Column in a grid.
+// Holds sizing information and either an []GridItems or a widget.
 type GridItem struct {
 	Type        gridItemType
 	XRatio      float64
