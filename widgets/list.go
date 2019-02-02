@@ -78,35 +78,25 @@ func (self *List) Draw(buf *Buffer) {
 	}
 }
 
-func (self *List) ScrollUp() {
-	if self.SelectedRow > 0 {
-		self.SelectedRow--
-		if self.SelectedRow < self.topRow {
-			self.topRow--
-		}
-	}
-}
-
-func (self *List) ScrollDown() {
-	if self.SelectedRow < uint(len(self.Rows))-1 {
-		self.SelectedRow++
-		if self.SelectedRow-self.topRow > uint(self.Inner.Dy()-1) {
-			self.topRow++
-		}
-	}
-}
-
-// Scrolls by amount given. If amount is < 0, then scroll up.
+// ScrollAmount scrolls by amount given. If amount is < 0, then scroll up.
 // There is no need to set self.topRow, as this will be set automatically when drawn,
 // since if the selected item is off screen then the topRow variable will change accordingly.
-func (self *List) scrollAmount(amount int) {
+func (self *List) ScrollAmount(amount int) {
 	if len(self.Rows)-int(self.SelectedRow) <= amount {
-		self.SelectedRow = uint(len(self.Rows)-1)
+		self.SelectedRow = uint(len(self.Rows) - 1)
 	} else if int(self.SelectedRow)+amount < 0 {
 		self.SelectedRow = 0
 	} else {
 		self.SelectedRow += uint(amount)
 	}
+}
+
+func (self *List) ScrollUp() {
+	self.ScrollAmount(-1)
+}
+
+func (self *List) ScrollDown() {
+	self.ScrollAmount(1)
 }
 
 // PageUp scrolls up one whole page.
@@ -115,21 +105,21 @@ func (self *List) PageUp() {
 	if self.SelectedRow > self.topRow {
 		self.SelectedRow = self.topRow
 	} else {
-		self.scrollAmount(-self.Inner.Dy())
+		self.ScrollAmount(-self.Inner.Dy())
 	}
 }
 
 // PageDown scolls down one whole page.
 func (self *List) PageDown() {
-	self.scrollAmount(self.Inner.Dy())
+	self.ScrollAmount(self.Inner.Dy())
 }
 
 func (self *List) HalfPageUp() {
-	self.scrollAmount(-int(FloorFloat64(float64(self.Inner.Dy())/2)))
+	self.ScrollAmount(-int(FloorFloat64(float64(self.Inner.Dy()) / 2)))
 }
 
 func (self *List) HalfPageDown() {
-	self.scrollAmount(int(FloorFloat64(float64(self.Inner.Dy())/2)))
+	self.ScrollAmount(int(FloorFloat64(float64(self.Inner.Dy()) / 2)))
 }
 
 func (self *List) ScrollTop() {
@@ -137,5 +127,5 @@ func (self *List) ScrollTop() {
 }
 
 func (self *List) ScrollBottom() {
-	self.SelectedRow = uint(len(self.Rows)-1)
+	self.SelectedRow = uint(len(self.Rows) - 1)
 }
