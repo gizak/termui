@@ -96,26 +96,46 @@ func (self *List) ScrollDown() {
 	}
 }
 
+// Scrolls by amount given. If amount is < 0, then scroll up.
+// There is no need to set self.topRow, as this will be set automatically when drawn,
+// since if the selected item is off screen then the topRow variable will change accordingly.
+func (self *List) scrollAmount(amount int) {
+	if len(self.Rows)-int(self.SelectedRow) <= amount {
+		self.SelectedRow = uint(len(self.Rows)-1)
+	} else if int(self.SelectedRow)+amount < 0 {
+		self.SelectedRow = 0
+	} else {
+		self.SelectedRow += uint(amount)
+	}
+}
+
 // PageUp scrolls up one whole page.
 func (self *List) PageUp() {
-	// if on the first 'page'
-	if int(self.SelectedRow)-self.Inner.Dy() < 0 {
-		// go to the top
-		self.topRow = 0
+	// If an item is selected below top row, then go to the top row.
+	if self.SelectedRow > self.topRow {
+		self.SelectedRow = self.topRow
 	} else {
-		self.topRow = uint(MaxInt(int(self.topRow)-self.Inner.Dy(), 0))
+		self.scrollAmount(-self.Inner.Dy())
 	}
-	self.SelectedRow = self.topRow
 }
 
 // PageDown scolls down one whole page.
 func (self *List) PageDown() {
-	// if on last 'page'
-	if len(self.Rows)-int(self.topRow) <= self.Inner.Dy() {
-		// select last item
-		self.SelectedRow = uint(len(self.Rows) - 1)
-	} else {
-		self.topRow += uint(self.Inner.Dy())
-		self.SelectedRow = self.topRow
-	}
+	self.scrollAmount(self.Inner.Dy())
+}
+
+func (self *List) HalfPageUp() {
+	self.scrollAmount(-int(FloorFloat64(float64(self.Inner.Dy())/2)))
+}
+
+func (self *List) HalfPageDown() {
+	self.scrollAmount(int(FloorFloat64(float64(self.Inner.Dy())/2)))
+}
+
+func (self *List) ScrollTop() {
+	self.SelectedRow = 0
+}
+
+func (self *List) ScrollBottom() {
+	self.SelectedRow = uint(len(self.Rows)-1)
 }
