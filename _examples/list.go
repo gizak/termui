@@ -29,14 +29,17 @@ func main() {
 		"[4] output.go",
 		"[5] random_out.go",
 		"[6] dashboard.go",
-		"[7] nsf/termbox-go",
+		"[7] foo",
+		"[8] bar",
+		"[9] baz",
 	}
 	l.TextStyle = ui.NewStyle(ui.ColorYellow)
 	l.WrapText = false
-	l.SetRect(0, 0, 25, 5)
+	l.SetRect(0, 0, 25, 8)
 
 	ui.Render(l)
 
+	previousKey := ""
 	uiEvents := ui.PollEvents()
 	for {
 		e := <-uiEvents
@@ -45,16 +48,32 @@ func main() {
 			return
 		case "j", "<Down>":
 			l.ScrollDown()
-			ui.Render(l)
 		case "k", "<Up>":
 			l.ScrollUp()
-			ui.Render(l)
+		case "<C-d>":
+			l.HalfPageDown()
+		case "<C-u>":
+			l.HalfPageUp()
 		case "<C-f>":
 			l.PageDown()
-			ui.Render(l)
 		case "<C-b>":
 			l.PageUp()
-			ui.Render(l)
+		case "g":
+			if previousKey == "g" {
+				l.ScrollTop()
+			}
+		case "<Home>":
+			l.ScrollTop()
+		case "G", "<End>":
+			l.ScrollBottom()
 		}
+
+		if previousKey == "g" {
+			previousKey = ""
+		} else {
+			previousKey = e.ID
+		}
+
+		ui.Render(l)
 	}
 }
