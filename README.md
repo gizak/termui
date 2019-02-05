@@ -13,6 +13,16 @@ termui is a cross-platform and fully-customizable terminal dashboard and widget 
 - Event handling for keyboard, mouse and resizing events
 - Colors and styling
 
+## Installation
+
+Installing from the master branch is recommended since termui has been completely reworked since the latest release and because the latest release doesn't support Go modules.
+
+Do note that termui is still undergoing breaking changes so make sure to check the changelog when upgrading.
+
+```bash
+go get -u github.com/gizak/termui@master
+```
+
 ## Hello World
 
 ```go
@@ -44,17 +54,6 @@ func main() {
 	}
 }
 ```
-
-## Installation
-
-Installing from the master branch is recommended. termui has been completely reworked since the latest release, and the latest release also doesn't support Go modules.
-
-```bash
-go get -u github.com/gizak/termui@master
-```
-
-**Note**: termui is currently undergoing API changes so make sure to check the changelog when upgrading.
-If you upgrade and notice something is missing or don't like a change, revert the upgrade and open an issue.
 
 ## Widgets
 
