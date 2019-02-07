@@ -90,6 +90,7 @@ Run an example with `go run _examples/{example}.go` or run all of them consecuti
 - [blessed-contrib](https://github.com/yaronn/blessed-contrib)
 - [gocui](https://github.com/jroimartin/gocui)
 - [tui-rs](https://github.com/fdehau/tui-rs)
+- [tview](https://github.com/rivo/tview)
 
 ## License
 
