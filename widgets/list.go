@@ -8,6 +8,7 @@ import (
 	"image"
 
 	. "github.com/gizak/termui"
+	rw "github.com/mattn/go-runewidth"
 )
 
 type List struct {
@@ -57,7 +58,7 @@ func (self *List) Draw(buf *Buffer) {
 					break
 				} else {
 					buf.SetCell(NewCell(cells[j].Rune, style), point)
-					point = point.Add(image.Pt(1, 0))
+					point = point.Add(image.Pt(rw.RuneWidth(cells[j].Rune), 0))
 				}
 			}
 		}

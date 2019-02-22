@@ -189,8 +189,9 @@ func CellsToString(cells []Cell) string {
 func TrimCells(cells []Cell, w int) []Cell {
 	s := CellsToString(cells)
 	s = TrimString(s, w)
+	runes := []rune(s)
 	newCells := []Cell{}
-	for i, r := range s {
+	for i, r := range runes {
 		newCells = append(newCells, Cell{r, cells[i].Style})
 	}
 	return newCells
@@ -211,4 +212,20 @@ func SplitCells(cells []Cell, r rune) [][]Cell {
 		splitCells = append(splitCells, temp)
 	}
 	return splitCells
+}
+
+type CellWithX struct {
+	X    int
+	Cell Cell
+}
+
+func BuildCellChannel(cells []Cell) chan CellWithX {
+	c := make(chan CellWithX, len(cells))
+	index := 0
+	for _, cell := range cells {
+		c <- CellWithX{X: index, Cell: cell}
+		index += rw.RuneWidth(cell.Rune)
+	}
+	close(c)
+	return c
 }
