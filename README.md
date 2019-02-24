@@ -8,19 +8,14 @@ termui is a cross-platform and fully-customizable terminal dashboard and widget 
 
 - Built in widget implementations for common use cases
 - Utilities to create custom widgets
-- A grid layout for relative widget positioning
-- Mouse support
-- Event handling for keyboard, mouse and resizing events
+- Relative widget positioning using a grid layout
+- Event system for keyboard, mouse and terminal resizing events
 - Colors and styling
 
 ## Installation
 
-Installing from the master branch is recommended since termui has been completely reworked since the latest release and because the latest release doesn't support Go modules.
-
-Do note that termui is still undergoing breaking changes so make sure to check the changelog when upgrading.
-
 ```bash
-go get -u github.com/gizak/termui@master
+go get -u github.com/gizak/termui
 ```
 
 ## Hello World
@@ -70,7 +65,7 @@ func main() {
 - [Table](./_examples/table.go)
 - [Tabs](./_examples/tabs.go)
 
-Run an example with `go run _examples/{example}.go` or run all of them consecutively with `make run-examples`.
+Run an example with `go run _examples/{example}.go` or run each example consecutively with `make run-examples`.
 
 ## Documentation
 
