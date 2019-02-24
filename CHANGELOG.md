@@ -1,27 +1,57 @@
-Feel free to search/open an issue if something is missing or confusing from the changelog, since many things have been in flux.
+# Changelog
+All notable changes to this project will be documented in this file.
+
+The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
+and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+
+## [Unreleased]
+
+## 2019/01/31
+
+### Added
+
+- Add more scrolling options to List
+
+### Changed
+
+- Make list scroll automatically
+
+### Added
+
+## 2019/01/26
+
+### Added
+
+- Add scrolling to List widget
+- Add WrapText option to Paragraph
+  - controls if text should wrap automatically
 
 ## 2019/01/24
 
-Breaking changes:
+### Added
+
+- Add image widget [#126]
+
+### Changed
 
 - Change LineChart to Plot
   - Added ScatterPlot mode which plots points instead of lines between points
 
 ## 2019/01/23
 
-Non breaking changes:
+### Added
+
+- Add `Canvas` which allows for drawing braille lines to a `Buffer`
+
+### Changed
 
 - Set `termbox-go` backend to 256 colors by default
-- Added `Canvas` which allows for drawing braille lines to a `Buffer`
-
-Breaking changes:
-
-- moved widgets to `github.com/gizak/termui/widgets`
-- rewrote widgets (check examples and code)
-- rewrote grid
+- Moved widgets to `github.com/gizak/termui/widgets`
+- Rewrote widgets (check examples and code)
+- Rewrote grid
   - grids are instantiated locally instead of through `termui.Body`
   - grids can be nested
-  - changed grid layout mechanism
+  - change grid layout mechanism
     - columns and rows can be arbitrarily nested
     - column and row size is now specified as a ratio of the available space
 - `Cell`s now contain a `Style` which holds a `Fg`, `Bg`, and `Modifier`
@@ -29,25 +59,33 @@ Breaking changes:
   - Add `GetRect` and `SetRect` methods to control widget sizing
   - Change `Buffer` method to `Draw`
     - `Draw` takes a `Buffer` and draws to it instead of returning a new `Buffer`
-- Refactored `Theme`
+- Refactor `Theme`
   - `Theme` is now a large struct which holds the default `Styles` of everything
-- Combined `TermWidth` and `TermHeight` functions into `TerminalDimensions`
-- Refactored `Block`
-- Refactored `Buffer` methods
-- Decremented color numbers by 1 to match xterm colors
-- Changed text parsing
-  - style items changed from `fg-color` to `fg:color`
-  - added mod item like `mod:reverse`
+- Combine `TermWidth` and `TermHeight` functions into `TerminalDimensions`
+- Rework `Block`
+- Rework `Buffer` methods
+- Decremente color numbers by 1 to match xterm colors
+- Change text parsing
+  - change style items from `fg-color` to `fg:color`
+  - adde mod item like `mod:reverse`
 
 ## 2018/11/29
+
+### Changed
 
 - Move Tabpane from termui/extra to termui and rename it to TabPane
 - Rename PollEvent to PollEvents
 
 ## 2018/11/28
 
-- Migrated from Dep to vgo
-- Overhauled the event system
+### Changed
+
+- Migrate from Dep to vgo
+- Overhaul the event system
   - check the wiki/examples for details
-- Renamed Par widget to Paragraph
-- Renamed MBarChart widget to StackedBarChart
+- Rename Par widget to Paragraph
+- Rename MBarChart widget to StackedBarChart
+
+[#126]: https://github.com/gizak/termui/pull/126
+
+[Unreleased]: https://github.com/gizak/termui/compare/v2.3.0...HEAD
