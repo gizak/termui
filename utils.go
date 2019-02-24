@@ -219,13 +219,12 @@ type CellWithX struct {
 	Cell Cell
 }
 
-func BuildCellChannel(cells []Cell) chan CellWithX {
-	c := make(chan CellWithX, len(cells))
+func BuildCellWithXArray(cells []Cell) []CellWithX {
+	cellWithXArray := make([]CellWithX, len(cells))
 	index := 0
-	for _, cell := range cells {
-		c <- CellWithX{X: index, Cell: cell}
+	for i, cell := range cells {
+		cellWithXArray[i] = CellWithX{X: index, Cell: cell}
 		index += rw.RuneWidth(cell.Rune)
 	}
-	close(c)
-	return c
+	return cellWithXArray
 }

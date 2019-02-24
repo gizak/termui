@@ -40,8 +40,8 @@ func (self *Paragraph) Draw(buf *Buffer) {
 			break
 		}
 		row = TrimCells(row, self.Inner.Dx())
-		for signal := range BuildCellChannel(row) {
-			x, cell := signal.X, signal.Cell
+		for _, cx := range BuildCellWithXArray(row) {
+			x, cell := cx.X, cx.Cell
 			buf.SetCell(cell, image.Pt(x, y).Add(self.Inner.Min))
 		}
 	}

@@ -74,8 +74,8 @@ func (self *Table) Draw(buf *Buffer) {
 			col := ParseText(row[j], rowStyle)
 			// draw row cell
 			if len(col) > columnWidths[j] || self.TextAlign == AlignLeft {
-				for signal := range BuildCellChannel(col) {
-					k, cell := signal.X, signal.Cell
+				for _, cx := range BuildCellWithXArray(col) {
+					k, cell := cx.X, cx.Cell
 					if k == columnWidths[j] || colXCoordinate+k == self.Inner.Max.X {
 						cell.Rune = ELLIPSES
 						buf.SetCell(cell, image.Pt(colXCoordinate+k-1, yCoordinate))
@@ -87,14 +87,14 @@ func (self *Table) Draw(buf *Buffer) {
 			} else if self.TextAlign == AlignCenter {
 				xCoordinateOffset := (columnWidths[j] - len(col)) / 2
 				stringXCoordinate := xCoordinateOffset + colXCoordinate
-				for signal := range BuildCellChannel(col) {
-					k, cell := signal.X, signal.Cell
+				for _, cx := range BuildCellWithXArray(col) {
+					k, cell := cx.X, cx.Cell
 					buf.SetCell(cell, image.Pt(stringXCoordinate+k, yCoordinate))
 				}
 			} else if self.TextAlign == AlignRight {
 				stringXCoordinate := MinInt(colXCoordinate+columnWidths[j], self.Inner.Max.X) - len(col)
-				for signal := range BuildCellChannel(col) {
-					k, cell := signal.X, signal.Cell
+				for _, cx := range BuildCellWithXArray(col) {
+					k, cell := cx.X, cx.Cell
 					buf.SetCell(cell, image.Pt(stringXCoordinate+k, yCoordinate))
 				}
 			}
