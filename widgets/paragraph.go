@@ -28,7 +28,7 @@ func NewParagraph() *Paragraph {
 func (self *Paragraph) Draw(buf *Buffer) {
 	self.Block.Draw(buf)
 
-	cells := ParseText(self.Text, self.TextStyle)
+	cells := ParseStyles(self.Text, self.TextStyle)
 	if self.WrapText {
 		cells = WrapCells(cells, uint(self.Inner.Dx()))
 	}

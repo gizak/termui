@@ -6,6 +6,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## 2019/02/23
+
+### Changed
+
+- s/TextParse/ParseStyles
+- Removed AddColorMap in place of modifying StyleParserColorMap directly
+
 ## 2019/01/31
 
 ### Added

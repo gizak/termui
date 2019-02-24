@@ -71,7 +71,7 @@ func (self *Table) Draw(buf *Buffer) {
 
 		// draw row cells
 		for j := 0; j < len(row); j++ {
-			col := ParseText(row[j], rowStyle)
+			col := ParseStyles(row[j], rowStyle)
 			// draw row cell
 			if len(col) > columnWidths[j] || self.TextAlign == AlignLeft {
 				for _, cx := range BuildCellWithXArray(col) {

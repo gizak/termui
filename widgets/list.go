@@ -42,7 +42,7 @@ func (self *List) Draw(buf *Buffer) {
 	}
 
 	for row := self.topRow; row < uint(len(self.Rows)) && point.Y < self.Inner.Max.Y; row++ {
-		cells := ParseText(self.Rows[row], self.TextStyle)
+		cells := ParseStyles(self.Rows[row], self.TextStyle)
 		if self.WrapText {
 			cells = WrapCells(cells, uint(self.Inner.Dx()))
 		}

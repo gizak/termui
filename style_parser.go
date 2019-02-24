@@ -31,7 +31,8 @@ const (
 	parserStateStyledText
 )
 
-var colorMap = map[string]Color{
+// StyleParserColorMap can be modified to add custom color parsing to text
+var StyleParserColorMap = map[string]Color{
 	"red":     ColorRed,
 	"blue":    ColorBlue,
 	"black":   ColorBlack,
@@ -49,11 +50,6 @@ var modifierMap = map[string]Modifier{
 	"reverse":   ModifierReverse,
 }
 
-// AddColorMap allows users to add/override the string to Color mapping
-func AddColorMap(str string, color Color) {
-	colorMap[str] = color
-}
-
 // readStyle translates an []rune like `fg:red,mod:bold,bg:white` to a style
 func readStyle(runes []rune, defaultStyle Style) Style {
 	style := defaultStyle
@@ -63,9 +59,9 @@ func readStyle(runes []rune, defaultStyle Style) Style {
 		if len(pair) == 2 {
 			switch pair[0] {
 			case tokenFg:
-				style.Fg = colorMap[pair[1]]
+				style.Fg = StyleParserColorMap[pair[1]]
 			case tokenBg:
-				style.Bg = colorMap[pair[1]]
+				style.Bg = StyleParserColorMap[pair[1]]
 			case tokenModifier:
 				style.Modifier = modifierMap[pair[1]]
 			}
@@ -74,11 +70,11 @@ func readStyle(runes []rune, defaultStyle Style) Style {
 	return style
 }
 
-// ParseText parses a string for embedded Styles and returns []Cell with the correct styling.
+// ParseStyles parses a string for embedded Styles and returns []Cell with the correct styling.
 // Uses defaultStyle for any text without an embedded style.
 // Syntax is of the form [text](fg:<color>,mod:<attribute>,bg:<color>).
 // Ordering does not matter. All fields are optional.
-func ParseText(s string, defaultStyle Style) []Cell {
+func ParseStyles(s string, defaultStyle Style) []Cell {
 	cells := []Cell{}
 	runes := []rune(s)
 	state := parserStateDefault
