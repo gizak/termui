@@ -40,7 +40,8 @@ func (self *Paragraph) Draw(buf *Buffer) {
 			break
 		}
 		row = TrimCells(row, self.Inner.Dx())
-		for x, cell := range row {
+		for _, cx := range BuildCellWithXArray(row) {
+			x, cell := cx.X, cx.Cell
 			buf.SetCell(cell, image.Pt(x, y).Add(self.Inner.Min))
 		}
 	}

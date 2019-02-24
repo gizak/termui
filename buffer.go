@@ -6,6 +6,8 @@ package termui
 
 import (
 	"image"
+
+	rw "github.com/mattn/go-runewidth"
 )
 
 // Cell represents a viewable terminal cell
@@ -65,7 +67,10 @@ func (self *Buffer) Fill(c Cell, rect image.Rectangle) {
 }
 
 func (self *Buffer) SetString(s string, style Style, p image.Point) {
-	for i, char := range s {
-		self.SetCell(Cell{char, style}, image.Pt(p.X+i, p.Y))
+	runes := []rune(s)
+	x := 0
+	for _, char := range runes {
+		self.SetCell(Cell{char, style}, image.Pt(p.X+x, p.Y))
+		x += rw.RuneWidth(char)
 	}
 }
