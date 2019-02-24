@@ -44,7 +44,7 @@ func main() {
 	p1.Marker = widgets.MarkerDot
 	p1.Data = [][]float64{[]float64{1, 2, 3, 4, 5}}
 	p1.SetRect(50, 0, 75, 10)
-	p1.DotRune = '+'
+	p1.DotMarkerRune = '+'
 	p1.AxesColor = ui.ColorWhite
 	p1.LineColors[0] = ui.ColorYellow
 	p1.DrawDirection = widgets.DrawLeft
@@ -58,7 +58,7 @@ func main() {
 	p2.SetRect(0, 15, 50, 30)
 	p2.AxesColor = ui.ColorWhite
 	p2.LineColors[0] = ui.ColorCyan
-	p2.Type = widgets.ScatterPlot
+	p2.PlotType = widgets.ScatterPlot
 
 	p3 := widgets.NewPlot()
 	p3.Title = "braille-mode Scatter Plot"
@@ -69,7 +69,7 @@ func main() {
 	p3.AxesColor = ui.ColorWhite
 	p3.LineColors[0] = ui.ColorCyan
 	p3.Marker = widgets.MarkerBraille
-	p3.Type = widgets.ScatterPlot
+	p3.PlotType = widgets.ScatterPlot
 
 	ui.Render(p0, p1, p2, p3)
 

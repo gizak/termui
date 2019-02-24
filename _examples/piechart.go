@@ -36,8 +36,8 @@ func main() {
 	pc.Title = "Pie Chart"
 	pc.SetRect(5, 5, 70, 36)
 	pc.Data = []float64{.25, .25, .25, .25}
-	pc.Offset = -.5 * math.Pi
-	pc.Label = func(i int, v float64) string {
+	pc.AngleOffset = -.5 * math.Pi
+	pc.LabelFormatter = func(i int, v float64) string {
 		return fmt.Sprintf("%.02f", v)
 	}
 
@@ -66,7 +66,7 @@ func main() {
 			}
 		case <-ticker:
 			if run {
-				pc.Data, pc.Offset = randomDataAndOffset()
+				pc.Data, pc.AngleOffset = randomDataAndOffset()
 				ui.Render(pc)
 			}
 		}

@@ -17,8 +17,8 @@ type List struct {
 	Rows             []string
 	WrapText         bool
 	TextStyle        Style
-	SelectedRow      uint
-	topRow           uint
+	SelectedRow      int
+	topRow           int
 	SelectedRowStyle Style
 }
 
@@ -35,13 +35,13 @@ func (self *List) Draw(buf *Buffer) {
 
 	point := self.Inner.Min
 
-	if self.SelectedRow >= uint(self.Inner.Max.Y)+self.topRow-2 {
-		self.topRow = self.SelectedRow - uint(self.Inner.Max.Y) + 2
+	if self.SelectedRow >= self.Inner.Max.Y+self.topRow-2 {
+		self.topRow = self.SelectedRow - self.Inner.Max.Y + 2
 	} else if self.SelectedRow < self.topRow {
 		self.topRow = self.SelectedRow
 	}
 
-	for row := self.topRow; row < uint(len(self.Rows)) && point.Y < self.Inner.Max.Y; row++ {
+	for row := self.topRow; row < len(self.Rows) && point.Y < self.Inner.Max.Y; row++ {
 		cells := ParseStyles(self.Rows[row], self.TextStyle)
 		if self.WrapText {
 			cells = WrapCells(cells, uint(self.Inner.Dx()))
@@ -85,11 +85,11 @@ func (self *List) Draw(buf *Buffer) {
 // since if the selected item is off screen then the topRow variable will change accordingly.
 func (self *List) ScrollAmount(amount int) {
 	if len(self.Rows)-int(self.SelectedRow) <= amount {
-		self.SelectedRow = uint(len(self.Rows) - 1)
+		self.SelectedRow = len(self.Rows) - 1
 	} else if int(self.SelectedRow)+amount < 0 {
 		self.SelectedRow = 0
 	} else {
-		self.SelectedRow += uint(amount)
+		self.SelectedRow += amount
 	}
 }
 
@@ -129,5 +129,5 @@ func (self *List) ScrollTop() {
 }
 
 func (self *List) ScrollBottom() {
-	self.SelectedRow = uint(len(self.Rows) - 1)
+	self.SelectedRow = len(self.Rows) - 1
 }

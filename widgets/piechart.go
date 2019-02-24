@@ -19,18 +19,18 @@ type PieChartLabel func(dataIndex int, currentValue float64) string
 
 type PieChart struct {
 	Block
-	Data   []float64     // list of data items
-	Colors []Color       // colors to by cycled through
-	Label  PieChartLabel // callback function for labels
-	Offset float64       // which angle to start drawing at? (see piechartOffsetUp)
+	Data           []float64     // list of data items
+	Colors         []Color       // colors to by cycled through
+	LabelFormatter PieChartLabel // callback function for labels
+	AngleOffset    float64       // which angle to start drawing at? (see piechartOffsetUp)
 }
 
 // NewPieChart Creates a new pie chart with reasonable defaults and no labels.
 func NewPieChart() *PieChart {
 	return &PieChart{
-		Block:  *NewBlock(),
-		Colors: Theme.PieChart.Slices,
-		Offset: piechartOffsetUp,
+		Block:       *NewBlock(),
+		Colors:      Theme.PieChart.Slices,
+		AngleOffset: piechartOffsetUp,
 	}
 }
 
@@ -51,7 +51,7 @@ func (self *PieChart) Draw(buf *Buffer) {
 	middleCircle := circle{Point: center, radius: radius / 2.0}
 
 	// draw sectors
-	phi := self.Offset
+	phi := self.AngleOffset
 	for i, size := range sliceSizes {
 		for j := 0.0; j < size; j += resolutionFactor {
 			borderPoint := borderCircle.at(phi + j)
@@ -62,15 +62,15 @@ func (self *PieChart) Draw(buf *Buffer) {
 	}
 
 	// draw labels
-	if self.Label != nil {
-		phi = self.Offset
+	if self.LabelFormatter != nil {
+		phi = self.AngleOffset
 		for i, size := range sliceSizes {
 			labelPoint := middleCircle.at(phi + size/2.0)
 			if len(self.Data) == 1 {
 				labelPoint = center
 			}
 			buf.SetString(
-				self.Label(i, self.Data[i]),
+				self.LabelFormatter(i, self.Data[i]),
 				NewStyle(SelectColor(self.Colors, i)),
 				image.Pt(labelPoint.X, labelPoint.Y),
 			)

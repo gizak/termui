@@ -21,13 +21,13 @@ import (
 */
 type Table struct {
 	Block
-	Rows         [][]string
-	ColumnWidths []int
-	TextStyle    Style
-	RowSeparator bool
-	TextAlign    Alignment
-	RowStyles    map[int]Style
-	FillRow      bool
+	Rows          [][]string
+	ColumnWidths  []int
+	TextStyle     Style
+	RowSeparator  bool
+	TextAlignment Alignment
+	RowStyles     map[int]Style
+	FillRow       bool
 }
 
 func NewTable() *Table {
@@ -45,9 +45,9 @@ func (self *Table) Draw(buf *Buffer) {
 	columnWidths := self.ColumnWidths
 	if len(columnWidths) == 0 {
 		columnCount := len(self.Rows[0])
-		colWidth := self.Inner.Dx() / columnCount
+		columnWidth := self.Inner.Dx() / columnCount
 		for i := 0; i < columnCount; i++ {
-			columnWidths = append(columnWidths, colWidth)
+			columnWidths = append(columnWidths, columnWidth)
 		}
 	}
 
@@ -73,7 +73,7 @@ func (self *Table) Draw(buf *Buffer) {
 		for j := 0; j < len(row); j++ {
 			col := ParseStyles(row[j], rowStyle)
 			// draw row cell
-			if len(col) > columnWidths[j] || self.TextAlign == AlignLeft {
+			if len(col) > columnWidths[j] || self.TextAlignment == AlignLeft {
 				for _, cx := range BuildCellWithXArray(col) {
 					k, cell := cx.X, cx.Cell
 					if k == columnWidths[j] || colXCoordinate+k == self.Inner.Max.X {
@@ -84,14 +84,14 @@ func (self *Table) Draw(buf *Buffer) {
 						buf.SetCell(cell, image.Pt(colXCoordinate+k, yCoordinate))
 					}
 				}
-			} else if self.TextAlign == AlignCenter {
+			} else if self.TextAlignment == AlignCenter {
 				xCoordinateOffset := (columnWidths[j] - len(col)) / 2
 				stringXCoordinate := xCoordinateOffset + colXCoordinate
 				for _, cx := range BuildCellWithXArray(col) {
 					k, cell := cx.X, cx.Cell
 					buf.SetCell(cell, image.Pt(stringXCoordinate+k, yCoordinate))
 				}
-			} else if self.TextAlign == AlignRight {
+			} else if self.TextAlignment == AlignRight {
 				stringXCoordinate := MinInt(colXCoordinate+columnWidths[j], self.Inner.Max.X) - len(col)
 				for _, cx := range BuildCellWithXArray(col) {
 					k, cell := cx.X, cx.Cell

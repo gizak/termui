@@ -27,8 +27,8 @@ type Plot struct {
 	ShowAxes   bool
 
 	Marker          PlotMarker
-	DotRune         rune
-	Type            PlotType
+	DotMarkerRune   rune
+	PlotType        PlotType
 	HorizontalScale int
 	DrawDirection   DrawDirection // TODO
 }
@@ -67,12 +67,12 @@ func NewPlot() *Plot {
 		LineColors:      Theme.Plot.Lines,
 		AxesColor:       Theme.Plot.Axes,
 		Marker:          MarkerBraille,
-		DotRune:         DOT,
+		DotMarkerRune:   DOT,
 		Data:            [][]float64{},
 		HorizontalScale: 1,
 		DrawDirection:   DrawRight,
 		ShowAxes:        true,
-		Type:            LineChart,
+		PlotType:        LineChart,
 	}
 }
 
@@ -80,7 +80,7 @@ func (self *Plot) renderBraille(buf *Buffer, drawArea image.Rectangle, maxVal fl
 	canvas := NewCanvas()
 	canvas.Rectangle = drawArea
 
-	switch self.Type {
+	switch self.PlotType {
 	case ScatterPlot:
 		for i, line := range self.Data {
 			for j, val := range line {
@@ -119,7 +119,7 @@ func (self *Plot) renderBraille(buf *Buffer, drawArea image.Rectangle, maxVal fl
 }
 
 func (self *Plot) renderDot(buf *Buffer, drawArea image.Rectangle, maxVal float64) {
-	switch self.Type {
+	switch self.PlotType {
 	case ScatterPlot:
 		for i, line := range self.Data {
 			for j, val := range line {
@@ -127,7 +127,7 @@ func (self *Plot) renderDot(buf *Buffer, drawArea image.Rectangle, maxVal float6
 				point := image.Pt(drawArea.Min.X+(j*self.HorizontalScale), drawArea.Max.Y-1-height)
 				if point.In(drawArea) {
 					buf.SetCell(
-						NewCell(self.DotRune, NewStyle(SelectColor(self.LineColors, i))),
+						NewCell(self.DotMarkerRune, NewStyle(SelectColor(self.LineColors, i))),
 						point,
 					)
 				}
@@ -139,7 +139,7 @@ func (self *Plot) renderDot(buf *Buffer, drawArea image.Rectangle, maxVal float6
 				val := line[j]
 				height := int((val / maxVal) * float64(drawArea.Dy()-1))
 				buf.SetCell(
-					NewCell(self.DotRune, NewStyle(SelectColor(self.LineColors, i))),
+					NewCell(self.DotMarkerRune, NewStyle(SelectColor(self.LineColors, i))),
 					image.Pt(drawArea.Min.X+(j*self.HorizontalScale), drawArea.Max.Y-1-height),
 				)
 			}

@@ -10,8 +10,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Change various widget field names
 - s/TextParse/ParseStyles
-- Removed AddColorMap in place of modifying StyleParserColorMap directly
+- Remove AddColorMap in place of modifying StyleParserColorMap directly
 
 ## 2019/01/31
 

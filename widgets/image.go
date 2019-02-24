@@ -135,12 +135,11 @@ func (self colorAverager) add(col color.Color) colorAverager {
 func (self colorAverager) RGBA() (uint32, uint32, uint32, uint32) {
 	if self.count == 0 {
 		return 0, 0, 0, 0
-	} else {
-		return uint32(self.rsum/self.count) & 0xffff,
-			uint32(self.gsum/self.count) & 0xffff,
-			uint32(self.bsum/self.count) & 0xffff,
-			uint32(self.asum/self.count) & 0xffff
 	}
+	return uint32(self.rsum/self.count) & 0xffff,
+		uint32(self.gsum/self.count) & 0xffff,
+		uint32(self.bsum/self.count) & 0xffff,
+		uint32(self.asum/self.count) & 0xffff
 }
 
 func (self colorAverager) fgColor() Color {

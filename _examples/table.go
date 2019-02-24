@@ -37,7 +37,7 @@ func main() {
 		[]string{"2016", "11", "11"},
 	}
 	table2.TextStyle = ui.NewStyle(ui.ColorWhite)
-	table2.TextAlign = ui.AlignCenter
+	table2.TextAlignment = ui.AlignCenter
 	table2.RowSeparator = false
 	table2.SetRect(0, 10, 20, 20)
 

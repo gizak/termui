@@ -15,26 +15,26 @@ import (
 
 type BarChart struct {
 	Block
-	BarColors   []Color
-	LabelStyles []Style
-	NumStyles   []Style // only Fg and Modifier are used
-	NumFmt      func(float64) string
-	Data        []float64
-	Labels      []string
-	BarWidth    int
-	BarGap      int
-	MaxVal      float64
+	BarColors    []Color
+	LabelStyles  []Style
+	NumStyles    []Style // only Fg and Modifier are used
+	NumFormatter func(float64) string
+	Data         []float64
+	Labels       []string
+	BarWidth     int
+	BarGap       int
+	MaxVal       float64
 }
 
 func NewBarChart() *BarChart {
 	return &BarChart{
-		Block:       *NewBlock(),
-		BarColors:   Theme.BarChart.Bars,
-		NumStyles:   Theme.BarChart.Nums,
-		LabelStyles: Theme.BarChart.Labels,
-		NumFmt:      func(n float64) string { return fmt.Sprint(n) },
-		BarGap:      1,
-		BarWidth:    3,
+		Block:        *NewBlock(),
+		BarColors:    Theme.BarChart.Bars,
+		NumStyles:    Theme.BarChart.Nums,
+		LabelStyles:  Theme.BarChart.Labels,
+		NumFormatter: func(n float64) string { return fmt.Sprint(n) },
+		BarGap:       1,
+		BarWidth:     3,
 	}
 }
 
@@ -74,7 +74,7 @@ func (self *BarChart) Draw(buf *Buffer) {
 		numberXCoordinate := barXCoordinate + int((float64(self.BarWidth) / 2))
 		if numberXCoordinate <= self.Inner.Max.X {
 			buf.SetString(
-				self.NumFmt(data),
+				self.NumFormatter(data),
 				NewStyle(
 					SelectStyle(self.NumStyles, i+1).Fg,
 					SelectColor(self.BarColors, i),
