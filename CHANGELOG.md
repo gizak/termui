@@ -6,13 +6,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## 2019/02/23
+## 2019/02/28
+
+### Added
+
+- Add `ColumnResizer` to table which allows for custom column sizing
+- Add widget padding
 
 ### Changed
 
 - Change various widget field names
-- s/TextParse/ParseStyles
-- Remove AddColorMap in place of modifying StyleParserColorMap directly
+- s/`TextParse`/`ParseStyles`
+- Remove `AddColorMap` in place of modifying `StyleParserColorMap` directly
 
 ## 2019/01/31
 
