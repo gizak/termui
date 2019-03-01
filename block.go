@@ -91,8 +91,8 @@ func (self *Block) SetRect(x1, y1, x2, y2 int) {
 	self.Inner = image.Rect(
 		self.Min.X+1+self.PaddingLeft,
 		self.Min.Y+1+self.PaddingTop,
-		self.Max.X-1+self.PaddingRight,
-		self.Max.Y-1+self.PaddingBottom,
+		self.Max.X-1-self.PaddingRight,
+		self.Max.Y-1-self.PaddingBottom,
 	)
 }
 
