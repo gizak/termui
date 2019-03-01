@@ -35,8 +35,9 @@ func (self *List) Draw(buf *Buffer) {
 
 	point := self.Inner.Min
 
-	if self.SelectedRow >= self.Inner.Max.Y+self.topRow-2 {
-		self.topRow = self.SelectedRow - self.Inner.Max.Y + 2
+	// adjusts view into widget
+	if self.SelectedRow >= self.Inner.Dy()+self.topRow {
+		self.topRow = self.SelectedRow - self.Inner.Dy() + 1
 	} else if self.SelectedRow < self.topRow {
 		self.topRow = self.SelectedRow
 	}
