@@ -6,6 +6,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## 2019/03/01
+
+### Changed
+
+- Change scroll method names in List widget
+
+### Fixed
+
+- Fix List widget scrolling
+
 ## 2019/02/28
 
 ### Added

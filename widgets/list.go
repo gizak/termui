@@ -42,6 +42,7 @@ func (self *List) Draw(buf *Buffer) {
 		self.topRow = self.SelectedRow
 	}
 
+	// draw rows
 	for row := self.topRow; row < len(self.Rows) && point.Y < self.Inner.Max.Y; row++ {
 		cells := ParseStyles(self.Rows[row], self.TextStyle)
 		if self.WrapText {
@@ -67,12 +68,15 @@ func (self *List) Draw(buf *Buffer) {
 		point = image.Pt(self.Inner.Min.X, point.Y+1)
 	}
 
+	// draw UP_ARROW if needed
 	if self.topRow > 0 {
 		buf.SetCell(
 			NewCell(UP_ARROW, NewStyle(ColorWhite)),
 			image.Pt(self.Inner.Max.X-1, self.Inner.Min.Y),
 		)
 	}
+
+	// draw DOWN_ARROW if needed
 	if len(self.Rows) > int(self.topRow)+self.Inner.Dy() {
 		buf.SetCell(
 			NewCell(DOWN_ARROW, NewStyle(ColorWhite)),
@@ -102,8 +106,7 @@ func (self *List) ScrollDown() {
 	self.ScrollAmount(1)
 }
 
-// PageUp scrolls up one whole page.
-func (self *List) PageUp() {
+func (self *List) ScrollPageUp() {
 	// If an item is selected below top row, then go to the top row.
 	if self.SelectedRow > self.topRow {
 		self.SelectedRow = self.topRow
@@ -112,16 +115,15 @@ func (self *List) PageUp() {
 	}
 }
 
-// PageDown scolls down one whole page.
-func (self *List) PageDown() {
+func (self *List) ScrollPageDown() {
 	self.ScrollAmount(self.Inner.Dy())
 }
 
-func (self *List) HalfPageUp() {
+func (self *List) ScrollHalfPageUp() {
 	self.ScrollAmount(-int(FloorFloat64(float64(self.Inner.Dy()) / 2)))
 }
 
-func (self *List) HalfPageDown() {
+func (self *List) ScrollHalfPageDown() {
 	self.ScrollAmount(int(FloorFloat64(float64(self.Inner.Dy()) / 2)))
 }
 

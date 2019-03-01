@@ -51,13 +51,13 @@ func main() {
 		case "k", "<Up>":
 			l.ScrollUp()
 		case "<C-d>":
-			l.HalfPageDown()
+			l.ScrollHalfPageDown()
 		case "<C-u>":
-			l.HalfPageUp()
+			l.ScrollHalfPageUp()
 		case "<C-f>":
-			l.PageDown()
+			l.ScrollPageDown()
 		case "<C-b>":
-			l.PageUp()
+			l.ScrollPageUp()
 		case "g":
 			if previousKey == "g" {
 				l.ScrollTop()
