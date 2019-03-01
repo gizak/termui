@@ -28,19 +28,25 @@ type Table struct {
 	TextAlignment Alignment
 	RowStyles     map[int]Style
 	FillRow       bool
+
+	// ColumnResizer is called on each Draw. Can be used for custom column sizing.
+	ColumnResizer func()
 }
 
 func NewTable() *Table {
 	return &Table{
-		Block:        *NewBlock(),
-		TextStyle:    Theme.Table.Text,
-		RowSeparator: true,
-		RowStyles:    make(map[int]Style),
+		Block:         *NewBlock(),
+		TextStyle:     Theme.Table.Text,
+		RowSeparator:  true,
+		RowStyles:     make(map[int]Style),
+		ColumnResizer: func() {},
 	}
 }
 
 func (self *Table) Draw(buf *Buffer) {
 	self.Block.Draw(buf)
+
+	self.ColumnResizer()
 
 	columnWidths := self.ColumnWidths
 	if len(columnWidths) == 0 {
