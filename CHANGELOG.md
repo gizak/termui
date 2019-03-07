@@ -6,6 +6,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## 2019/03/07
+
+### Changed
+
+- Added sync.Locker interface to Drawable interface
+
 ## 2019/03/01
 
 ### Changed

@@ -6,6 +6,7 @@ package termui
 
 import (
 	"image"
+	"sync"
 )
 
 // Block is the base struct inherited by most widgets.
@@ -25,6 +26,8 @@ type Block struct {
 
 	Title      string
 	TitleStyle Style
+
+	sync.Mutex
 }
 
 func NewBlock() *Block {

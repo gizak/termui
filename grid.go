@@ -153,6 +153,8 @@ func (self *Grid) Draw(buf *Buffer) {
 
 		entry.SetRect(x, y, x+w, y+h)
 
+		entry.Lock()
 		entry.Draw(buf)
+		entry.Unlock()
 	}
 }

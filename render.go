@@ -6,6 +6,7 @@ package termui
 
 import (
 	"image"
+	"sync"
 
 	tb "github.com/nsf/termbox-go"
 )
@@ -14,12 +15,15 @@ type Drawable interface {
 	GetRect() image.Rectangle
 	SetRect(int, int, int, int)
 	Draw(*Buffer)
+	sync.Locker
 }
 
 func Render(items ...Drawable) {
 	for _, item := range items {
 		buf := NewBuffer(item.GetRect())
+		item.Lock()
 		item.Draw(buf)
+		item.Unlock()
 		for point, cell := range buf.CellMap {
 			if point.In(buf.Rectangle) {
 				tb.SetCell(
