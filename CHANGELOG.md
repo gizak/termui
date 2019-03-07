@@ -6,13 +6,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [3.0.0] - 2019/03/07
+## [3.0.0] - 2019-03-07
 
 ### Changed
 
 - Added sync.Locker interface to Drawable interface
 
-## 2019/03/01
+## 2019-03-01
 
 ### Changed
 
@@ -22,7 +22,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Fix List widget scrolling
 
-## 2019/02/28
+## 2019-02-28
 
 ### Added
 
@@ -35,7 +35,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - s/`TextParse`/`ParseStyles`
 - Remove `AddColorMap` in place of modifying `StyleParserColorMap` directly
 
-## 2019/01/31
+## 2019-01-31
 
 ### Added
 
@@ -47,7 +47,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-## 2019/01/26
+## 2019-01-26
 
 ### Added
 
@@ -55,7 +55,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Add WrapText option to Paragraph
   - controls if text should wrap automatically
 
-## 2019/01/24
+## 2019-01-24
 
 ### Added
 
@@ -66,7 +66,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Change LineChart to Plot
   - Added ScatterPlot mode which plots points instead of lines between points
 
-## 2019/01/23
+## 2019-01-23
 
 ### Added
 
@@ -98,14 +98,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - change style items from `fg-color` to `fg:color`
   - adde mod item like `mod:reverse`
 
-## 2018/11/29
+## 2018-11-29
 
 ### Changed
 
 - Move Tabpane from termui/extra to termui and rename it to TabPane
 - Rename PollEvent to PollEvents
 
-## 2018/11/28
+## 2018-11-28
 
 ### Changed
 
