@@ -8,7 +8,7 @@ import (
 	"fmt"
 	"image"
 
-	. "github.com/gizak/termui"
+	. "github.com/gizak/termui/v3"
 )
 
 // Plot has two modes: line(default) and scatter.

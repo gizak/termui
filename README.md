@@ -6,16 +6,16 @@ termui is a cross-platform and fully-customizable terminal dashboard and widget 
 
 ## Features
 
-- Built in widget implementations for common use cases
-- Utilities to create custom widgets
-- Relative widget positioning using a grid layout
-- Event system for keyboard, mouse and terminal resizing events
+- Several premade widgets for common use cases
+- Easily create custom widgets
+- Position widgets either in a relative grid or with absolute coordinates
+- Keyboard, mouse, and terminal resizing events
 - Colors and styling
 
 ## Installation
 
 ```bash
-go get -u github.com/gizak/termui
+go get github.com/gizak/termui/v3
 ```
 
 ## Hello World
@@ -26,8 +26,8 @@ package main
 import (
 	"log"
 
-	ui "github.com/gizak/termui"
-	"github.com/gizak/termui/widgets"
+	ui "github.com/gizak/termui/v3"
+	"github.com/gizak/termui/v3/widgets"
 )
 
 func main() {

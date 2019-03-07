@@ -9,8 +9,8 @@ package main
 import (
 	"log"
 
-	ui "github.com/gizak/termui"
-	"github.com/gizak/termui/widgets"
+	ui "github.com/gizak/termui/v3"
+	"github.com/gizak/termui/v3/widgets"
 )
 
 func main() {
@@ -22,7 +22,7 @@ func main() {
 	l := widgets.NewList()
 	l.Title = "List"
 	l.Rows = []string{
-		"[0] github.com/gizak/termui",
+		"[0] github.com/gizak/termui/v3",
 		"[1] [你好，世界](fg:blue)",
 		"[2] [こんにちは世界](fg:red)",
 		"[3] [color](fg:white,bg:green) output",
