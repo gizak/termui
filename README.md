@@ -14,7 +14,7 @@ termui is a cross-platform and fully-customizable terminal dashboard and widget 
 
 ## Installation
 
-If using Go 1.11 modules, it is not necessary to `go get` termui, since Go will automatically download any imported depencencies. However, do note that you have to include `/v3` at the end of the URL and before any sub-packages in the termui import statements as shown in the 'Hello World' example below.
+If using Go 1.11 modules, it is not necessary to `go get` termui, since Go will automatically download any imported dependencies. However, do note that you have to include `/v3` at the end of the URL and before any sub-packages in the termui import statements as shown in the 'Hello World' example below.
 
 ## Hello World
 
