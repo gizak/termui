@@ -19,14 +19,14 @@ func main() {
 	}
 	defer ui.Close()
 
-	header := widgets.NewParagraph()
-	header.Text = "Press q to quit, Press h or l to switch tabs"
+	header := widgets.NewTextBox()
+	header.SetText("Press q to quit, Press h or l to switch tabs")
 	header.SetRect(0, 0, 50, 1)
 	header.Border = false
 	header.TextStyle.Bg = ui.ColorBlue
 
-	p2 := widgets.NewParagraph()
-	p2.Text = "Press q to quit\nPress h or l to switch tabs\n"
+	p2 := widgets.NewTextBox()
+	p2.SetText("Press q to quit\nPress h or l to switch tabs\n")
 	p2.Title = "Keys"
 	p2.SetRect(5, 5, 40, 15)
 	p2.BorderStyle.Fg = ui.ColorYellow

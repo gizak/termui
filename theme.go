@@ -31,14 +31,15 @@ type RootTheme struct {
 
 	BarChart        BarChartTheme
 	Gauge           GaugeTheme
-	Plot            PlotTheme
 	List            ListTheme
 	Paragraph       ParagraphTheme
 	PieChart        PieChartTheme
+	Plot            PlotTheme
 	Sparkline       SparklineTheme
 	StackedBarChart StackedBarChartTheme
 	Tab             TabTheme
 	Table           TableTheme
+	TextBox         TextBoxTheme
 }
 
 type BlockTheme struct {
@@ -57,11 +58,6 @@ type GaugeTheme struct {
 	Label Style
 }
 
-type PlotTheme struct {
-	Lines []Color
-	Axes  Color
-}
-
 type ListTheme struct {
 	Text Style
 }
@@ -72,6 +68,11 @@ type ParagraphTheme struct {
 
 type PieChartTheme struct {
 	Slices []Color
+}
+
+type PlotTheme struct {
+	Lines []Color
+	Axes  Color
 }
 
 type SparklineTheme struct {
@@ -85,13 +86,18 @@ type StackedBarChartTheme struct {
 	Labels []Style
 }
 
-type TabTheme struct {
+type TabTheme struct { // TODO v4: rename to TabPaneTheme
 	Active   Style
 	Inactive Style
 }
 
 type TableTheme struct {
 	Text Style
+}
+
+type TextBoxTheme struct {
+	Text   Style
+	Cursor Style
 }
 
 // Theme holds the default Styles and Colors for all widgets.
@@ -110,6 +116,15 @@ var Theme = RootTheme{
 		Labels: StandardStyles,
 	},
 
+	Gauge: GaugeTheme{
+		Bar:   ColorWhite,
+		Label: NewStyle(ColorWhite),
+	},
+
+	List: ListTheme{
+		Text: NewStyle(ColorWhite),
+	},
+
 	Paragraph: ParagraphTheme{
 		Text: NewStyle(ColorWhite),
 	},
@@ -118,8 +133,14 @@ var Theme = RootTheme{
 		Slices: StandardColors,
 	},
 
-	List: ListTheme{
-		Text: NewStyle(ColorWhite),
+	Plot: PlotTheme{
+		Lines: StandardColors,
+		Axes:  ColorWhite,
+	},
+
+	Sparkline: SparklineTheme{
+		Title: NewStyle(ColorWhite),
+		Line:  ColorWhite,
 	},
 
 	StackedBarChart: StackedBarChartTheme{
@@ -128,27 +149,17 @@ var Theme = RootTheme{
 		Labels: StandardStyles,
 	},
 
-	Gauge: GaugeTheme{
-		Bar:   ColorWhite,
-		Label: NewStyle(ColorWhite),
-	},
-
-	Sparkline: SparklineTheme{
-		Title: NewStyle(ColorWhite),
-		Line:  ColorWhite,
-	},
-
-	Plot: PlotTheme{
-		Lines: StandardColors,
-		Axes:  ColorWhite,
+	Tab: TabTheme{
+		Active:   NewStyle(ColorRed),
+		Inactive: NewStyle(ColorWhite),
 	},
 
 	Table: TableTheme{
 		Text: NewStyle(ColorWhite),
 	},
 
-	Tab: TabTheme{
-		Active:   NewStyle(ColorRed),
-		Inactive: NewStyle(ColorWhite),
+	TextBox: TextBoxTheme{
+		Text:   NewStyle(ColorWhite),
+		Cursor: NewStyle(ColorWhite, ColorClear, ModifierReverse),
 	},
 }

@@ -15,11 +15,11 @@ func main() {
 	}
 	defer ui.Close()
 
-	p := widgets.NewParagraph()
-	p.Text = "Hello World!"
-	p.SetRect(0, 0, 25, 5)
+	t := widgets.NewTextBox()
+	t.SetText("Hello World!")
+	t.SetRect(0, 0, 25, 5)
 
-	ui.Render(p)
+	ui.Render(t)
 
 	for e := range ui.PollEvents() {
 		if e.Type == ui.KeyboardEvent {

@@ -21,18 +21,18 @@ func main() {
 	}
 	defer ui.Close()
 
-	p := widgets.NewParagraph()
-	p.Title = "Text Box"
-	p.Text = "PRESS q TO QUIT DEMO"
-	p.SetRect(0, 0, 50, 5)
-	p.TextStyle.Fg = ui.ColorWhite
-	p.BorderStyle.Fg = ui.ColorCyan
+	t := widgets.NewTextBox()
+	t.Title = "Text Box"
+	t.SetText("PRESS q TO QUIT DEMO")
+	t.SetRect(0, 0, 50, 5)
+	t.TextStyle.Fg = ui.ColorWhite
+	t.BorderStyle.Fg = ui.ColorCyan
 
-	updateParagraph := func(count int) {
+	updateText := func(count int) {
 		if count%2 == 0 {
-			p.TextStyle.Fg = ui.ColorRed
+			t.TextStyle.Fg = ui.ColorRed
 		} else {
-			p.TextStyle.Fg = ui.ColorWhite
+			t.TextStyle.Fg = ui.ColorWhite
 		}
 	}
 
@@ -114,11 +114,11 @@ func main() {
 	lc2.AxesColor = ui.ColorWhite
 	lc2.LineColors[0] = ui.ColorYellow
 
-	p2 := widgets.NewParagraph()
-	p2.Text = "Hey!\nI am a borderless block!"
-	p2.Border = false
-	p2.SetRect(50, 10, 75, 10)
-	p2.TextStyle.Fg = ui.ColorMagenta
+	t2 := widgets.NewTextBox()
+	t2.SetText("Hey!\nI am a borderless block!")
+	t2.Border = false
+	t2.SetRect(50, 10, 75, 10)
+	t2.TextStyle.Fg = ui.ColorMagenta
 
 	draw := func(count int) {
 		g.Percent = count % 101
@@ -129,7 +129,7 @@ func main() {
 		lc2.Data[0] = sinData[2*count%220:]
 		bc.Data = barchartData[count/2%10:]
 
-		ui.Render(p, l, g, slg, lc, bc, lc2, p2)
+		ui.Render(t, l, g, slg, lc, bc, lc2, t2)
 	}
 
 	tickerCount := 1
@@ -145,7 +145,7 @@ func main() {
 				return
 			}
 		case <-ticker:
-			updateParagraph(tickerCount)
+			updateText(tickerCount)
 			draw(tickerCount)
 			tickerCount++
 		}

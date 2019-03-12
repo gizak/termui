@@ -17,9 +17,10 @@ type List struct {
 	Rows             []string
 	WrapText         bool
 	TextStyle        Style
-	SelectedRow      int
-	topRow           int
+	SelectedRow      int // TODO v4: make private and replace with a setter method
 	SelectedRowStyle Style
+
+	topRow int
 }
 
 func NewList() *List {

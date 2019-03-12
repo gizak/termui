@@ -6,6 +6,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- Add TextBox widget
+    - TextBox is a superset of Paragraph, so Paragraph is deprecated
+    - adds support for a cursor, which can be moved
+    - the `Text` field is now private, replaced with `SetText`, `InsertText`, and `ClearText` methods
+
 ## [3.0.0] - 2019-03-07
 
 ### Changed

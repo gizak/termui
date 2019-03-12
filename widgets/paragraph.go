@@ -10,6 +10,7 @@ import (
 	. "github.com/gizak/termui/v3"
 )
 
+// Deprecated. Use TextBox widget instead.
 type Paragraph struct {
 	Block
 	Text      string

@@ -49,6 +49,15 @@ func SelectStyle(styles []Style, index int) Style {
 	return styles[index%len(styles)]
 }
 
+func ContainsString(a []string, s string) bool {
+	for _, i := range a {
+		if i == s {
+			return true
+		}
+	}
+	return false
+}
+
 // Math ------------------------------------------------------------------------
 
 func SumIntSlice(slice []int) int {
@@ -208,9 +217,7 @@ func SplitCells(cells []Cell, r rune) [][]Cell {
 			temp = append(temp, cell)
 		}
 	}
-	if len(temp) > 0 {
-		splitCells = append(splitCells, temp)
-	}
+	splitCells = append(splitCells, temp)
 	return splitCells
 }
 

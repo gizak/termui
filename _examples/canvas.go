@@ -9,6 +9,7 @@ import (
 	ui "github.com/gizak/termui/v3"
 )
 
+// TODO make example interactive so you can draw lines
 func main() {
 	if err := ui.Init(); err != nil {
 		log.Fatalf("failed to initialize termui: %v", err)

@@ -22,10 +22,12 @@ type Block struct {
 	PaddingLeft, PaddingRight, PaddingTop, PaddingBottom int
 
 	image.Rectangle
-	Inner image.Rectangle
+	Inner image.Rectangle // TODO v4: make private
 
 	Title      string
 	TitleStyle Style
+
+	HasFocus bool // TODO
 
 	sync.Mutex
 }
@@ -86,17 +88,17 @@ func (self *Block) Draw(buf *Buffer) {
 		self.TitleStyle,
 		image.Pt(self.Min.X+2, self.Min.Y),
 	)
-}
-
-// SetRect implements the Drawable interface.
-func (self *Block) SetRect(x1, y1, x2, y2 int) {
-	self.Rectangle = image.Rect(x1, y1, x2, y2)
 	self.Inner = image.Rect(
 		self.Min.X+1+self.PaddingLeft,
 		self.Min.Y+1+self.PaddingTop,
 		self.Max.X-1-self.PaddingRight,
 		self.Max.Y-1-self.PaddingBottom,
 	)
+}
+
+// SetRect implements the Drawable interface.
+func (self *Block) SetRect(x1, y1, x2, y2 int) {
+	self.Rectangle = image.Rect(x1, y1, x2, y2)
 }
 
 // GetRect implements the Drawable interface.

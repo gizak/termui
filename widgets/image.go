@@ -11,7 +11,7 @@ import (
 	. "github.com/gizak/termui/v3"
 )
 
-type Image struct {
+type Image struct { // TODO v4: rename to ImageBox
 	Block
 	Image               image.Image
 	Monochrome          bool
