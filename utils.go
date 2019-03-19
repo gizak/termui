@@ -231,7 +231,7 @@ func CellsToString(cells []Cell) string {
 }
 
 func writeText(sb *strings.Builder,runes []rune, currentStyle Style, defaultStyle Style) {
-	if currentStyle != defaultStyle {
+	if currentStyle != defaultStyle && currentStyle != StyleClear {
 		sb.WriteByte(tokenBeginStyledText)
 		sb.WriteString(string(runes))
 		sb.WriteByte(tokenEndStyledText)
@@ -272,7 +272,7 @@ func SplitCells(cells []Cell, r rune) [][]Cell {
 //JoinCells converts [][]cell to a []cell using r as line breaker
 func JoinCells(cells [][]Cell, r rune) []Cell {
 	joinCells := make([]Cell, 0)
-	lb := Cell{Rune: r}
+	lb := Cell{Rune: r, Style: StyleClear}
 	length := len(cells)
 
 	for i, cell := range cells {

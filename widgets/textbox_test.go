@@ -39,7 +39,18 @@ func TestGetStyledText(t *testing.T) {
 
 //TestGetStyledText2 test styled text ending in a styled string
 func TestGetStyledText2(t *testing.T) {
-	text := "[red text](fg:red,mod:bold) more text [blue text](fg:blue,mod:bold) a [bit more](fg:black)"
+	text := "[red text](fg:red,mod:bold) more text [blue text](fg:blue,mod:bold) a [bit more](fg:green)"
+
+	tb := NewTextBox()
+	tb.SetText(text)
+
+	assert.Equal(t, text, tb.Text())
+}
+
+//TestGetStyledTextWithLBs test styled text with line breaks
+func TestGetStyledTextWithLBs(t *testing.T) {
+	text := `[red text](fg:red,mod:bold) more 
+ text [blue text](fg:blue,mod:bold) a [bit more](fg:green)`
 
 	tb := NewTextBox()
 	tb.SetText(text)
