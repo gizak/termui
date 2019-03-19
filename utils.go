@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"math"
 	"reflect"
+	"strings"
 
 	rw "github.com/mattn/go-runewidth"
 	wordwrap "github.com/mitchellh/go-wordwrap"
@@ -187,12 +188,59 @@ func RunesToStyledCells(runes []rune, style Style) []Cell {
 	return cells
 }
 
+//CellsToText converts []Cell to a string without any formatting tags
+func CellsToText(cells []Cell) string {
+	runes := make([]rune, len(cells))
+	for i, cell := range cells {
+		runes[i] = cell.Rune
+	}
+	return string(runes)
+}
+
+//CellsToStyledText converts []Cell to a string preserving the formatting tags
+func CellsToStyledText(cells []Cell, defaultStyle Style) string {
+	sb := strings.Builder{}
+	runes := make([]rune, len(cells))
+	currentStyle := cells[0].Style
+	var j int
+
+	for _, cell := range cells {
+		if currentStyle != cell.Style {
+			writeText(&sb, runes[:j], currentStyle, defaultStyle)
+
+			currentStyle = cell.Style
+			j=0
+		}
+
+		runes[j] = cell.Rune
+		j++
+	}
+
+	//Write the last characters left in runes slice
+	writeText(&sb, runes[:j], currentStyle, defaultStyle)
+
+	return sb.String()
+}
+
 func CellsToString(cells []Cell) string {
 	runes := make([]rune, len(cells))
 	for i, cell := range cells {
 		runes[i] = cell.Rune
 	}
 	return string(runes)
+}
+
+func writeText(sb *strings.Builder,runes []rune, currentStyle Style, defaultStyle Style) {
+	if currentStyle != defaultStyle {
+		sb.WriteByte(tokenBeginStyledText)
+		sb.WriteString(string(runes))
+		sb.WriteByte(tokenEndStyledText)
+		sb.WriteByte(tokenBeginStyle)
+		sb.WriteString(currentStyle.String())
+		sb.WriteByte(tokenEndStyle)
+	} else {
+		sb.WriteString(string(runes))
+	}
 }
 
 func TrimCells(cells []Cell, w int) []Cell {
@@ -219,6 +267,22 @@ func SplitCells(cells []Cell, r rune) [][]Cell {
 	}
 	splitCells = append(splitCells, temp)
 	return splitCells
+}
+
+//JoinCells converts [][]cell to a []cell using r as line breaker
+func JoinCells(cells [][]Cell, r rune) []Cell {
+	joinCells := make([]Cell, 0)
+	lb := Cell{Rune: r}
+	length := len(cells)
+
+	for i, cell := range cells {
+		if i < length - 1 {
+			cell = append(cell, lb)
+		}
+		joinCells = append(joinCells, cell...)
+	}
+
+	return joinCells
 }
 
 type CellWithX struct {

@@ -116,6 +116,20 @@ func (self *TextBox) SetText(input string) {
 	self.InsertText(input)
 }
 
+//GetText gets the text in string format along all its formatting tags
+func (self *TextBox) Text() string {
+	cells := JoinCells(self.text, '\n')
+
+	return CellsToStyledText(cells, self.TextStyle)
+}
+
+//GetText gets the text in string format without any formatting tags
+func (self *TextBox) RawText() string {
+	cells := JoinCells(self.text, '\n')
+
+	return CellsToText(cells)
+}
+
 func (self *TextBox) MoveCursorLeft() {
 	self.MoveCursor(self.cursorPoint.X-1, self.cursorPoint.Y)
 }

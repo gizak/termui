@@ -44,10 +44,28 @@ var StyleParserColorMap = map[string]Color{
 	"magenta": ColorMagenta,
 }
 
+var textColorMap = map[Color]string{
+	ColorRed: "red",
+	ColorBlue: "blue",
+	ColorBlack: "black",
+	ColorCyan: "cyan",
+	ColorYellow: "yellow",
+	ColorWhite: "white",
+	ColorClear: "clear",
+	ColorGreen: "green",
+	ColorMagenta: "magenta",
+}
+
 var modifierMap = map[string]Modifier{
 	"bold":      ModifierBold,
 	"underline": ModifierUnderline,
 	"reverse":   ModifierReverse,
+}
+
+var textModifierMap = map[Modifier]string{
+	ModifierBold: "bold",
+	ModifierUnderline: "underline",
+	ModifierReverse: "reverse",
 }
 
 // readStyle translates an []rune like `fg:red,mod:bold,bg:white` to a style

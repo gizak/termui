@@ -1,5 +1,7 @@
 package termui
 
+import "strings"
+
 // Color is an integer from -1 to 255
 // -1 = ColorClear
 // 0-255 = Xterm colors
@@ -62,4 +64,23 @@ func NewStyle(fg Color, args ...interface{}) Style {
 		bg,
 		modifier,
 	}
+}
+
+//String returns a string representation of a Style
+func (self Style) String() string {
+	styles := make([]string, 0)
+
+	if color, ok := textColorMap[self.Fg]; ok  && self.Fg !=  StyleClear.Fg {
+		styles = append(styles, tokenFg + tokenValueSeparator + color)
+	}
+
+	if color, ok := textColorMap[self.Bg]; ok && self.Bg !=  StyleClear.Bg {
+		styles = append(styles, tokenBg + tokenValueSeparator + color)
+	}
+
+	if mod, ok := textModifierMap[self.Modifier]; ok  && self.Modifier !=  StyleClear.Modifier {
+		styles = append(styles, tokenModifier + tokenValueSeparator + mod)
+	}
+
+	return strings.Join(styles, tokenItemSeparator)
 }
