@@ -5,6 +5,7 @@
 package termui
 
 import (
+	"fmt"
 	"image"
 	"sync"
 
@@ -16,6 +17,7 @@ type Drawable interface {
 	SetRect(int, int, int, int)
 	Draw(*Buffer)
 	sync.Locker
+	GetANSIString() string
 }
 
 func Render(items ...Drawable) {
@@ -32,6 +34,12 @@ func Render(items ...Drawable) {
 					tb.Attribute(cell.Style.Fg+1)|tb.Attribute(cell.Style.Modifier), tb.Attribute(cell.Style.Bg+1),
 				)
 			}
+		}
+
+		// draw the image over the already filled cells
+		if ansiString := item.GetANSIString(); len(ansiString) > 0 {
+			fmt.Printf("%s", ansiString)
+			continue
 		}
 	}
 	tb.Flush()
