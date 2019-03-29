@@ -266,11 +266,11 @@ func (self *Image) drawANSI(buf *Buffer) (err error) {
 	// get dimensions //
 	// terminal size measured in cells
 	imageWidthInColumns := self.Inner.Dx()
-	imageHeightInRows := self.Inner.Dy()
+	imageHeightInRows   := self.Inner.Dy()
 
 	// calculate image size in pixels
-	imageWidthInPixels := int(float64(imageWidthInColumns) * charBoxWidthInPixels)
-	imageHeightInPixels := int(float64(imageHeightInRows) * charBoxHeightInPixels)
+	imageWidthInPixels  := int(float64(imageWidthInColumns) * charBoxWidthInPixels)
+	imageHeightInPixels := int(float64(imageHeightInRows)   * charBoxHeightInPixels)
 	if imageWidthInPixels == 0 || imageHeightInPixels == 0 {
 		return fmt.Errorf("could not calculate the image size in pixels")
 	}
@@ -280,7 +280,7 @@ func (self *Image) drawANSI(buf *Buffer) (err error) {
 	// handle only partially displayed image
 	// otherwise we get scrolling
 	var needsCrop bool
-	imgCroppedWidth := imageWidthInPixels
+	imgCroppedWidth  := imageWidthInPixels
 	imgCroppedHeight := imageHeightInPixels
 	if self.Max.X > int(termWidthInColumns)+1 {
 		imgCroppedWidth = int(float64(int(termWidthInColumns)-self.Inner.Min.X-1) * charBoxWidthInPixels)
@@ -321,12 +321,13 @@ func (self *Image) drawANSI(buf *Buffer) (err error) {
 		// 0 for stretching - 1 for no stretching
 		noStretch := 0
 		// for width, height:   "auto"   ||   N: N character cells   ||   Npx: N pixels   ||   N%: N percent of terminal width/height
-		self.Block.ANSIString = fmt.Sprintf("\033]1337;File=name=%s;inline=1;height=%d;width=%d;preserveAspectRatio=%d:%s\a", nameBase64, imageDimensions.Max.Y, nameBase64, imageDimensions.Max.X, noStretch, imgBase64)
+		self.Block.ANSIString = fmt.Sprintf("\033[%d;%dH\033]1337;File=name=%s;inline=1;height=%d;width=%d;preserveAspectRatio=%d:%s\a", imageDimensions.Min.Y, imageDimensions.Min.X, nameBase64, imageDimensions.Max.Y, nameBase64, imageDimensions.Max.X, noStretch, imgBase64)
 
 		return nil
 	}
-skipIterm2:
+	skipIterm2:
 
+	// sixel
 	if sixelCapable {
 		byteBuf := new(bytes.Buffer)
 		enc := sixel.NewEncoder(byteBuf)
@@ -335,7 +336,7 @@ skipIterm2:
 			return err
 		}
 
-		// position where the image should appear (upper left corner)
+		// position where the image should appear (upper left corner) + sixel
 		self.Block.ANSIString = fmt.Sprintf("\033[%d;%dH%s", imageDimensions.Min.Y, imageDimensions.Min.X, byteBuf.String())
 		// test string "HI"
 		// self.Block.ANSIString = fmt.Sprintf("\033[%d;%dH%s", self.Inner.Min.Y+1, self.Inner.Min.X+1, "\033Pq#0;2;0;0;0#1;2;100;100;0#2;2;0;100;0#1~~@@vv@@~~@@~~$#2??}}GG}}??}}??-#1!14@\033\\")
