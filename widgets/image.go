@@ -295,9 +295,11 @@ func (self *Image) drawANSI(buf *Buffer) (err error) {
 	// the Min values are in cells while the Max values are in pixels
 	imageDimensions := image.Rectangle{Min: image.Point{X: self.Inner.Min.X + 1, Y: self.Inner.Min.Y + 1}, Max: image.Point{X: imgCroppedWidth, Y: imgCroppedHeight}}
 	// print saved ANSI string if image size and position didn't change
-	if imageDimensions == lastImageDimensions {
+	if imageDimensions.Min.X == lastImageDimensions.Min.X && imageDimensions.Min.Y == lastImageDimensions.Min.Y && imageDimensions.Max.X == lastImageDimensions.Max.X && imageDimensions.Max.Y == lastImageDimensions.Max.Y {
+		// reuse old ANSIString value because of unchanged image dimensions
 		return nil
 	}
+	lastImageDimensions = imageDimensions
 
 	// resize and crop the image //
 	img := imaging.Resize(self.Image, imageWidthInPixels, imageHeightInPixels, imaging.Lanczos)
