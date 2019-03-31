@@ -42,6 +42,7 @@ func init() {
 	// example query: "\033[0c"
 	// possible answer from the terminal (here xterm): "\033[[?63;1;2;4;6;9;15;22c"
 	// the "4" signals that the terminal is capable of sixel
+	// conhost.exe knows this sequence.
 	termCapabilities := queryTerm("\033[0c")
 	for i, cap := range termCapabilities {
 		if i == 0 || i == len(termCapabilities)-1 {
@@ -283,11 +284,11 @@ func (self *Image) drawANSI(buf *Buffer) (err error) {
 	imgCroppedWidth  := imageWidthInPixels
 	imgCroppedHeight := imageHeightInPixels
 	if self.Max.X > int(termWidthInColumns)+1 {
-		imgCroppedWidth = int(float64(int(termWidthInColumns)-self.Inner.Min.X-1) * charBoxWidthInPixels)
+		imgCroppedWidth = int(float64(int(termWidthInColumns)-self.Inner.Min.X) * charBoxWidthInPixels)
 		needsCrop = true
 	}
 	if self.Max.Y > int(termHeightInRows)+1 {
-		imgCroppedHeight = int(float64(int(termHeightInRows)-self.Inner.Min.Y-1) * charBoxHeightInPixels)
+		imgCroppedHeight = int(float64(int(termHeightInRows)-self.Inner.Min.Y) * charBoxHeightInPixels)
 		needsCrop = true
 	}
 
@@ -323,7 +324,7 @@ func (self *Image) drawANSI(buf *Buffer) (err error) {
 		// 0 for stretching - 1 for no stretching
 		noStretch := 0
 		// for width, height:   "auto"   ||   N: N character cells   ||   Npx: N pixels   ||   N%: N percent of terminal width/height
-		self.Block.ANSIString = fmt.Sprintf("\033[%d;%dH\033]1337;File=name=%s;inline=1;height=%d;width=%d;preserveAspectRatio=%d:%s\a", imageDimensions.Min.Y, imageDimensions.Min.X, nameBase64, imageDimensions.Max.Y, nameBase64, imageDimensions.Max.X, noStretch, imgBase64)
+		self.Block.ANSIString = fmt.Sprintf("\033[%d;%dH\033[?8452h\033]1337;File=name=%s;inline=1;height=%d;width=%d;preserveAspectRatio=%d:%s\a", imageDimensions.Min.Y, imageDimensions.Min.X, nameBase64, imageDimensions.Max.Y, nameBase64, imageDimensions.Max.X, noStretch, imgBase64)
 
 		return nil
 	}
@@ -339,9 +340,13 @@ func (self *Image) drawANSI(buf *Buffer) (err error) {
 		}
 
 		// position where the image should appear (upper left corner) + sixel
-		self.Block.ANSIString = fmt.Sprintf("\033[%d;%dH%s", imageDimensions.Min.Y, imageDimensions.Min.X, byteBuf.String())
+		// https://github.com/mintty/mintty/wiki/CtrlSeqs#sixel-graphics-end-position
+		// "\033[?8452h" sets the cursor next right to the bottom of the image instead of below
+		// this prevents vertical scrolling when the image fills the last line.
+		// horizontal scrolling because of this did not happen in my test cases.
+		self.Block.ANSIString = fmt.Sprintf("\033[%d;%dH\033[?8452h%s", imageDimensions.Min.Y, imageDimensions.Min.X, byteBuf.String())
 		// test string "HI"
-		// self.Block.ANSIString = fmt.Sprintf("\033[%d;%dH%s", self.Inner.Min.Y+1, self.Inner.Min.X+1, "\033Pq#0;2;0;0;0#1;2;100;100;0#2;2;0;100;0#1~~@@vv@@~~@@~~$#2??}}GG}}??}}??-#1!14@\033\\")
+		// self.Block.ANSIString = fmt.Sprintf("\033[%d;%dH\033[?8452h%s", self.Inner.Min.Y+1, self.Inner.Min.X+1, "\033Pq#0;2;0;0;0#1;2;100;100;0#2;2;0;100;0#1~~@@vv@@~~@@~~$#2??}}GG}}??}}??-#1!14@\033\\")
 
 		return nil
 	}
