@@ -35,24 +35,22 @@ type Image struct {
 var (
 	sixelCapable, isIterm2                      bool
 	charBoxWidthInPixels, charBoxHeightInPixels float64
+	charBoxWidthColumns,  charBoxHeightRows     int
 	lastImageDimensions                         image.Rectangle
 )
 
 func init() {
 	// example query: "\033[0c"
-	// possible answer from the terminal (here xterm): "\033[[?63;1;2;4;6;9;15;22c"
+	// possible answer from the terminal (here xterm): "\033[[?63;1;2;4;6;9;15;22c", vte(?): ...62,9;c
 	// the "4" signals that the terminal is capable of sixel
 	// conhost.exe knows this sequence.
 	termCapabilities := queryTerm("\033[0c")
 	for i, cap := range termCapabilities {
-		if i == 0 || i == len(termCapabilities)-1 {
+		if i == 0 || i == len(termCapabilities) - 1 {
 			continue
 		}
 		if string(cap) == `4` {
 			sixelCapable = true
-
-			// terminal character box size measured in pixels
-			charBoxWidthInPixels, charBoxHeightInPixels = getTermCharBoxSize()
 		}
 	}
 	// # https://superuser.com/a/683971
@@ -79,9 +77,10 @@ func (self *Image) Draw(buf *Buffer) {
 		}
 	}
 
-	// urxvt pixbuf / ...
-
 	// fall back - draw with box characters
+	// possible enhancement: make use of further box characters like chafa:
+	// https://hpjansson.org/chafa/
+	// https://github.com/hpjansson/chafa/
 	self.drawFallBack(buf)
 }
 
@@ -269,27 +268,49 @@ func (self *Image) drawANSI(buf *Buffer) (err error) {
 	imageWidthInColumns := self.Inner.Dx()
 	imageHeightInRows   := self.Inner.Dy()
 
+	// terminal size in cells and pixels and calculated terminal character box size in pixels
+	var termWidthInColumns, termHeightInRows int
+	var charBoxWidthInPixelsTemp, charBoxHeightInPixelsTemp float64
+	termWidthInColumns, termHeightInRows, _, _, charBoxWidthInPixelsTemp, charBoxHeightInPixelsTemp, err = getTermSize()
+	if err != nil {
+		return err
+	}
+	// update if value is more precise
+	if termWidthInColumns > charBoxWidthColumns {
+		charBoxWidthInPixels = charBoxWidthInPixelsTemp
+	}
+	if termHeightInRows > charBoxHeightRows {
+		charBoxHeightInPixels = charBoxHeightInPixelsTemp
+	}
+
 	// calculate image size in pixels
-	imageWidthInPixels  := int(float64(imageWidthInColumns) * charBoxWidthInPixels)
-	imageHeightInPixels := int(float64(imageHeightInRows)   * charBoxHeightInPixels)
+	// subtract 1 pixel for small deviations from char box size (float64)
+	imageWidthInPixels  := int(float64(imageWidthInColumns) * charBoxWidthInPixels)  - 1
+	imageHeightInPixels := int(float64(imageHeightInRows)   * charBoxHeightInPixels) - 1
 	if imageWidthInPixels == 0 || imageHeightInPixels == 0 {
 		return fmt.Errorf("could not calculate the image size in pixels")
 	}
 
-	termWidthInColumns, termHeightInRows := getTermSizeInChars()
-
 	// handle only partially displayed image
 	// otherwise we get scrolling
-	var needsCrop bool
-	imgCroppedWidth  := imageWidthInPixels
-	imgCroppedHeight := imageHeightInPixels
-	if self.Max.X > int(termWidthInColumns)+1 {
-		imgCroppedWidth = int(float64(int(termWidthInColumns)-self.Inner.Min.X) * charBoxWidthInPixels)
-		needsCrop = true
+	var needsCropX, needsCropY bool
+	var imgCroppedWidth, imgCroppedHeight int
+	imgCroppedWidth  = imageWidthInPixels
+	imgCroppedHeight = imageHeightInPixels
+	if self.Max.Y >= int(termHeightInRows) {
+		var scrollExtraRows int
+		// remove last 2 rows for xterm when cropped vertically to prevent scrolling
+		if len(os.Getenv("XTERM_VERSION")) > 0 {
+			scrollExtraRows = 2
+		}
+		// subtract 1 pixel for small deviations from char box size (float64)
+		imgCroppedHeight = int(float64(int(termHeightInRows) - self.Inner.Min.Y - scrollExtraRows) * charBoxHeightInPixels) - 1
+		needsCropY = true
 	}
-	if self.Max.Y > int(termHeightInRows)+1 {
-		imgCroppedHeight = int(float64(int(termHeightInRows)-self.Inner.Min.Y) * charBoxHeightInPixels)
-		needsCrop = true
+	if self.Max.X >= int(termWidthInColumns) {
+		var scrollExtraColumns int
+		imgCroppedWidth = int(float64(int(termWidthInColumns) - self.Inner.Min.X - scrollExtraColumns) * charBoxWidthInPixels) - 1
+		needsCropX = true
 	}
 
 	// this is meant for comparison and for positioning in the ANSI string
@@ -304,7 +325,7 @@ func (self *Image) drawANSI(buf *Buffer) (err error) {
 
 	// resize and crop the image //
 	img := imaging.Resize(self.Image, imageWidthInPixels, imageHeightInPixels, imaging.Lanczos)
-	if needsCrop {
+	if needsCropX || needsCropY {
 		img = imaging.Crop(img, image.Rectangle{Min: image.Point{X: 0, Y: 0}, Max: image.Point{X: imgCroppedWidth, Y: imgCroppedHeight}})
 	}
 
@@ -330,7 +351,15 @@ func (self *Image) drawANSI(buf *Buffer) (err error) {
 	}
 	skipIterm2:
 
+	// possible enhancements:
+	// kitty https://sw.kovidgoyal.net/kitty/graphics-protocol.html
+	// Terminology (from Enlightenment) https://www.enlightenment.org/docs/apps/terminology.md#tycat https://github.com/billiob/terminology
+	// urxvt pixbuf / ...
+	//
+	// Tektronix 4014, ReGis
+
 	// sixel
+	// https://vt100.net/docs/vt3xx-gp/chapter14.html
 	if sixelCapable {
 		byteBuf := new(bytes.Buffer)
 		enc := sixel.NewEncoder(byteBuf)
@@ -338,12 +367,12 @@ func (self *Image) drawANSI(buf *Buffer) (err error) {
 		if err := enc.Encode(img); err != nil {
 			return err
 		}
-
 		// position where the image should appear (upper left corner) + sixel
 		// https://github.com/mintty/mintty/wiki/CtrlSeqs#sixel-graphics-end-position
 		// "\033[?8452h" sets the cursor next right to the bottom of the image instead of below
 		// this prevents vertical scrolling when the image fills the last line.
 		// horizontal scrolling because of this did not happen in my test cases.
+		// "\033[?80l" disables sixel scrolling if it isn't already.
 		self.Block.ANSIString = fmt.Sprintf("\033[%d;%dH\033[?8452h%s", imageDimensions.Min.Y, imageDimensions.Min.X, byteBuf.String())
 		// test string "HI"
 		// self.Block.ANSIString = fmt.Sprintf("\033[%d;%dH\033[?8452h%s", self.Inner.Min.Y+1, self.Inner.Min.X+1, "\033Pq#0;2;0;0;0#1;2;100;100;0#2;2;0;100;0#1~~@@vv@@~~@@~~$#2??}}GG}}??}}??-#1!14@\033\\")
@@ -354,16 +383,44 @@ func (self *Image) drawANSI(buf *Buffer) (err error) {
 	return errors.New("no method applied for ANSI drawing")
 }
 
-func getTermCharBoxSize() (x, y float64) {
-	if cx, cy := getTermSizeInChars(); cx != 0 && cy != 0 {
-		px, py := getTermSizeInPixels()
-		x = float64(px) / float64(cx)
-		y = float64(py) / float64(cy)
+func getTermSize() (termWidthInColumns, termHeightInRows, termWidthInPixels, termHeightInPixels int, charBoxWidthInPixels, charBoxHeightInPixels float64, err error) {
+	// this uses a combination of TIOCGWINSZ and \033[14t , \033[18t
+	// the syscall to TIOCGWINSZ only works locally
+
+	var cx, cy, px, py int
+	err = nil
+
+	t, err := tty.Open()
+	defer t.Close()
+
+	cx, cy, px, py, err = t.SizePixel()
+	if err == nil {
+		if cx > 0 && cy > 0 {
+			if px <= 0 || py <= 0 {
+				px, py = getTermSizeInPixels()
+			}
+		} else {
+			if cx, cy = getTermSizeInChars(); cx != 0 && cy != 0 {
+				if px <= 0 || py <= 0 {
+					px, py = getTermSizeInPixels()
+				}
+			} else {
+				return
+			}
+		}
+
 	}
+
+	termWidthInColumns    = cx
+	termHeightInRows      = cy
+	termWidthInPixels     = px
+	termHeightInPixels    = py
+	charBoxWidthInPixels  = float64(px) / float64(cx)
+	charBoxHeightInPixels = float64(py) / float64(cy)
 	return
 }
 
-func getTermSizeInChars() (x, y uint) {
+func getTermSizeInChars() (x, y int) {
 	// query terminal size in character boxes
 	// answer: <termHeightInRows>;<termWidthInColumns>t
 	q := queryTerm("\033[18t")
@@ -374,8 +431,8 @@ func getTermSizeInChars() (x, y uint) {
 
 	if yy, err := strconv.Atoi(string(q[1])); err == nil {
 		if xx, err := strconv.Atoi(string(q[2])); err == nil {
-			x = uint(xx)
-			y = uint(yy)
+			x = xx
+			y = yy
 		} else {
 			return
 		}
@@ -386,7 +443,7 @@ func getTermSizeInChars() (x, y uint) {
 	return
 }
 
-func getTermSizeInPixels() (x, y uint) {
+func getTermSizeInPixels() (x, y int) {
 	// query terminal size in pixels
 	// answer: <termHeightInPixels>;<termWidthInPixels>t
 	q := queryTerm("\033[14t")
@@ -397,8 +454,8 @@ func getTermSizeInPixels() (x, y uint) {
 
 	if yy, err := strconv.Atoi(string(q[1])); err == nil {
 		if xx, err := strconv.Atoi(string(q[2])); err == nil {
-			x = uint(xx)
-			y = uint(yy)
+			x = xx
+			y = yy
 		} else {
 			return
 		}
@@ -410,29 +467,29 @@ func getTermSizeInPixels() (x, y uint) {
 }
 
 func queryTerm(qs string) (ret [][]rune) {
-	// temporary fix for xterm
+	// temporary fix for xterm - not completely sure if still needed
 	// otherwise TUI wouldn't react to any further events
 	// resizing still works though
-	if len(os.Getenv("XTERM_VERSION")) > 0 {
+	if len(os.Getenv("XTERM_VERSION")) > 0 && qs != "\033[0c" {
 		return
 	}
 
 	var b []rune
 
-	tty, err := tty.Open()
+	t, err := tty.Open()
 	if err != nil {
 		return
 	}
-	defer tty.Close()
 
 	ch := make(chan bool, 1)
 
 	go func() {
+		defer t.Close()
 		// query terminal
 		fmt.Printf(qs)
 
 		for {
-			r, err := tty.ReadRune()
+			r, err := t.ReadRune()
 			if err != nil {
 				return
 			}
@@ -452,7 +509,8 @@ func queryTerm(qs string) (ret [][]rune) {
 		ch <- true
 	}()
 
-	timer := time.NewTimer(50 * time.Millisecond)
+	// on my system the terminals mlterm, xterm need at least around 100 microseconds
+	timer := time.NewTimer(500 * time.Microsecond)
 	defer timer.Stop()
 
 	select {
