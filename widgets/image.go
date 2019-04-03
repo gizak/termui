@@ -15,6 +15,7 @@ import (
 	"image/png" // for encoding for iTerm2
 	"os"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/disintegration/imaging"
@@ -33,18 +34,28 @@ type Image struct {
 }
 
 var (
-	sixelCapable, isIterm2                      bool
-	charBoxWidthInPixels, charBoxHeightInPixels float64
-	charBoxWidthColumns,  charBoxHeightRows     int
-	lastImageDimensions                         image.Rectangle
+	sixelCapable, isIterm2, isXterm, isTmux, isScreen, isMuxed   bool
+	charBoxWidthInPixels, charBoxHeightInPixels   float64
+	charBoxWidthColumns,  charBoxHeightRows       int
+	lastImageDimensions                           image.Rectangle
 )
 
 func init() {
+	if len(os.Getenv("XTERM_VERSION")) > 0                                   { isXterm  = true }
+	if os.Getenv("TERM_PROGRAM") == "iTerm.app"                              { isIterm2 = true } // # https://superuser.com/a/683971
+	// if len(os.Getenv("MINTTY_SHORTCUT")) > 0                              { isMintty = true } // doesn't work
+	// if len(os.Getenv("MLTERM")) > 0                                       { isMlterm = true }
+	if strings.HasPrefix(os.Getenv("TERM"), "screen") {
+		if len(os.Getenv("STY")) > 0                                     { isScreen = true }
+		if len(os.Getenv("TMUX")) > 0 || len(os.Getenv("TMUX_PANE")) > 0 { isTmux   = true }
+	}
+	if isTmux || isScreen                                                    { isMuxed  = true }
+
 	// example query: "\033[0c"
 	// possible answer from the terminal (here xterm): "\033[[?63;1;2;4;6;9;15;22c", vte(?): ...62,9;c
 	// the "4" signals that the terminal is capable of sixel
 	// conhost.exe knows this sequence.
-	termCapabilities := queryTerm("\033[0c")
+	termCapabilities := queryTerm(wrap("\033[0c"))
 	for i, cap := range termCapabilities {
 		if i == 0 || i == len(termCapabilities) - 1 {
 			continue
@@ -52,10 +63,6 @@ func init() {
 		if string(cap) == `4` {
 			sixelCapable = true
 		}
-	}
-	// # https://superuser.com/a/683971
-	if os.Getenv("TERM_PROGRAM") == "iTerm.app" {
-		isIterm2 = true
 	}
 }
 
@@ -68,7 +75,13 @@ func NewImage(img image.Image) *Image {
 }
 
 func (self *Image) Draw(buf *Buffer) {
-	// draw with ANSI escape strings
+	// fall back - draw with box characters
+	// possible enhancement: make use of further box characters like chafa:
+	// https://hpjansson.org/chafa/
+	// https://github.com/hpjansson/chafa/
+	self.drawFallBack(buf)
+
+	// overdraw with ANSI escape strings
 	// sixel / iTerm2
 	if sixelCapable || isIterm2 {
 		////if true {
@@ -76,12 +89,6 @@ func (self *Image) Draw(buf *Buffer) {
 			return
 		}
 	}
-
-	// fall back - draw with box characters
-	// possible enhancement: make use of further box characters like chafa:
-	// https://hpjansson.org/chafa/
-	// https://github.com/hpjansson/chafa/
-	self.drawFallBack(buf)
 }
 
 func (self *Image) drawFallBack(buf *Buffer) {
@@ -282,6 +289,7 @@ func (self *Image) drawANSI(buf *Buffer) (err error) {
 	if termHeightInRows > charBoxHeightRows {
 		charBoxHeightInPixels = charBoxHeightInPixelsTemp
 	}
+if isTmux {charBoxWidthInPixels, charBoxHeightInPixels = 10, 19}   // mlterm settings (temporary)
 
 	// calculate image size in pixels
 	// subtract 1 pixel for small deviations from char box size (float64)
@@ -300,7 +308,7 @@ func (self *Image) drawANSI(buf *Buffer) (err error) {
 	if self.Max.Y >= int(termHeightInRows) {
 		var scrollExtraRows int
 		// remove last 2 rows for xterm when cropped vertically to prevent scrolling
-		if len(os.Getenv("XTERM_VERSION")) > 0 {
+		if isXterm {
 			scrollExtraRows = 2
 		}
 		// subtract 1 pixel for small deviations from char box size (float64)
@@ -328,7 +336,6 @@ func (self *Image) drawANSI(buf *Buffer) (err error) {
 	if needsCropX || needsCropY {
 		img = imaging.Crop(img, image.Rectangle{Min: image.Point{X: 0, Y: 0}, Max: image.Point{X: imgCroppedWidth, Y: imgCroppedHeight}})
 	}
-
 	if img.Bounds().Dx() == 0 || img.Bounds().Dy() == 0 {
 		return fmt.Errorf("image size in pixels is 0")
 	}
@@ -344,8 +351,9 @@ func (self *Image) drawANSI(buf *Buffer) (err error) {
 		nameBase64 := base64.StdEncoding.EncodeToString([]byte(self.Block.Title))
 		// 0 for stretching - 1 for no stretching
 		noStretch := 0
+		iterm2String := wrap(fmt.Sprintf("\033[?8452h\033]1337;File=name=%s;inline=1;height=%d;width=%d;preserveAspectRatio=%d:%s\a", nameBase64, imageDimensions.Max.Y, nameBase64, imageDimensions.Max.X, noStretch, imgBase64))
 		// for width, height:   "auto"   ||   N: N character cells   ||   Npx: N pixels   ||   N%: N percent of terminal width/height
-		self.Block.ANSIString = fmt.Sprintf("\033[%d;%dH\033[?8452h\033]1337;File=name=%s;inline=1;height=%d;width=%d;preserveAspectRatio=%d:%s\a", imageDimensions.Min.Y, imageDimensions.Min.X, nameBase64, imageDimensions.Max.Y, nameBase64, imageDimensions.Max.X, noStretch, imgBase64)
+		self.Block.ANSIString = fmt.Sprintf("\033[%d;%dH%s", imageDimensions.Min.Y, imageDimensions.Min.X, iterm2String)
 
 		return nil
 	}
@@ -367,13 +375,14 @@ func (self *Image) drawANSI(buf *Buffer) (err error) {
 		if err := enc.Encode(img); err != nil {
 			return err
 		}
+		sixelString := wrap("\033[?8452h" + byteBuf.String())
 		// position where the image should appear (upper left corner) + sixel
 		// https://github.com/mintty/mintty/wiki/CtrlSeqs#sixel-graphics-end-position
 		// "\033[?8452h" sets the cursor next right to the bottom of the image instead of below
 		// this prevents vertical scrolling when the image fills the last line.
 		// horizontal scrolling because of this did not happen in my test cases.
 		// "\033[?80l" disables sixel scrolling if it isn't already.
-		self.Block.ANSIString = fmt.Sprintf("\033[%d;%dH\033[?8452h%s", imageDimensions.Min.Y, imageDimensions.Min.X, byteBuf.String())
+		self.Block.ANSIString = fmt.Sprintf("\033[%d;%dH%s", imageDimensions.Min.Y, imageDimensions.Min.X, sixelString)
 		// test string "HI"
 		// self.Block.ANSIString = fmt.Sprintf("\033[%d;%dH\033[?8452h%s", self.Inner.Min.Y+1, self.Inner.Min.X+1, "\033Pq#0;2;0;0;0#1;2;100;100;0#2;2;0;100;0#1~~@@vv@@~~@@~~$#2??}}GG}}??}}??-#1!14@\033\\")
 
@@ -394,21 +403,34 @@ func getTermSize() (termWidthInColumns, termHeightInRows, termWidthInPixels, ter
 	defer t.Close()
 
 	cx, cy, px, py, err = t.SizePixel()
-	if err == nil {
+	// if isMuxed {
+	if false {   // temporary
+		// in case of split view it is better to query from the same source
+		/*if cx <= 0 || cy <= 0 || px <= 0 || py <= 0 {
+			cx, cy = getTermSizeInChars(true)
+			px, py = getTermSizeInPixels(true)
+			if cx <= 0 || cy <= 0 || px <= 0 || py <= 0 {
+				cx, cy = getTermSizeInChars(false)
+				px, py = getTermSizeInPixels(false)
+				if cx <= 0 || cy <= 0 || px <= 0 || py <= 0 {
+					return
+				}	
+			}	
+		}*/	
+	} else if err == nil {
 		if cx > 0 && cy > 0 {
 			if px <= 0 || py <= 0 {
-				px, py = getTermSizeInPixels()
+				px, py = getTermSizeInPixels(true)
 			}
 		} else {
-			if cx, cy = getTermSizeInChars(); cx != 0 && cy != 0 {
+			if cx, cy = getTermSizeInChars(true); cx != 0 && cy != 0 {
 				if px <= 0 || py <= 0 {
-					px, py = getTermSizeInPixels()
+					px, py = getTermSizeInPixels(true)
 				}
 			} else {
 				return
 			}
 		}
-
 	}
 
 	termWidthInColumns    = cx
@@ -420,11 +442,14 @@ func getTermSize() (termWidthInColumns, termHeightInRows, termWidthInPixels, ter
 	return
 }
 
-func getTermSizeInChars() (x, y int) {
+func getTermSizeInChars(needsWrap bool) (x, y int) {
 	// query terminal size in character boxes
 	// answer: <termHeightInRows>;<termWidthInColumns>t
-	q := queryTerm("\033[18t")
-
+	s := "\033[18t"
+	if needsWrap {
+		s = wrap(s)
+	}
+	q := queryTerm(s)
 	if len(q) != 3 {
 		return
 	}
@@ -443,10 +468,14 @@ func getTermSizeInChars() (x, y int) {
 	return
 }
 
-func getTermSizeInPixels() (x, y int) {
+func getTermSizeInPixels(needsWrap bool) (x, y int) {
 	// query terminal size in pixels
 	// answer: <termHeightInPixels>;<termWidthInPixels>t
-	q := queryTerm("\033[14t")
+	s := "\033[14t"
+	if needsWrap {
+		s = wrap(s)
+	}
+	q := queryTerm(s)
 
 	if len(q) != 3 {
 		return
@@ -470,7 +499,7 @@ func queryTerm(qs string) (ret [][]rune) {
 	// temporary fix for xterm - not completely sure if still needed
 	// otherwise TUI wouldn't react to any further events
 	// resizing still works though
-	if len(os.Getenv("XTERM_VERSION")) > 0 && qs != "\033[0c" {
+	if isXterm && qs != "\033[0c" && qs != wrap("\033[0c") {
 		return
 	}
 
@@ -509,8 +538,14 @@ func queryTerm(qs string) (ret [][]rune) {
 		ch <- true
 	}()
 
-	// on my system the terminals mlterm, xterm need at least around 100 microseconds
-	timer := time.NewTimer(500 * time.Microsecond)
+	var timer *time.Timer
+	if isTmux {
+		// tmux needs a bit more time
+		timer = time.NewTimer(50000 * time.Microsecond)
+	} else {
+		// on my system the terminals mlterm, xterm need at least around 100 microseconds
+		timer = time.NewTimer(500 * time.Microsecond)
+	}
 	defer timer.Stop()
 
 	select {
@@ -520,3 +555,22 @@ func queryTerm(qs string) (ret [][]rune) {
 	}
 	return
 }
+
+func wrap(s string) string {
+	if !isMuxed {
+		return s
+	}
+	if isTmux {
+		return tmuxWrap(s)
+	}
+	return s
+}
+
+func tmuxWrap(s string) string {
+	return "\033Ptmux;" + strings.Replace(s, "\033", "\033\033", -1) + "\033\\"
+}
+
+/*
+// https://savannah.gnu.org/bugs/index.php?56063
+func screenWrap(s string) string {}
+*/
