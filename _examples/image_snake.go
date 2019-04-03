@@ -53,6 +53,7 @@ func main() {
 	index := 0
 	render := func() {
 		img.Image = images[index]
+		// img.ASCIIonly = true
 		if !img.Monochrome {
 			img.Title = fmt.Sprintf("Color %d/%d", index+1, len(images))
 		} else if !img.MonochromeInvert {

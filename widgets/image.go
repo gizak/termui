@@ -31,6 +31,7 @@ type Image struct {
 	Monochrome          bool
 	MonochromeThreshold uint8
 	MonochromeInvert    bool
+	ASCIIonly           bool
 }
 
 var (
@@ -91,7 +92,7 @@ func (self *Image) Draw(buf *Buffer) {
 
 	// overdraw with ANSI escape strings
 	// sixel / iTerm2
-	if sixelCapable || isIterm2 {
+	if !self.ASCIIonly && (sixelCapable || isIterm2) {
 		////if true {
 		if err := self.drawANSI(buf); err == nil {
 			return
