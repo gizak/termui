@@ -41,20 +41,23 @@ var (
 )
 
 func init() {
-	if len(os.Getenv("XTERM_VERSION")) > 0                                   { isXterm  = true }
-	if os.Getenv("TERM_PROGRAM") == "iTerm.app"                              { isIterm2 = true } // # https://superuser.com/a/683971
-	// if len(os.Getenv("MINTTY_SHORTCUT")) > 0                              { isMintty = true } // doesn't work
-	// if len(os.Getenv("MLTERM")) > 0                                       { isMlterm = true }
-	if strings.HasPrefix(os.Getenv("TERM"), "screen") {
-		if len(os.Getenv("STY")) > 0                                     { isScreen = true }
-		if len(os.Getenv("TMUX")) > 0 || len(os.Getenv("TMUX_PANE")) > 0 { isTmux   = true }
-	}
-	if isTmux || isScreen                                                    { isMuxed  = true }
+	initiate()
+}
+func initiate() {
+	if len(os.Getenv("XTERM_VERSION")) > 0                                         { isXterm  = true } else { isXterm  = false }
+	if os.Getenv("TERM_PROGRAM") == "iTerm.app"                                    { isIterm2 = true } else { isIterm2 = false } // # https://superuser.com/a/683971
+	// if len(os.Getenv("MINTTY_SHORTCUT")) > 0                                    { isMintty = true } else { isMintty = false } // doesn't work
+	// if len(os.Getenv("MLTERM")) > 0                                             { isMlterm = true } else { isMlterm = false }
+	if strings.HasPrefix(os.Getenv("TERM"), "screen") && len(os.Getenv("STY")) > 0 { isScreen = true } else { isScreen = false }
+	if (strings.HasPrefix(os.Getenv("TERM"), "screen") || strings.HasPrefix(os.Getenv("TERM"), "tmux")) &&
+	   len(os.Getenv("TMUX")) > 0 || len(os.Getenv("TMUX_PANE")) > 0               { isTmux   = true } else { isTmux   = false }
+	if isTmux || isScreen                                                          { isMuxed  = true } else { isMuxed  = false }
 
 	// example query: "\033[0c"
 	// possible answer from the terminal (here xterm): "\033[[?63;1;2;4;6;9;15;22c", vte(?): ...62,9;c
 	// the "4" signals that the terminal is capable of sixel
 	// conhost.exe knows this sequence.
+	sixelCapable = false
 	termCapabilities := queryTerm(wrap("\033[0c"))
 	for i, cap := range termCapabilities {
 		if i == 0 || i == len(termCapabilities) - 1 {
@@ -75,6 +78,11 @@ func NewImage(img image.Image) *Image {
 }
 
 func (self *Image) Draw(buf *Buffer) {
+	// possible reattachments of the terminal multiplexer?
+	if isMuxed {
+		initiate()
+	}
+
 	// fall back - draw with box characters
 	// possible enhancement: make use of further box characters like chafa:
 	// https://hpjansson.org/chafa/
