@@ -6,6 +6,9 @@ const (
 
 	UP_ARROW   = '▲'
 	DOWN_ARROW = '▼'
+
+	COLLAPSED = '+'
+	EXPANDED  = '−'
 )
 
 var (
