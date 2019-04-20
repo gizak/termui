@@ -17,7 +17,6 @@ import (
 
 
 func init() {
-	scanTerminal()
 	widgets.RegisterDrawer(
 		"sixel",
 		widgets.Drawer{

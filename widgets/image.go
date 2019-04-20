@@ -40,12 +40,16 @@ func RegisterDrawer(nameNew string, drawerNew Drawer) {
 	drawersMu.Unlock()
 }
 
+func GetDrawers() map[string]Drawer {
+	return atomicDrawers.Load().(map[string]Drawer)
+}
+
 func init() {
 	RegisterDrawer(
 		"block",
 		Drawer{
 			Remote:         true,
-			IsEscapeString: true,
+			IsEscapeString: false,
 			Available:      func() bool {return true},
 			Draw:           drawBlocks,
 		},
@@ -71,19 +75,18 @@ func NewImage(img image.Image) *Image {
 }
 
 func (self *Image) Draw(buf *Buffer) {
-	// possible reattachments of the terminal multiplexer?
-	if isMuxed {
-		scanTerminal()
-	}
+	drawers := atomicDrawers.Load().(map[string]Drawer)
 
 	// fall back - draw with box characters atomicDrawers.Load().(map[string]Drawer)]["blocks"]
 	// possible enhancement: make use of further box characters like chafa:
 	// https://hpjansson.org/chafa/
 	// https://github.com/hpjansson/chafa/
-	// drawBlocks(self, buf)
+	if drbl, ok := drawers["block"]; ok {
+		drbl.Draw(self, buf)
+	}
 
-	for _, dr := range atomicDrawers.Load().(map[string]Drawer) {
-		if dr.Available() {
+	for name, dr := range drawers {
+		if name != "block" && dr.Available() {
 			dr.Draw(self, buf)
 		}
 	}
