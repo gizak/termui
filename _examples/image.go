@@ -49,7 +49,7 @@ func main() {
 	defer ui.Close()
 
 	img := widgets.NewImage(nil)
-	img.SetRect(10, 5, 40, 45)
+ 	img.SetRect(0, 0, 100, 50)
 	index := 0
 	render := func() {
 		img.Image = images[index]
