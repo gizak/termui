@@ -21,7 +21,6 @@ func init() {
 	widgets.RegisterDrawer(
 		"sixel",
 		widgets.Drawer{
-			// Name:           "sixel",
 			Remote:         true,
 			IsEscapeString: true,
 			Available:      func() bool {return sixelCapable},
