@@ -63,9 +63,9 @@ type Image struct {
 
 func NewImage(img image.Image) *Image {
 	return &Image{
-		Block:               *NewBlock(),
-		MonochromeThreshold: 128,
-		Image:               img,
+		Block:                 *NewBlock(),
+		MonochromeThreshold:   128,
+		Image:                 img,
 		visibleSubImagePixels: image.Rectangle{},
 	}
 }
