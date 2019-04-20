@@ -23,8 +23,6 @@ func init() {
 			IsEscapeString: false,
 			Available:      func() bool {return true},
 			Draw:           func(img *widgets.Image, buf *Buffer) (err error) {
-				scanTerminal()
-
 				// possible reattachments of the terminal multiplexer?
 				if isMuxed {
 					scanTerminal()
