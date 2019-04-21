@@ -22,7 +22,7 @@ func init() {
 		widgets.Drawer{
 			Remote:         true,
 			IsEscapeString: true,
-			Available:      func() bool {return isIterm2},
+			Available:      func() bool {return isIterm2 || isMacTerm},
 			Draw:           drawITerm2,
 		},
 	)
@@ -38,9 +38,8 @@ func drawITerm2(wdgt *widgets.Image, buf *Buffer) (err error) {
 
 	imageDimensions := wdgt.GetVisibleArea()
 
-	// iTerm2
 	// https://www.iterm2.com/documentation-images.html
-	if isIterm2 {
+	if isIterm2 || isMacTerm {
 		buf := new(bytes.Buffer)
 		if err = png.Encode(buf, img); err != nil {
 			goto skipIterm2

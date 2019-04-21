@@ -41,7 +41,10 @@ func RegisterDrawer(nameNew string, drawerNew Drawer) {
 }
 
 func GetDrawers() map[string]Drawer {
-	return atomicDrawers.Load().(map[string]Drawer)
+	if drawers, ok := atomicDrawers.Load().(map[string]Drawer); ok {
+		return drawers
+	}
+	return map[string]Drawer{}
 }
 
 func init() {
@@ -75,7 +78,7 @@ func NewImage(img image.Image) *Image {
 }
 
 func (self *Image) Draw(buf *Buffer) {
-	drawers := atomicDrawers.Load().(map[string]Drawer)
+	drawers := GetDrawers()
 
 	// fall back - draw with box characters atomicDrawers.Load().(map[string]Drawer)]["blocks"]
 	// possible enhancement: make use of further box characters like chafa:

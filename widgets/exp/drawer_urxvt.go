@@ -48,8 +48,8 @@ func drawUrxvt(wdgt *widgets.Image, buf *Buffer) (err error) {
 		return errors.New("could not query terminal dimensions")
 	}
 
-	widthPercentage  = 100*wdgt.Inner.Dx()/termWidth
-	heightPercentage = 100*wdgt.Inner.Dy()/termHeight
+	widthPercentage  = (100*wdgt.Inner.Dx())/termWidth
+	heightPercentage = (100*wdgt.Inner.Dy())/termHeight
 	maxX := wdgt.Inner.Max.X
 	maxY := wdgt.Inner.Max.Y
 	if termWidth < maxX {
@@ -79,12 +79,12 @@ func drawUrxvt(wdgt *widgets.Image, buf *Buffer) (err error) {
 
 	// defer os.RemoveAll(dir) // clean up
 
-	filename := filepath.Join(tempdir, fmt.Sprintf("%x", md5.Sum(bytBuf.Bytes())) + ".png")
+	filename := filepath.Join(tempdir, fmt.Sprintf("urxvt-%x", md5.Sum(bytBuf.Bytes())) + ".png")
 	if err := ioutil.WriteFile(filename, bytBuf.Bytes(), 0644); err != nil {
 		return err
 	}
 
-	// "\033]20;%s;%dx%d+%d+%d:op=keep-aspect\a" op=keep-aspect prevents stretching
-	wdgt.Block.ANSIString = wrap(fmt.Sprintf("\033]20;%s;%dx%d+%d+%d\a", filename, widthPercentage, heightPercentage, CenterPosXPercentage, CenterPosYPercentage))
+	// "op=keep-aspect" maintains the image aspect ratio when scaling
+	wdgt.Block.ANSIString = wrap(fmt.Sprintf("\033]20;%s;%dx%d+%d+%d:op=keep-aspect\a", filename, widthPercentage, heightPercentage, CenterPosXPercentage, CenterPosYPercentage))
 	return nil
 }

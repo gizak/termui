@@ -18,7 +18,7 @@ func scanTerminal() {
 	if os.Getenv("TERM_PROGRAM") == "iTerm.app"                                     { isIterm2    = true } else { isIterm2    = false }   // https://superuser.com/a/683971
 	if os.Getenv("TERM_PROGRAM") == "MacTerm"                                       { isMacTerm   = true } else { isMacTerm   = false }   // https://github.com/kmgrant/macterm/issues/3#issuecomment-458387953
 	if strings.HasPrefix(os.Getenv("TERM"), "rxvt-unicode")                         { isUrxvt     = true } else { isUrxvt     = false }
-	if os.Getenv("TERM") == "xterm-kitty"                                           { isKitty     = true } else { isKitty     = false }
+	if os.Getenv("TERM") == "xterm-kitty" ||len(os.Getenv("KITTY_WINDOW_ID")) > 0   { isKitty     = true } else { isKitty     = false }
 	if len(os.Getenv("MLTERM")) > 0                                                 { isMlterm    = true } else { isMlterm    = false }
 	if len(os.Getenv("MINTTY_SHORTCUT")) > 0                                        { isMintty    = true } else { isMintty    = false }
 	if len(os.Getenv("ALACRITTY_LOG")) > 0                                          { isAlacritty = true } else { isAlacritty = false }

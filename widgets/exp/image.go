@@ -66,6 +66,11 @@ if isTmux {charBoxWidthInPixels, charBoxHeightInPixels = 10, 19}   // mlterm set
 		if isXterm {
 			scrollExtraRows = 2
 		}
+		/*
+		if isKitty {
+			scrollExtraRows = 1
+		}
+		*/
 		// subtract 1 pixel for small deviations from char box size (float64)
 		imgCroppedHeight = int(float64(int(termHeightInRows) - wdgt.Inner.Min.Y - scrollExtraRows) * charBoxHeightInPixels) - 1
 		needsCropY = true

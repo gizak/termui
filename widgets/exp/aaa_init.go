@@ -9,7 +9,8 @@ import (
 	"github.com/gizak/termui/v3/widgets"
 )
 
-// the file name should start with aaa - because the init() functions are executed in alphabetic file orde
+// the file name should appear at the top when alphabetically sorted (start with "aaa")
+// because the init() functions are executed in alphabetic file order
 func init() {
 	scanTerminal()
 	var drawFallback func(*widgets.Image, *Buffer) (error)

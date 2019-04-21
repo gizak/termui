@@ -13,3 +13,7 @@ ReGis
 reimplement 23imgdisplay:
 
 check for X11 and not Alacritty (https://github.com/jwilm/alacritty/issues/1021)
+
+---
+
+if i remember correctly xterm has a size limit for sixel images - pixel width???
