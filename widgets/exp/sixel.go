@@ -31,8 +31,8 @@ func init() {
 func drawSixel(wdgt *widgets.Image, buf *Buffer) (err error) {
 	wdgt.Block.Draw(buf)
 
-	img, err := resizeImage(wdgt, buf)
-	if err != nil {
+	img, changed, err := resizeImage(wdgt, buf)
+	if !changed || err != nil {
 		return err
 	}
 

@@ -21,21 +21,21 @@ var (
 )
 
 
-func resizeImage(self *widgets.Image, buf *Buffer) (img image.Image, err error) {
-	img = self.Image
+func resizeImage(wdgt *widgets.Image, buf *Buffer) (img image.Image, changed bool, err error) {
+	img = wdgt.Image
 	// img = image.NRGBA{}
 
 	// get dimensions //
 	// terminal size measured in cells
-	imageWidthInColumns := self.Inner.Dx()
-	imageHeightInRows   := self.Inner.Dy()
+	imageWidthInColumns := wdgt.Inner.Dx()
+	imageHeightInRows   := wdgt.Inner.Dy()
 
 	// terminal size in cells and pixels and calculated terminal character box size in pixels
 	var termWidthInColumns, termHeightInRows int
 	var charBoxWidthInPixelsTemp, charBoxHeightInPixelsTemp float64
 	termWidthInColumns, termHeightInRows, _, _, charBoxWidthInPixelsTemp, charBoxHeightInPixelsTemp, err = getTermSize()
 	if err != nil {
-		return img, err
+		return img, true, err
 	}
 	// update if value is more precise
 	if termWidthInColumns > charBoxWidthColumns {
@@ -51,7 +51,7 @@ if isTmux {charBoxWidthInPixels, charBoxHeightInPixels = 10, 19}   // mlterm set
 	imageWidthInPixels  := int(float64(imageWidthInColumns) * charBoxWidthInPixels)  - 1
 	imageHeightInPixels := int(float64(imageHeightInRows)   * charBoxHeightInPixels) - 1
 	if imageWidthInPixels == 0 || imageHeightInPixels == 0 {
-		return img, errors.New("could not calculate the image size in pixels")
+		return img, true, errors.New("could not calculate the image size in pixels")
 	}
 
 	// handle only partially displayed image
@@ -60,42 +60,43 @@ if isTmux {charBoxWidthInPixels, charBoxHeightInPixels = 10, 19}   // mlterm set
 	var imgCroppedWidth, imgCroppedHeight int
 	imgCroppedWidth  = imageWidthInPixels
 	imgCroppedHeight = imageHeightInPixels
-	if self.Max.Y >= int(termHeightInRows) {
+	if wdgt.Max.Y >= int(termHeightInRows) {
 		var scrollExtraRows int
 		// remove last 2 rows for xterm when cropped vertically to prevent scrolling
 		if isXterm {
 			scrollExtraRows = 2
 		}
 		// subtract 1 pixel for small deviations from char box size (float64)
-		imgCroppedHeight = int(float64(int(termHeightInRows) - self.Inner.Min.Y - scrollExtraRows) * charBoxHeightInPixels) - 1
+		imgCroppedHeight = int(float64(int(termHeightInRows) - wdgt.Inner.Min.Y - scrollExtraRows) * charBoxHeightInPixels) - 1
 		needsCropY = true
 	}
-	if self.Max.X >= int(termWidthInColumns) {
+	if wdgt.Max.X >= int(termWidthInColumns) {
 		var scrollExtraColumns int
-		imgCroppedWidth = int(float64(int(termWidthInColumns) - self.Inner.Min.X - scrollExtraColumns) * charBoxWidthInPixels) - 1
+		imgCroppedWidth = int(float64(int(termWidthInColumns) - wdgt.Inner.Min.X - scrollExtraColumns) * charBoxWidthInPixels) - 1
 		needsCropX = true
 	}
 
-	lastImageDimensions := self.GetVisibleArea()
+	lastImageDimensions := wdgt.GetVisibleArea()
 	// this is meant for comparison and for positioning in the ANSI string
 	// the Min values are in cells while the Max values are in pixels
-	imageDimensions := image.Rectangle{Min: image.Point{X: 0, Y: 0}, Max: image.Point{X: imgCroppedWidth, Y: imgCroppedHeight}}
-	self.SetVisibleArea(imageDimensions)
+	// imageDimensions := image.Rectangle{Min: image.Point{X: 0, Y: 0}, Max: image.Point{X: imgCroppedWidth, Y: imgCroppedHeight}}
+	imageDimensions := image.Rectangle{Min: image.Point{X: wdgt.Inner.Min.X + 1, Y: wdgt.Inner.Min.Y + 1}, Max: image.Point{X: imgCroppedWidth, Y: imgCroppedHeight}}
+	wdgt.SetVisibleArea(imageDimensions)
 	// print saved ANSI string if image size and position didn't change
 	if imageDimensions.Min.X == lastImageDimensions.Min.X && imageDimensions.Min.Y == lastImageDimensions.Min.Y && imageDimensions.Max.X == lastImageDimensions.Max.X && imageDimensions.Max.Y == lastImageDimensions.Max.Y {
 		// reuse last encoded image because of unchanged image dimensions
-		return img, nil
+		return img, false, nil
 	}
 	lastImageDimensions = imageDimensions
 
 	// resize and crop the image //
-	img = imaging.Resize(self.Image, imageWidthInPixels, imageHeightInPixels, imaging.Lanczos)
+	img = imaging.Resize(wdgt.Image, imageWidthInPixels, imageHeightInPixels, imaging.Lanczos)
 	if needsCropX || needsCropY {
 		img = imaging.Crop(img, image.Rectangle{Min: image.Point{X: 0, Y: 0}, Max: image.Point{X: imgCroppedWidth, Y: imgCroppedHeight}})
 	}
 	if img.Bounds().Dx() == 0 || img.Bounds().Dy() == 0 {
-		return img, fmt.Errorf("image size in pixels is 0")
+		return img, true, fmt.Errorf("image size in pixels is 0")
 	}
 	
-	return img, err
+	return img, true, err
 }
