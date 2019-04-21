@@ -20,7 +20,7 @@ const (
 )
 
 var (
-	// for numbering of ids
+	// TODO: for numbering of ids
 	kittyImageCount int
 )
 
@@ -69,7 +69,6 @@ func drawKitty(wdgt *widgets.Image, buf *Buffer) (err error) {
 	// https://sw.kovidgoyal.net/kitty/graphics-protocol.html#remote-client
 	// https://sw.kovidgoyal.net/kitty/graphics-protocol.html#png-data
 	// https://sw.kovidgoyal.net/kitty/graphics-protocol.html#controlling-displayed-image-layout
-	// \033_Gt=d,f=100,X=,Y=,c=,r=,m=1;...\a
 	bytBuf := new(bytes.Buffer)
 	if err = png.Encode(bytBuf, img); err != nil {
 		return err
@@ -90,14 +89,14 @@ func drawKitty(wdgt *widgets.Image, buf *Buffer) (err error) {
 	settings := fmt.Sprintf("a=T,t=d,f=100,X=%d,Y=%d,c=%d,r=%d,z=%d,", imageDimensions.Min.X, imageDimensions.Min.Y, wdgt.Inner.Dx(), imgHeight, zIndex)
 	i := 0
 	for ; i < (lenImgB64-1)/kittyLimit; i++ {
-		kittyString += wrap(fmt.Sprintf("\033_G%sm=1;%s\033\\", settings, string([]byte(imgBase64)[i*kittyLimit:(i+1)*kittyLimit])))
+		kittyString += wrap(fmt.Sprintf("\033_G%sm=1;%s\033\\", settings, imgBase64[i*kittyLimit:(i+1)*kittyLimit]))
 		settings = ""
 	}
-	kittyString += wrap(fmt.Sprintf("\033_G%sm=0;%s\033\\", settings, string([]byte(imgBase64)[i*kittyLimit:lenImgB64])))
+	kittyString += wrap(fmt.Sprintf("\033_G%sm=0;%s\033\\", settings, imgBase64[i*kittyLimit:lenImgB64]))
 
 	wdgt.Block.ANSIString = fmt.Sprintf("\033[%d;%dH%s", imageDimensions.Min.Y, imageDimensions.Min.X, kittyString)
 	return nil
 }
 
 // TODO:
-// 
+// store images with ids in Kitty
