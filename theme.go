@@ -68,9 +68,9 @@ type ListTheme struct {
 }
 
 type TreeTheme struct {
-	Text     Style
-	Collapse rune
-	Expand   rune
+	Text      Style
+	Collapsed rune
+	Expanded  rune
 }
 
 type ParagraphTheme struct {
@@ -130,9 +130,9 @@ var Theme = RootTheme{
 	},
 
 	Tree: TreeTheme{
-		Text:     NewStyle(ColorWhite),
-		Collapse: COLLAPSED,
-		Expand:   EXPANDED,
+		Text:      NewStyle(ColorWhite),
+		Collapsed: COLLAPSED,
+		Expanded:  EXPANDED,
 	},
 
 	StackedBarChart: StackedBarChartTheme{

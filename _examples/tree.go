@@ -70,7 +70,7 @@ func main() {
 	l := widgets.NewTree()
 	l.TextStyle = ui.NewStyle(ui.ColorYellow)
 	l.WrapText = false
-	l.Nodes = nodes
+	l.SetNodes(nodes)
 
 	x, y := ui.TerminalDimensions()
 
