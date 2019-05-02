@@ -17,7 +17,7 @@ type TreeNode struct {
 	Expanded bool
 	Nodes    []*TreeNode
 
-	//level stores the node level in the tree.
+	// level stores the node level in the tree.
 	level int
 }
 
@@ -32,9 +32,9 @@ func (self *TreeNode) parseStyles(style Style) []Cell {
 	} else {
 		sb.WriteString(strings.Repeat(treeIndent, self.level))
 		if self.Expanded {
-			sb.WriteRune(Theme.Tree.Expand)
+			sb.WriteRune(Theme.Tree.Expanded)
 		} else {
-			sb.WriteRune(Theme.Tree.Collapse)
+			sb.WriteRune(Theme.Tree.Collapsed)
 		}
 		sb.WriteByte(' ')
 	}
@@ -45,15 +45,15 @@ func (self *TreeNode) parseStyles(style Style) []Cell {
 // Tree is a tree widget.
 type Tree struct {
 	Block
-	Nodes            []*TreeNode
 	TextStyle        Style
 	SelectedRowStyle Style
 	WrapText         bool
 	SelectedRow      int
-	topRow           int
 
-	//rows is flatten nodes for rendering.
-	rows []*TreeNode
+	nodes []*TreeNode
+	// rows is flatten nodes for rendering.
+	rows   []*TreeNode
+	topRow int
 }
 
 // NewTree creates a new Tree widget.
@@ -66,9 +66,14 @@ func NewTree() *Tree {
 	}
 }
 
+func (self *Tree) SetNodes(nodes []*TreeNode) {
+	self.nodes = nodes
+	self.prepareNodes()
+}
+
 func (self *Tree) prepareNodes() {
-	self.rows = self.rows[:0]
-	for _, node := range self.Nodes {
+	self.rows = make([]*TreeNode, 0)
+	for _, node := range self.nodes {
 		self.prepareNode(node, 0)
 	}
 }
@@ -85,7 +90,7 @@ func (self *Tree) prepareNode(node *TreeNode, level int) {
 }
 
 func (self *Tree) Walk(fn TreeWalkFn) {
-	for _, n := range self.Nodes {
+	for _, n := range self.nodes {
 		if !self.walk(n, fn) {
 			break
 		}
@@ -108,8 +113,6 @@ func (self *Tree) walk(n *TreeNode, fn TreeWalkFn) bool {
 
 func (self *Tree) Draw(buf *Buffer) {
 	self.Block.Draw(buf)
-	self.prepareNodes()
-
 	point := self.Inner.Min
 
 	// adjusts view into widget
@@ -209,6 +212,7 @@ func (self *Tree) ScrollBottom() {
 
 func (self *Tree) Collapse() {
 	self.rows[self.SelectedRow].Expanded = false
+	self.prepareNodes()
 }
 
 func (self *Tree) Expand() {
@@ -216,6 +220,7 @@ func (self *Tree) Expand() {
 	if len(node.Nodes) > 0 {
 		self.rows[self.SelectedRow].Expanded = true
 	}
+	self.prepareNodes()
 }
 
 func (self *Tree) ToggleExpand() {
@@ -223,6 +228,7 @@ func (self *Tree) ToggleExpand() {
 	if len(node.Nodes) > 0 {
 		node.Expanded = !node.Expanded
 	}
+	self.prepareNodes()
 }
 
 func (self *Tree) ExpandAll() {
@@ -232,6 +238,7 @@ func (self *Tree) ExpandAll() {
 		}
 		return true
 	})
+	self.prepareNodes()
 }
 
 func (self *Tree) CollapseAll() {
@@ -239,4 +246,5 @@ func (self *Tree) CollapseAll() {
 		n.Expanded = false
 		return true
 	})
+	self.prepareNodes()
 }
