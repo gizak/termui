@@ -14,13 +14,13 @@ termui is a cross-platform and fully-customizable terminal dashboard and widget 
 
 ## Installation
 
-#### Go modules
+### Go modules
 
-It is not necessary to `go get` termui, since Go will automatically manage any imported dependencies for you. Do note that you have to include `/v3` in the import statement as shown in the 'Hello World' example below.
+It is not necessary to `go get` termui, since Go will automatically manage any imported dependencies for you. Do note that you have to include `/v3` in the import statements as shown in the 'Hello World' example below.
 
-#### Dep
+### Dep
 
-Add with `dep ensure -add github.com/gizak/termui`. With Dep, `/v3` should *not* be included in the import statement.
+Add with `dep ensure -add github.com/gizak/termui`. With Dep, `/v3` should *not* be included in the import statements.
 
 ## Hello World
 
