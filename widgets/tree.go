@@ -173,6 +173,13 @@ func (self *Tree) ScrollAmount(amount int) {
 	}
 }
 
+func (self *Tree) SelectedNode() *TreeNode {
+	if len(self.rows) == 0 {
+		return nil
+	}
+	return self.rows[self.SelectedRow]
+}
+
 func (self *Tree) ScrollUp() {
 	self.ScrollAmount(-1)
 }
