@@ -33,6 +33,7 @@ type RootTheme struct {
 	Gauge           GaugeTheme
 	Plot            PlotTheme
 	List            ListTheme
+	Tree            TreeTheme
 	Paragraph       ParagraphTheme
 	PieChart        PieChartTheme
 	Sparkline       SparklineTheme
@@ -64,6 +65,12 @@ type PlotTheme struct {
 
 type ListTheme struct {
 	Text Style
+}
+
+type TreeTheme struct {
+	Text      Style
+	Collapsed rune
+	Expanded  rune
 }
 
 type ParagraphTheme struct {
@@ -120,6 +127,12 @@ var Theme = RootTheme{
 
 	List: ListTheme{
 		Text: NewStyle(ColorWhite),
+	},
+
+	Tree: TreeTheme{
+		Text:      NewStyle(ColorWhite),
+		Collapsed: COLLAPSED,
+		Expanded:  EXPANDED,
 	},
 
 	StackedBarChart: StackedBarChartTheme{
