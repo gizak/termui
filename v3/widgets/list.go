@@ -18,7 +18,7 @@ type List struct {
 	WrapText         bool
 	TextStyle        Style
 	SelectedRow      int
-	topRow           int
+	TopRow           int
 	SelectedRowStyle Style
 }
 
@@ -36,14 +36,14 @@ func (self *List) Draw(buf *Buffer) {
 	point := self.Inner.Min
 
 	// adjusts view into widget
-	if self.SelectedRow >= self.Inner.Dy()+self.topRow {
-		self.topRow = self.SelectedRow - self.Inner.Dy() + 1
-	} else if self.SelectedRow < self.topRow {
-		self.topRow = self.SelectedRow
+	if self.SelectedRow >= self.Inner.Dy()+self.TopRow {
+		self.TopRow = self.SelectedRow - self.Inner.Dy() + 1
+	} else if self.SelectedRow < self.TopRow {
+		self.TopRow = self.SelectedRow
 	}
 
 	// draw rows
-	for row := self.topRow; row < len(self.Rows) && point.Y < self.Inner.Max.Y; row++ {
+	for row := self.TopRow; row < len(self.Rows) && point.Y < self.Inner.Max.Y; row++ {
 		cells := ParseStyles(self.Rows[row], self.TextStyle)
 		if self.WrapText {
 			cells = WrapCells(cells, uint(self.Inner.Dx()))
@@ -69,7 +69,7 @@ func (self *List) Draw(buf *Buffer) {
 	}
 
 	// draw UP_ARROW if needed
-	if self.topRow > 0 {
+	if self.TopRow > 0 {
 		buf.SetCell(
 			NewCell(UP_ARROW, NewStyle(ColorWhite)),
 			image.Pt(self.Inner.Max.X-1, self.Inner.Min.Y),
@@ -77,7 +77,7 @@ func (self *List) Draw(buf *Buffer) {
 	}
 
 	// draw DOWN_ARROW if needed
-	if len(self.Rows) > int(self.topRow)+self.Inner.Dy() {
+	if len(self.Rows) > int(self.TopRow)+self.Inner.Dy() {
 		buf.SetCell(
 			NewCell(DOWN_ARROW, NewStyle(ColorWhite)),
 			image.Pt(self.Inner.Max.X-1, self.Inner.Max.Y-1),
@@ -86,8 +86,8 @@ func (self *List) Draw(buf *Buffer) {
 }
 
 // ScrollAmount scrolls by amount given. If amount is < 0, then scroll up.
-// There is no need to set self.topRow, as this will be set automatically when drawn,
-// since if the selected item is off screen then the topRow variable will change accordingly.
+// There is no need to set self.TopRow, as this will be set automatically when drawn,
+// since if the selected item is off screen then the TopRow variable will change accordingly.
 func (self *List) ScrollAmount(amount int) {
 	if len(self.Rows)-int(self.SelectedRow) <= amount {
 		self.SelectedRow = len(self.Rows) - 1
@@ -108,8 +108,8 @@ func (self *List) ScrollDown() {
 
 func (self *List) ScrollPageUp() {
 	// If an item is selected below top row, then go to the top row.
-	if self.SelectedRow > self.topRow {
-		self.SelectedRow = self.topRow
+	if self.SelectedRow > self.TopRow {
+		self.SelectedRow = self.TopRow
 	} else {
 		self.ScrollAmount(-self.Inner.Dy())
 	}
