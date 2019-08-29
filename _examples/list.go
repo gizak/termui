@@ -46,9 +46,20 @@ func main() {
 		switch e.ID {
 		case "q", "<C-c>":
 			return
-		case "j", "<Down>":
+		case "<MouseLeft>":
+			payload := e.Payload.(ui.Mouse)
+			border := 0
+			if l.BorderTop {
+				border = 1
+			}
+			x0, y0 := l.Inner.Min.X, l.Inner.Min.Y
+			x1, y1 := l.Inner.Max.X, l.Inner.Max.Y
+			if x0 < payload.X && payload.X < x1 && y0 < payload.Y && payload.Y < y1 {
+				l.SelectedRow = payload.Y - l.Rectangle.Min.Y - border + l.TopRow
+			}
+		case "j", "<Down>", "<MouseWheelDown>":
 			l.ScrollDown()
-		case "k", "<Up>":
+		case "k", "<Up>", "<MouseWheelUp>":
 			l.ScrollUp()
 		case "<C-d>":
 			l.ScrollHalfPageDown()
