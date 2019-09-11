@@ -21,13 +21,14 @@ import (
 */
 type Table struct {
 	Block
-	Rows          [][]string
-	ColumnWidths  []int
-	TextStyle     Style
-	RowSeparator  bool
-	TextAlignment Alignment
-	RowStyles     map[int]Style
-	FillRow       bool
+	Rows            [][]string
+	ColumnWidths    []int
+	TextStyle       Style
+	ColumnSeparator bool
+	RowSeparator    bool
+	TextAlignment   Alignment
+	RowStyles       map[int]Style
+	FillRow         bool
 
 	// ColumnResizer is called on each Draw. Can be used for custom column sizing.
 	ColumnResizer func()
@@ -35,11 +36,12 @@ type Table struct {
 
 func NewTable() *Table {
 	return &Table{
-		Block:         *NewBlock(),
-		TextStyle:     Theme.Table.Text,
-		RowSeparator:  true,
-		RowStyles:     make(map[int]Style),
-		ColumnResizer: func() {},
+		Block:           *NewBlock(),
+		TextStyle:       Theme.Table.Text,
+		ColumnSeparator: true,
+		RowSeparator:    true,
+		RowStyles:       make(map[int]Style),
+		ColumnResizer:   func() {},
 	}
 }
 
@@ -110,20 +112,21 @@ func (self *Table) Draw(buf *Buffer) {
 		// draw vertical separators
 		separatorStyle := self.Block.BorderStyle
 
-		separatorXCoordinate := self.Inner.Min.X
-		verticalCell := NewCell(VERTICAL_LINE, separatorStyle)
-		for i, width := range columnWidths {
-			if self.FillRow && i < len(columnWidths)-1 {
-				verticalCell.Style.Bg = rowStyle.Bg
-			} else {
-				verticalCell.Style.Bg = self.Block.BorderStyle.Bg
+		if self.ColumnSeparator {
+			separatorXCoordinate := self.Inner.Min.X
+			verticalCell := NewCell(VERTICAL_LINE, separatorStyle)
+			for i, width := range columnWidths {
+				if self.FillRow && i < len(columnWidths)-1 {
+					verticalCell.Style.Bg = rowStyle.Bg
+				} else {
+					verticalCell.Style.Bg = self.Block.BorderStyle.Bg
+				}
+
+				separatorXCoordinate += width
+				buf.SetCell(verticalCell, image.Pt(separatorXCoordinate, yCoordinate))
+				separatorXCoordinate++
 			}
-
-			separatorXCoordinate += width
-			buf.SetCell(verticalCell, image.Pt(separatorXCoordinate, yCoordinate))
-			separatorXCoordinate++
 		}
-
 		yCoordinate++
 
 		// draw horizontal separator
