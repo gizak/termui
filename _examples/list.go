@@ -33,39 +33,70 @@ func main() {
 		"[8] bar",
 		"[9] baz",
 	}
+	l.ActiveBorderStyle = ui.NewStyle(ui.ColorRed)
 	l.TextStyle = ui.NewStyle(ui.ColorYellow)
 	l.WrapText = false
 	l.SetRect(0, 0, 25, 8)
+	l.Active = true
 
-	ui.Render(l)
+	l2 := widgets.NewList()
+	l2.Title = "List 2"
+	l2.Rows = []string{
+		"foo",
+		"bar",
+		"baz",
+	}
+	l2.ActiveBorderStyle = ui.NewStyle(ui.ColorRed)
+	l2.TextStyle = ui.NewStyle(ui.ColorYellow)
+	l2.WrapText = false
+	l2.SetRect(28, 0, 53, 8)
+
+	uiWidgets := []*widgets.List{l, l2}
+
+	for _, w := range(uiWidgets) {
+		ui.Render(w)
+	}
+
+	var activeWidget *widgets.List
 
 	previousKey := ""
 	uiEvents := ui.PollEvents()
 	for {
+		for _, w := range(uiWidgets) {
+			if w.Active {
+				activeWidget = w
+				break
+			}
+		}
+
 		e := <-uiEvents
 		switch e.ID {
 		case "q", "<C-c>":
 			return
 		case "j", "<Down>":
-			l.ScrollDown()
+			activeWidget.ScrollDown()
 		case "k", "<Up>":
-			l.ScrollUp()
+			activeWidget.ScrollUp()
 		case "<C-d>":
-			l.ScrollHalfPageDown()
+			activeWidget.ScrollHalfPageDown()
 		case "<C-u>":
-			l.ScrollHalfPageUp()
+			activeWidget.ScrollHalfPageUp()
 		case "<C-f>":
-			l.ScrollPageDown()
+			activeWidget.ScrollPageDown()
 		case "<C-b>":
-			l.ScrollPageUp()
+			activeWidget.ScrollPageUp()
 		case "g":
 			if previousKey == "g" {
-				l.ScrollTop()
+				activeWidget.ScrollTop()
 			}
 		case "<Home>":
-			l.ScrollTop()
+			activeWidget.ScrollTop()
 		case "G", "<End>":
-			l.ScrollBottom()
+			activeWidget.ScrollBottom()
+		case "<Tab>":
+			for _, w := range(uiWidgets) {
+				w.Active = !w.Active
+			}
 		}
 
 		if previousKey == "g" {
@@ -74,6 +105,8 @@ func main() {
 			previousKey = e.ID
 		}
 
-		ui.Render(l)
+		for _, w := range(uiWidgets) {
+			ui.Render(w)
+		}
 	}
 }

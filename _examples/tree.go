@@ -68,52 +68,78 @@ func main() {
 	}
 
 	l := widgets.NewTree()
+	l.ActiveBorderStyle = ui.NewStyle(ui.ColorRed)
+	l.Active = true
 	l.TextStyle = ui.NewStyle(ui.ColorYellow)
 	l.WrapText = false
 	l.SetNodes(nodes)
 
+	l2 := widgets.NewTree()
+	l2.ActiveBorderStyle = ui.NewStyle(ui.ColorRed)
+	l2.TextStyle = ui.NewStyle(ui.ColorYellow)
+	l2.WrapText = false
+	l2.SetNodes(nodes)
+
 	x, y := ui.TerminalDimensions()
 
-	l.SetRect(0, 0, x, y)
+	l.SetRect(0, 0, x/2, y)
+	l2.SetRect(x/2+1, 0, x, y)
 
-	ui.Render(l)
+	uiWidgets := []*widgets.Tree{l, l2}
+
+	for _, w := range uiWidgets {
+		ui.Render(w)
+	}
+
+	var activeWidget *widgets.Tree
 
 	previousKey := ""
 	uiEvents := ui.PollEvents()
 	for {
+                for _, w := range(uiWidgets) {
+                        if w.Active {
+                                activeWidget = w
+                                break
+                        }
+                }
+
 		e := <-uiEvents
 		switch e.ID {
 		case "q", "<C-c>":
 			return
 		case "j", "<Down>":
-			l.ScrollDown()
+			activeWidget.ScrollDown()
 		case "k", "<Up>":
-			l.ScrollUp()
+			activeWidget.ScrollUp()
 		case "<C-d>":
-			l.ScrollHalfPageDown()
+			activeWidget.ScrollHalfPageDown()
 		case "<C-u>":
-			l.ScrollHalfPageUp()
+			activeWidget.ScrollHalfPageUp()
 		case "<C-f>":
-			l.ScrollPageDown()
+			activeWidget.ScrollPageDown()
 		case "<C-b>":
-			l.ScrollPageUp()
+			activeWidget.ScrollPageUp()
 		case "g":
 			if previousKey == "g" {
-				l.ScrollTop()
+				activeWidget.ScrollTop()
 			}
 		case "<Home>":
-			l.ScrollTop()
+			activeWidget.ScrollTop()
 		case "<Enter>":
-			l.ToggleExpand()
+			activeWidget.ToggleExpand()
 		case "G", "<End>":
-			l.ScrollBottom()
+			activeWidget.ScrollBottom()
 		case "E":
-			l.ExpandAll()
+			activeWidget.ExpandAll()
 		case "C":
-			l.CollapseAll()
+			activeWidget.CollapseAll()
 		case "<Resize>":
 			x, y := ui.TerminalDimensions()
-			l.SetRect(0, 0, x, y)
+			l.SetRect(0, 0, x/2, y)
+			l2.SetRect(0, 0, x/2+1, y)
+		case "<Tab>":
+			l.Active = !l.Active
+			l2.Active = !l2.Active
 		}
 
 		if previousKey == "g" {
@@ -122,6 +148,8 @@ func main() {
 			previousKey = e.ID
 		}
 
-		ui.Render(l)
+		for _, w := range uiWidgets {
+			ui.Render(w)
+		}
 	}
 }
