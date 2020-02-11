@@ -14,8 +14,11 @@ import (
 // It implements all 3 of the methods needed for the `Drawable` interface.
 // Custom widgets will override the Draw method.
 type Block struct {
-	Border      bool
-	BorderStyle Style
+	Active            bool
+	ActiveBorderStyle Style
+
+	Border            bool
+	BorderStyle       Style
 
 	BorderLeft, BorderRight, BorderTop, BorderBottom bool
 
@@ -32,20 +35,27 @@ type Block struct {
 
 func NewBlock() *Block {
 	return &Block{
-		Border:       true,
-		BorderStyle:  Theme.Block.Border,
-		BorderLeft:   true,
-		BorderRight:  true,
-		BorderTop:    true,
-		BorderBottom: true,
+		Active:            false,
+		ActiveBorderStyle: Theme.Block.Border,
+		Border:            true,
+		BorderStyle:       Theme.Block.Border,
+		BorderLeft:        true,
+		BorderRight:       true,
+		BorderTop:         true,
+		BorderBottom:      true,
 
 		TitleStyle: Theme.Block.Title,
 	}
 }
 
 func (self *Block) drawBorder(buf *Buffer) {
-	verticalCell := Cell{VERTICAL_LINE, self.BorderStyle}
-	horizontalCell := Cell{HORIZONTAL_LINE, self.BorderStyle}
+	borderStyle := self.BorderStyle
+	if self.Active {
+		borderStyle = self.ActiveBorderStyle
+	}
+
+	verticalCell := Cell{VERTICAL_LINE, borderStyle}
+	horizontalCell := Cell{HORIZONTAL_LINE, borderStyle}
 
 	// draw lines
 	if self.BorderTop {
@@ -63,16 +73,16 @@ func (self *Block) drawBorder(buf *Buffer) {
 
 	// draw corners
 	if self.BorderTop && self.BorderLeft {
-		buf.SetCell(Cell{TOP_LEFT, self.BorderStyle}, self.Min)
+		buf.SetCell(Cell{TOP_LEFT, borderStyle}, self.Min)
 	}
 	if self.BorderTop && self.BorderRight {
-		buf.SetCell(Cell{TOP_RIGHT, self.BorderStyle}, image.Pt(self.Max.X-1, self.Min.Y))
+		buf.SetCell(Cell{TOP_RIGHT, borderStyle}, image.Pt(self.Max.X-1, self.Min.Y))
 	}
 	if self.BorderBottom && self.BorderLeft {
-		buf.SetCell(Cell{BOTTOM_LEFT, self.BorderStyle}, image.Pt(self.Min.X, self.Max.Y-1))
+		buf.SetCell(Cell{BOTTOM_LEFT, borderStyle}, image.Pt(self.Min.X, self.Max.Y-1))
 	}
 	if self.BorderBottom && self.BorderRight {
-		buf.SetCell(Cell{BOTTOM_RIGHT, self.BorderStyle}, self.Max.Sub(image.Pt(1, 1)))
+		buf.SetCell(Cell{BOTTOM_RIGHT, borderStyle}, self.Max.Sub(image.Pt(1, 1)))
 	}
 }
 
