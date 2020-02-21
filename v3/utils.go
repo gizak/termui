@@ -108,6 +108,21 @@ func GetMaxFloat64From2dSlice(slices [][]float64) (float64, error) {
 	return max, nil
 }
 
+func GetMinFloat64From2dSlice(slices [][]float64) (float64, error) {
+	if len(slices) == 0 || len(slices[0]) == 0 {
+		return 0, fmt.Errorf("cannot get min value from empty slice")
+	}
+	min := slices[0][0]
+	for _, slice := range slices {
+		for _, val := range slice {
+			if val < min {
+				min = val
+			}
+		}
+	}
+	return min, nil
+}
+
 func RoundFloat64(x float64) float64 {
 	return math.Floor(x + 0.5)
 }
