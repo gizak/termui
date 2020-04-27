@@ -96,7 +96,7 @@ func (self *Plot) renderBraille(buf *Buffer, drawArea image.Rectangle, maxVal fl
 		}
 	case LineChart:
 		for i, line := range self.Data {
-			previousHeight := int((line[1] / maxVal) * float64(drawArea.Dy()-1))
+			previousHeight := int((line[i] / maxVal) * float64(drawArea.Dy()-1))
 			for j, val := range line[1:] {
 				height := int((val / maxVal) * float64(drawArea.Dy()-1))
 				canvas.SetLine(
