@@ -5,6 +5,7 @@
 package termui
 
 import (
+	"context"
 	"fmt"
 
 	tb "github.com/nsf/termbox-go"
@@ -72,6 +73,23 @@ func PollEvents() <-chan Event {
 	go func() {
 		for {
 			ch <- convertTermboxEvent(tb.PollEvent())
+		}
+	}()
+	return ch
+}
+
+// PollEventsWithContext same as PollEvents() prevents goroutine leaking using context.
+func PollEventsWithContext(ctx context.Context) <-chan Event {
+	ch := make(chan Event)
+	go func() {
+		defer close(ch)
+		for {
+			select {
+			case <-ctx.Done():
+				return
+			default:
+				ch <- convertTermboxEvent(tb.PollEvent())
+			}
 		}
 	}()
 	return ch
