@@ -44,6 +44,9 @@ func (self *BarChart) Draw(buf *Buffer) {
 	maxVal := self.MaxVal
 	if maxVal == 0 {
 		maxVal, _ = GetMaxFloat64FromSlice(self.Data)
+		if maxVal == 0 {
+			maxVal = 1
+		}
 	}
 
 	barXCoordinate := self.Inner.Min.X
