@@ -189,10 +189,30 @@ func (self *Table) ScrollDown() {
 	self.ScrollAmount(1)
 }
 
-func (self *Table) ScrollFirst() {
+func (self *Table) ScrollTop() {
 	self.SelectedRow = 1
 }
 
-func (self *Table) ScrollLast() {
+func (self *Table) ScrollBottom() {
 	self.SelectedRow = len(self.Rows) - 1
+}
+
+func (self *Table) ScrollPageUp() {
+	if self.SelectedRow > self.topRow {
+		self.SelectedRow = self.topRow
+	} else {
+		self.ScrollAmount(-self.Inner.Dy())
+	}
+}
+
+func (self *Table) ScrollPageDown() {
+	self.ScrollAmount(self.Inner.Dy())
+}
+
+func (self *Table) ScrollHalfPageUp() {
+	self.ScrollAmount(-int(FloorFloat64(float64(self.Inner.Dy()) / 2)))
+}
+
+func (self *Table) ScrollHalfPageDown() {
+	self.ScrollAmount(int(FloorFloat64(float64(self.Inner.Dy()) / 2)))
 }
