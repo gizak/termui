@@ -188,3 +188,11 @@ func (self *Table) ScrollUp() {
 func (self *Table) ScrollDown() {
 	self.ScrollAmount(1)
 }
+
+func (self *Table) ScrollFirst() {
+	self.SelectedRow = 1
+}
+
+func (self *Table) ScrollLast() {
+	self.SelectedRow = len(self.Rows) - 1
+}
