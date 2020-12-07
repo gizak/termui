@@ -71,7 +71,7 @@ func (self *BarChart) Draw(buf *Buffer) {
 		}
 
 		// draw number
-		numberXCoordinate := barXCoordinate + int((float64(self.BarWidth) / 2))
+		numberXCoordinate := barXCoordinate + self.calcNumberXPos(data)
 		if numberXCoordinate <= self.Inner.Max.X {
 			buf.SetString(
 				self.NumFormatter(data),
@@ -86,4 +86,22 @@ func (self *BarChart) Draw(buf *Buffer) {
 
 		barXCoordinate += (self.BarWidth + self.BarGap)
 	}
+}
+
+//
+// Compute bar text position based on character length.
+//
+func (self *BarChart) calcNumberXPos(data float64) int {
+	numFormatterData := self.NumFormatter(data)
+
+	numberCharsLen := len(numFormatterData)
+	barWidthCenter := int(float64(self.BarWidth / 2))
+
+	var numberXCharPos int = barWidthCenter - numberCharsLen + (numberCharsLen / 2)
+
+	if numberCharsLen > barWidthCenter {
+		numberXCharPos = numberCharsLen - barWidthCenter
+	}
+
+	return int(numberXCharPos)
 }
