@@ -44,15 +44,17 @@ func (self *List) Draw(buf *Buffer) {
 
 	// draw rows
 	for row := self.topRow; row < len(self.Rows) && point.Y < self.Inner.Max.Y; row++ {
-		cells := ParseStyles(self.Rows[row], self.TextStyle)
+		var cells []Cell
+		if row == self.SelectedRow {
+			cells = ParseStyles(self.Rows[row], self.SelectedRowStyle)
+		} else {
+			cells = ParseStyles(self.Rows[row], self.TextStyle)
+		}
 		if self.WrapText {
 			cells = WrapCells(cells, uint(self.Inner.Dx()))
 		}
 		for j := 0; j < len(cells) && point.Y < self.Inner.Max.Y; j++ {
 			style := cells[j].Style
-			if row == self.SelectedRow {
-				style = self.SelectedRowStyle
-			}
 			if cells[j].Rune == '\n' {
 				point = image.Pt(self.Inner.Min.X, point.Y+1)
 			} else {

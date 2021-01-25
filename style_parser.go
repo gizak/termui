@@ -63,7 +63,7 @@ func readStyle(runes []rune, defaultStyle Style) Style {
 			case tokenBg:
 				style.Bg = StyleParserColorMap[pair[1]]
 			case tokenModifier:
-				style.Modifier = modifierMap[pair[1]]
+				style.Modifier |= modifierMap[pair[1]]
 			}
 		}
 	}
