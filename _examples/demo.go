@@ -11,8 +11,8 @@ import (
 	"math"
 	"time"
 
-	ui "github.com/gizak/termui/v3"
-	"github.com/gizak/termui/v3/widgets"
+	ui "github.com/buahaha/termui/v3"
+	"github.com/buahaha/termui/v3/widgets"
 )
 
 func main() {
@@ -37,7 +37,7 @@ func main() {
 	}
 
 	listData := []string{
-		"[0] gizak/termui",
+		"[0] buahaha/termui",
 		"[1] editbox.go",
 		"[2] interrupt.go",
 		"[3] keyboard.go",

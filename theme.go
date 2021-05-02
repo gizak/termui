@@ -35,6 +35,7 @@ type RootTheme struct {
 	List            ListTheme
 	Tree            TreeTheme
 	Paragraph       ParagraphTheme
+	Input           InputTheme
 	PieChart        PieChartTheme
 	Sparkline       SparklineTheme
 	StackedBarChart StackedBarChartTheme
@@ -74,6 +75,10 @@ type TreeTheme struct {
 }
 
 type ParagraphTheme struct {
+	Text Style
+}
+
+type InputTheme struct {
 	Text Style
 }
 
@@ -118,6 +123,10 @@ var Theme = RootTheme{
 	},
 
 	Paragraph: ParagraphTheme{
+		Text: NewStyle(ColorWhite),
+	},
+
+	Input: InputTheme{
 		Text: NewStyle(ColorWhite),
 	},
 
