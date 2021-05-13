@@ -146,6 +146,7 @@ func (self *Table) Draw(buf *Buffer) {
 }
 
 func (self *Table) transformForTextWrap(row []string, i, j, columnWidth int) []string {
+	// Split words by column width
 	words := strings.Split(row[j], " ")
 	newWords := []string{}
 	nextWords := []string{}
@@ -161,6 +162,8 @@ func (self *Table) transformForTextWrap(row []string, i, j, columnWidth int) []s
 		totalChar += len(word) + 1
 	}
 	row[j] = strings.Join(newWords, " ")
+
+	// Insert new sentence
 	last := len(self.Rows) - 1
 	self.Rows = append(self.Rows, self.Rows[last])
 	copy(self.Rows[i+1:], self.Rows[i:last])
