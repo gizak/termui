@@ -81,7 +81,7 @@ func (self *Table) Draw(buf *Buffer) {
 		// draw row cells
 		for j := 0; j < len(row); j++ {
 			if len(row[j]) > columnWidths[j] && self.TextWrap {
-				row = self.transformForTextWrap(row, i, j, columnWidths[j])
+				row = self.textWrapTransformer(row, i, j, columnWidths[j])
 				textWrap = true
 			}
 			col := ParseStyles(row[j], rowStyle)
@@ -145,7 +145,7 @@ func (self *Table) Draw(buf *Buffer) {
 	}
 }
 
-func (self *Table) transformForTextWrap(row []string, i, j, columnWidth int) []string {
+func (self *Table) textWrapTransformer(row []string, i, j, columnWidth int) []string {
 	words := strings.Split(row[j], " ")
 	newWords := []string{}
 	nextWords := []string{}
