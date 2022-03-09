@@ -2,6 +2,7 @@
 // Use of this source code is governed by a MIT license that can
 // be found in the LICENSE file.
 
+//go:build ignore
 // +build ignore
 
 package main
@@ -11,8 +12,8 @@ import (
 	"math"
 	"time"
 
-	ui "github.com/gizak/termui/v3"
-	"github.com/gizak/termui/v3/widgets"
+	ui "github.com/grafana/termui/v3"
+	"github.com/grafana/termui/v3/widgets"
 )
 
 func main() {
@@ -37,7 +38,7 @@ func main() {
 	}
 
 	listData := []string{
-		"[0] gizak/termui",
+		"[0] grafana/termui",
 		"[1] editbox.go",
 		"[2] interrupt.go",
 		"[3] keyboard.go",
