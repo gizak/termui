@@ -2,6 +2,7 @@
 // Use of this source code is governed by a MIT license that can
 // be found in the LICENSE file.
 
+//go:build ignore
 // +build ignore
 
 package main
@@ -60,6 +61,21 @@ func main() {
 	table3.RowStyles[3] = ui.NewStyle(ui.ColorYellow)
 
 	ui.Render(table3)
+
+	borderlessTable := widgets.NewTable()
+	borderlessTable.Rows = [][]string{
+		[]string{"header1", "header2", "header3"},
+		[]string{"Foundations", "Go-lang is so cool", "Im working on Ruby"},
+		[]string{"2016", "11", "11"},
+	}
+	borderlessTable.TextStyle = ui.NewStyle(ui.ColorWhite)
+	borderlessTable.TextAlignment = ui.AlignCenter
+	borderlessTable.SetRect(0, 30, 60, 35)
+	borderlessTable.Border = false
+	borderlessTable.RowSeparator = false
+	borderlessTable.ColSeparator = false
+
+	ui.Render(borderlessTable)
 
 	uiEvents := ui.PollEvents()
 	for {
