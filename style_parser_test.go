@@ -13,4 +13,8 @@ func TestParseStyles(t *testing.T) {
 		t.Fatal("blue text fg is wrong")
 	}
 
+	cells = ParseStyles("[hi]", NewStyle(ColorWhite))
+	if len(cells) != 4 {
+		t.Fatal("missing closing ]")
+	}
 }
