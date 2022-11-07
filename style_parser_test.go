@@ -12,9 +12,9 @@ func TestParseStyles(t *testing.T) {
 		t.Fatal("wrong text", text)
 	}
 
-	cells = ParseStyles("[blue](fg:blue) [1] ", NewStyle(ColorWhite))
+	cells = ParseStyles("[blue](fg:blue) [1]", NewStyle(ColorWhite))
 	text = textFromCells(cells)
-	if text != "blue [1] hello" {
+	if text != "blue [1]" {
 		t.Fatal("wrong text", text)
 	}
 
