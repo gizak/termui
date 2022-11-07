@@ -89,6 +89,12 @@ func processToken(token, previous string) (string, string) {
 
 func PrepareStyles(s string) []PreparedStyle {
 	items := []PreparedStyle{}
+	tokens := strings.Split(s, "](")
+	if len(tokens) == 1 {
+		// easy case, not styled string
+		ps := PreparedStyle{s, ""}
+		return []PreparedStyle{ps}
+	}
 	return items
 }
 

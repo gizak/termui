@@ -6,7 +6,11 @@ import (
 )
 
 func TestPrepareStyles(t *testing.T) {
-	items := PrepareStyles("test [blue](fg:blue,bg:white,mod:bold) and [red](fg:red)")
+	items := PrepareStyles("test no style")
+	if len(items) != 1 {
+		t.Fatal("wrong length", len(items))
+	}
+	items = PrepareStyles("test [blue](fg:blue,bg:white,mod:bold) and [red](fg:red)")
 	if len(items) != 4 {
 		t.Fatal("wrong length", len(items))
 	}
