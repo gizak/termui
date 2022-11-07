@@ -1,20 +1,41 @@
 package termui
 
 import (
+	"strings"
 	"testing"
 )
 
 func TestParseStyles(t *testing.T) {
 	cells := ParseStyles("test [blue](fg:blue)", NewStyle(ColorWhite))
-	if cells[0].Style.Fg != 7 {
-		t.Fatal("normal text fg is wrong")
-	}
-	if cells[5].Style.Fg != 4 {
-		t.Fatal("blue text fg is wrong")
+	text := textFromCells(cells)
+	if text != "test blue" {
+		t.Fatal("wrong text", text)
 	}
 
-	cells = ParseStyles("[hi]", NewStyle(ColorWhite))
-	if len(cells) != 4 {
-		t.Fatal("missing closing ]")
+	cells = ParseStyles("[blue](fg:blue) [1] ", NewStyle(ColorWhite))
+	text = textFromCells(cells)
+	if text != "blue [1] hello" {
+		t.Fatal("wrong text", text)
 	}
+
+	cells = ParseStyles("[0]", NewStyle(ColorWhite))
+	text = textFromCells(cells)
+	if text != "[0]" {
+		t.Fatal("wrong text", text)
+	}
+
+	cells = ParseStyles("[", NewStyle(ColorWhite))
+	text = textFromCells(cells)
+	if text != "[" {
+		t.Fatal("wrong text", text)
+	}
+
+}
+
+func textFromCells(cells []Cell) string {
+	buff := []string{}
+	for _, cell := range cells {
+		buff = append(buff, string(cell.Rune))
+	}
+	return strings.Join(buff, "")
 }
