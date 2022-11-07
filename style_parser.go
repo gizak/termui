@@ -151,10 +151,13 @@ func ParseStyles(s string, defaultStyle Style) []Cell {
 	}
 
 	//test  blue fg:blue,bg:white,mod:bold  and  red fg:red  and maybe even  foo bg:red !
+	style := defaultStyle
 	for i := len(items) - 1; i > -1; i-- {
 		if containsColorOrMod(items[i]) {
+			style = readStyle([]rune(items[i]), defaultStyle)
 		} else {
-			fmt.Println(items[i])
+			cells = append(cells, RunesToStyledCells([]rune(items[i]), style)...)
+			style = defaultStyle
 		}
 	}
 
