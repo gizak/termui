@@ -5,7 +5,6 @@
 package termui
 
 import (
-	"fmt"
 	"strings"
 )
 
@@ -71,17 +70,6 @@ func readStyle(runes []rune, defaultStyle Style) Style {
 	return style
 }
 
-func processToken(token, previous string) (string, string) {
-	fmt.Println("1", token)
-	index := strings.Index(token, ")")
-	if index == -1 {
-		return "", ""
-	}
-	styleString := token[0:index]
-	restOfString := token[index:]
-	return styleString, restOfString
-}
-
 func lookLeftForBracket(s string) (string, string) {
 	index := strings.LastIndex(s, "[")
 	return s[0:index], s[index+1:]
@@ -113,6 +101,9 @@ func BreakByStyles(s string) []string {
 			buff = append(buff, remainder)
 			break
 		}
+		if i > len(tokens)-1 {
+			break
+		}
 	}
 
 	return buff
@@ -139,9 +130,7 @@ func containsColorOrMod(s string) bool {
 func ParseStyles(s string, defaultStyle Style) []Cell {
 	cells := []Cell{}
 
-	fmt.Println("11")
 	items := BreakByStyles(s)
-	fmt.Println("11", len(items))
 	if len(items) == 1 {
 		runes := []rune(s)
 		for _, _rune := range runes {
@@ -150,13 +139,12 @@ func ParseStyles(s string, defaultStyle Style) []Cell {
 		return cells
 	}
 
-	//test  blue fg:blue,bg:white,mod:bold  and  red fg:red  and maybe even  foo bg:red !
 	style := defaultStyle
 	for i := len(items) - 1; i > -1; i-- {
 		if containsColorOrMod(items[i]) {
 			style = readStyle([]rune(items[i]), defaultStyle)
 		} else {
-			cells = append(cells, RunesToStyledCells([]rune(items[i]), style)...)
+			cells = append(RunesToStyledCells([]rune(items[i]), style), cells...)
 			style = defaultStyle
 		}
 	}
