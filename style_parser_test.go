@@ -1,55 +1,21 @@
 package termui
 
 import (
+	"strings"
 	"testing"
 )
 
 func TestBreakByStyles(t *testing.T) {
-	items := BreakByStyles("test [blue](fg:blue,bg:white,mod:bold) and [red](fg:red) and maybe even [foo](more)!")
-	//test [blue|fg:blue,bg:white,mod:bold) and [red|fg:red)
-	//test|blue|fg:blue,bg:white,mod:bold| and |red|fg:red
-	if len(items) != 6 {
+	items := BreakByStyles("test [blue](fg:blue,bg:white,mod:bold) and [red](fg:red) and maybe even [foo](bg:red)!")
+	if len(items) != 10 {
 		t.Fatal("wrong length", len(items))
+	}
+	text := strings.Join(items, " ")
+	if text != "test  blue fg:blue,bg:white,mod:bold  and  red fg:red  and maybe even  foo bg:red !" {
+		t.Fatal("wrong text", text)
 	}
 }
 
-func TestPrepareStyles(t *testing.T) {
-	items := PrepareStyles("test no style")
-	if len(items) != 1 {
-		t.Fatal("wrong length", len(items))
-	}
-	items = PrepareStyles("test [blue](fg:blue,bg:white,mod:bold) and [red](fg:red)")
-	//test [blue|fg:blue,bg:white,mod:bold) and [red|fg:red)
-	if len(items) != 4 {
-		t.Fatal("wrong length", len(items))
-	}
-	if items[0].Text != "test " {
-		t.Fatal("wrong text", items[0].Text)
-	}
-	if items[0].Style != "" {
-		t.Fatal("wrong text", items[0].Style)
-	}
-	if items[1].Text != "blue" {
-		t.Fatal("wrong text", items[1].Text)
-	}
-	if items[1].Style != "fg:blue,bg:white,mod:bold" {
-		t.Fatal("wrong text", items[1].Style)
-	}
-	if items[2].Text != " and " {
-		t.Fatal("wrong text", items[2].Text)
-	}
-	if items[2].Style != "" {
-		t.Fatal("wrong text", items[2].Style)
-	}
-	if items[3].Text != "red" {
-		t.Fatal("wrong text", items[3].Text)
-	}
-	if items[3].Style != "fg:red" {
-		t.Fatal("wrong text", items[3].Style)
-	}
-}
-
-/*
 func TestParseStyles(t *testing.T) {
 	cells := ParseStyles("test nothing", NewStyle(ColorWhite))
 	cells = ParseStyles("test [blue](fg:blue,bg:white,mod:bold) and [red](fg:red)", NewStyle(ColorWhite))
@@ -110,4 +76,4 @@ func textFromCells(cells []Cell) string {
 		buff = append(buff, string(cell.Rune))
 	}
 	return strings.Join(buff, "")
-}*/
+}

@@ -26,11 +26,6 @@ const (
 
 type parserState uint
 
-type PreparedStyle struct {
-	Text  string
-	Style string
-}
-
 const (
 	parserStateDefault parserState = iota
 	parserStateStyleItems
@@ -98,12 +93,12 @@ func lookRightForEndStyle(s string) (string, string) {
 }
 
 func BreakByStyles(s string) []string {
-	// "test [blue](fg:blue,bg:white,mod:bold) and [red](fg:red)"
 	tokens := strings.Split(s, "](")
 	if len(tokens) == 1 {
 		return tokens
 	}
 
+	buff := []string{}
 	styleString := ""
 	remainder := tokens[0]
 	i := 1
@@ -111,31 +106,30 @@ func BreakByStyles(s string) []string {
 		prefix, item := lookLeftForBracket(remainder)
 		styleString, remainder = lookRightForEndStyle(tokens[i])
 		i++
-		fmt.Println(i, prefix)
-		fmt.Println(i, item)
-		fmt.Println(i, styleString)
-		fmt.Println(i, remainder)
+		buff = append(buff, prefix)
+		buff = append(buff, item)
+		buff = append(buff, styleString)
 		if !strings.Contains(remainder, "[") {
+			buff = append(buff, remainder)
 			break
 		}
 	}
 
-	buffer := []string{}
-
-	return buffer
+	return buff
 }
 
-func PrepareStyles(s string) []PreparedStyle {
-	items := []PreparedStyle{}
-	tokens := strings.Split(s, "](")
-	if len(tokens) == 1 {
-		// easy case, not styled string
-		ps := PreparedStyle{s, ""}
-		return []PreparedStyle{ps}
+func containsColorOrMod(s string) bool {
+	if strings.Contains(s, "fg:") {
+		return true
+	}
+	if strings.Contains(s, "bg:") {
+		return true
+	}
+	if strings.Contains(s, "mod:") {
+		return true
 	}
 
-	fmt.Println(strings.Join(tokens, "|"))
-	return items
+	return false
 }
 
 // ParseStyles parses a string for embedded Styles and returns []Cell with the correct styling.
@@ -143,25 +137,26 @@ func PrepareStyles(s string) []PreparedStyle {
 // Syntax is of the form [text](fg:<color>,mod:<attribute>,bg:<color>).
 // Ordering does not matter. All fields are optional.
 func ParseStyles(s string, defaultStyle Style) []Cell {
-	//test [blue](fg:blue,bg:white,mod:bold)
 	cells := []Cell{}
 
-	tokens := strings.Split(s, "](")
-	if len(tokens) == 1 {
-		// easy case, not styled string
+	fmt.Println("11")
+	items := BreakByStyles(s)
+	fmt.Println("11", len(items))
+	if len(items) == 1 {
+		runes := []rune(s)
+		for _, _rune := range runes {
+			cells = append(cells, Cell{_rune, defaultStyle})
+		}
 		return cells
 	}
 
-	styleString, rest := processToken(tokens[len(tokens)-1], "")
-	fmt.Println("2", styleString, rest)
-	for i := len(tokens) - 2; i >= 0; i-- {
-		styleString, rest = processToken(tokens[i], styleString)
-		fmt.Println("3", styleString, rest)
+	//test  blue fg:blue,bg:white,mod:bold  and  red fg:red  and maybe even  foo bg:red !
+	for i := len(items) - 1; i > -1; i-- {
+		if containsColorOrMod(items[i]) {
+		} else {
+			fmt.Println(items[i])
+		}
 	}
-
-	//1 fg:red)
-	//1 fg:blue,bg:white,mod:bold) and [red
-	//1 test [blue
 
 	return cells
 }
