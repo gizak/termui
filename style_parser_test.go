@@ -1,7 +1,6 @@
 package termui
 
 import (
-	"fmt"
 	"strings"
 	"testing"
 )
@@ -20,9 +19,6 @@ func TestBreakByStyles(t *testing.T) {
 func TestParseStyles(t *testing.T) {
 	cells := ParseStyles("test nothing", NewStyle(ColorWhite))
 	cells = ParseStyles("test [blue](fg:blue,bg:white,mod:bold) and [red](fg:red)", NewStyle(ColorWhite))
-	fmt.Println(cells)
-	text2 := textFromCells(cells)
-	fmt.Println(text2)
 	if len(cells) != 17 {
 		t.Fatal("wrong length", len(cells))
 	}
