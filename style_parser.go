@@ -5,6 +5,7 @@
 package termui
 
 import (
+	"fmt"
 	"strings"
 )
 
@@ -24,6 +25,11 @@ const (
 )
 
 type parserState uint
+
+type PreparedStyle struct {
+	Text  string
+	Style string
+}
 
 const (
 	parserStateDefault parserState = iota
@@ -70,13 +76,20 @@ func readStyle(runes []rune, defaultStyle Style) Style {
 	return style
 }
 
-func processToken(token string) string {
+func processToken(token, previous string) (string, string) {
+	fmt.Println("1", token)
 	index := strings.Index(token, ")")
 	if index == -1 {
-		return ""
+		return "", ""
 	}
 	styleString := token[0:index]
-	return styleString
+	restOfString := token[index:]
+	return styleString, restOfString
+}
+
+func PrepareStyles(s string) []PreparedStyle {
+	items := []PreparedStyle{}
+	return items
 }
 
 // ParseStyles parses a string for embedded Styles and returns []Cell with the correct styling.
@@ -93,10 +106,16 @@ func ParseStyles(s string, defaultStyle Style) []Cell {
 		return cells
 	}
 
-	styleString := ""
-	for i := len(tokens) - 1; i >= 0; i-- {
-		styleString = processToken(tokens[i])
+	styleString, rest := processToken(tokens[len(tokens)-1], "")
+	fmt.Println("2", styleString, rest)
+	for i := len(tokens) - 2; i >= 0; i-- {
+		styleString, rest = processToken(tokens[i], styleString)
+		fmt.Println("3", styleString, rest)
 	}
+
+	//1 fg:red)
+	//1 fg:blue,bg:white,mod:bold) and [red
+	//1 test [blue
 
 	return cells
 }

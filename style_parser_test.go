@@ -5,6 +5,37 @@ import (
 	"testing"
 )
 
+func TestPrepareStyles(t *testing.T) {
+	items := PrepareStyles("test [blue](fg:blue,bg:white,mod:bold) and [red](fg:red)")
+	if len(items) != 4 {
+		t.Fatal("wrong length", len(items))
+	}
+	if items[0].Text != "test " {
+		t.Fatal("wrong text", items[0].Text)
+	}
+	if items[0].Style != "" {
+		t.Fatal("wrong text", items[0].Style)
+	}
+	if items[1].Text != "blue" {
+		t.Fatal("wrong text", items[1].Text)
+	}
+	if items[1].Style != "fg:blue,bg:white,mod:bold" {
+		t.Fatal("wrong text", items[1].Style)
+	}
+	if items[2].Text != " and " {
+		t.Fatal("wrong text", items[2].Text)
+	}
+	if items[2].Style != "" {
+		t.Fatal("wrong text", items[2].Style)
+	}
+	if items[3].Text != "red" {
+		t.Fatal("wrong text", items[3].Text)
+	}
+	if items[3].Style != "fg:red" {
+		t.Fatal("wrong text", items[3].Style)
+	}
+}
+
 func TestParseStyles(t *testing.T) {
 	cells := ParseStyles("test nothing", NewStyle(ColorWhite))
 	cells = ParseStyles("test [blue](fg:blue,bg:white,mod:bold) and [red](fg:red)", NewStyle(ColorWhite))
