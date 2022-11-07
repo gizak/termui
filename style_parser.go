@@ -87,6 +87,44 @@ func processToken(token, previous string) (string, string) {
 	return styleString, restOfString
 }
 
+func lookLeftForBracket(s string) (string, string) {
+	index := strings.LastIndex(s, "[")
+	return s[0:index], s[index+1:]
+}
+
+func lookRightForEndStyle(s string) (string, string) {
+	index := strings.Index(s, ")")
+	return s[0:index], s[index+1:]
+}
+
+func BreakByStyles(s string) []string {
+	// "test [blue](fg:blue,bg:white,mod:bold) and [red](fg:red)"
+	tokens := strings.Split(s, "](")
+	if len(tokens) == 1 {
+		return tokens
+	}
+
+	styleString := ""
+	remainder := tokens[0]
+	i := 1
+	for {
+		prefix, item := lookLeftForBracket(remainder)
+		styleString, remainder = lookRightForEndStyle(tokens[i])
+		i++
+		fmt.Println(i, prefix)
+		fmt.Println(i, item)
+		fmt.Println(i, styleString)
+		fmt.Println(i, remainder)
+		if !strings.Contains(remainder, "[") {
+			break
+		}
+	}
+
+	buffer := []string{}
+
+	return buffer
+}
+
 func PrepareStyles(s string) []PreparedStyle {
 	items := []PreparedStyle{}
 	tokens := strings.Split(s, "](")
@@ -95,6 +133,8 @@ func PrepareStyles(s string) []PreparedStyle {
 		ps := PreparedStyle{s, ""}
 		return []PreparedStyle{ps}
 	}
+
+	fmt.Println(strings.Join(tokens, "|"))
 	return items
 }
 
