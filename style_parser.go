@@ -70,7 +70,13 @@ func readStyle(runes []rune, defaultStyle Style) Style {
 	return style
 }
 
-func processToken(token string) {
+func processToken(token string) string {
+	index := strings.Index(token, ")")
+	if index == -1 {
+		return ""
+	}
+	styleString := token[0:index]
+	return styleString
 }
 
 // ParseStyles parses a string for embedded Styles and returns []Cell with the correct styling.
@@ -86,8 +92,10 @@ func ParseStyles(s string, defaultStyle Style) []Cell {
 		// easy case, not styled string
 		return cells
 	}
-	for i := len(tokens) - 1; i > 0; i-- {
-		processToken(tokens[i])
+
+	styleString := ""
+	for i := len(tokens) - 1; i >= 0; i-- {
+		styleString = processToken(tokens[i])
 	}
 
 	return cells
