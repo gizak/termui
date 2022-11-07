@@ -6,8 +6,9 @@ import (
 )
 
 func TestParseStyles(t *testing.T) {
-	cells := ParseStyles("test [blue](fg:blue,bg:white,mod:bold)", NewStyle(ColorWhite))
-	if len(cells) != 9 {
+	cells := ParseStyles("test nothing", NewStyle(ColorWhite))
+	cells = ParseStyles("test [blue](fg:blue,bg:white,mod:bold) and [red](fg:red)", NewStyle(ColorWhite))
+	if len(cells) != 17 {
 		t.Fatal("wrong length", len(cells))
 	}
 	for i := 0; i < 5; i++ {
@@ -21,7 +22,7 @@ func TestParseStyles(t *testing.T) {
 			t.Fatal("wrong mod", cells[i])
 		}
 	}
-	for i := 5; i < len(cells); i++ {
+	for i := 5; i < 9; i++ {
 		if cells[i].Style.Fg != ColorBlue {
 			t.Fatal("wrong fg color", cells[i])
 		}
@@ -34,7 +35,7 @@ func TestParseStyles(t *testing.T) {
 	}
 
 	text := textFromCells(cells)
-	if text != "test blue" {
+	if text != "test blue and red" {
 		t.Fatal("wrong text", text)
 	}
 

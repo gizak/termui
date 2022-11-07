@@ -70,11 +70,30 @@ func readStyle(runes []rune, defaultStyle Style) Style {
 	return style
 }
 
+func processToken(token string) {
+}
+
 // ParseStyles parses a string for embedded Styles and returns []Cell with the correct styling.
 // Uses defaultStyle for any text without an embedded style.
 // Syntax is of the form [text](fg:<color>,mod:<attribute>,bg:<color>).
 // Ordering does not matter. All fields are optional.
 func ParseStyles(s string, defaultStyle Style) []Cell {
+	//test [blue](fg:blue,bg:white,mod:bold)
+	cells := []Cell{}
+
+	tokens := strings.Split(s, "](")
+	if len(tokens) == 1 {
+		// easy case, not styled string
+		return cells
+	}
+	for i := len(tokens) - 1; i > 0; i-- {
+		processToken(tokens[i])
+	}
+
+	return cells
+}
+
+func ParseStyles2(s string, defaultStyle Style) []Cell {
 	cells := []Cell{}
 	runes := []rune(s)
 	state := parserStateDefault
