@@ -84,8 +84,36 @@ type StyleBlock struct {
 	End   int
 }
 
+func findStartEndOfStyle(pos int, runes []rune) StyleBlock {
+	current := pos
+	sb := StyleBlock{0, 0}
+	for {
+		current--
+		if runes[current] == tokenBeginStyledText {
+			sb.Start = current
+			break
+		}
+	}
+	current = pos
+	for {
+		current++
+		if runes[current] == tokenEndStyle {
+			sb.End = current
+			break
+		}
+	}
+	return sb
+}
+
 func FindStyleBlocks(s string) []StyleBlock {
 	items := []StyleBlock{}
+	runes := []rune(s)
+
+	positions := FindStylePositions(s)
+	for _, pos := range positions {
+		sb := findStartEndOfStyle(pos, runes)
+		items = append(items, sb)
+	}
 	return items
 }
 
