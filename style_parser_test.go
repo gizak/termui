@@ -1,12 +1,18 @@
 package termui
 
 import (
+	"fmt"
 	"strings"
 	"testing"
 )
 
-func TestBreakByStyles(t *testing.T) {
-	items := BreakByStyles("test [blue](fg:blue,bg:white,mod:bold) and [red](fg:red) and maybe even [foo](bg:red)!")
+func TestBreakByStylesComplex(t *testing.T) {
+	items := BreakByStyles("test [blue](fg:blue,mod:bold) and [red](fg:red) and maybe even [foo](bg:red)!")
+	// "test [blue](fg:blue,mod:bold) and [red](fg:red) and maybe even [foo](bg:red)!"
+	//  01234567890123456789012345678
+	//   0- 4  normal
+	//   5-28  style
+	//  29-
 	if len(items) != 10 {
 		t.Fatal("wrong length", len(items))
 	}
@@ -14,6 +20,13 @@ func TestBreakByStyles(t *testing.T) {
 	if text != "test  blue fg:blue,bg:white,mod:bold  and  red fg:red  and maybe even  foo bg:red !" {
 		t.Fatal("wrong text", text)
 	}
+}
+func TestBreakByStylesSimpler(t *testing.T) {
+	items := BreakByStyles("[blue](fg:blue) [1]")
+	// [blue](fg:blue) [1]
+	// 012345678901234
+	// 0-14, rest
+	fmt.Println(items, len(items))
 }
 
 func TestParseStyles(t *testing.T) {

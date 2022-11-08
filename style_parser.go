@@ -5,6 +5,7 @@
 package termui
 
 import (
+	"fmt"
 	"strings"
 )
 
@@ -70,41 +71,54 @@ func readStyle(runes []rune, defaultStyle Style) Style {
 	return style
 }
 
-func lookLeftForBracket(s string) (string, string) {
-	index := strings.LastIndex(s, "[")
-	return s[0:index], s[index+1:]
+func lookLeftForBracket(s string) int {
+	return strings.LastIndex(s, "[")
 }
 
-func lookRightForEndStyle(s string) (string, string) {
-	index := strings.Index(s, ")")
-	return s[0:index], s[index+1:]
+func lookRightForEndStyle(s string) int {
+	return strings.Index(s, ")")
 }
 
 func BreakByStyles(s string) []string {
+	fmt.Println(s)
 	tokens := strings.Split(s, "](")
 	if len(tokens) == 1 {
 		return tokens
 	}
 
 	buff := []string{}
-	styleString := ""
-	remainder := tokens[0]
-	i := 1
-	for {
-		prefix, item := lookLeftForBracket(remainder)
-		styleString, remainder = lookRightForEndStyle(tokens[i])
-		i++
-		buff = append(buff, prefix)
-		buff = append(buff, item)
-		buff = append(buff, styleString)
-		if !strings.Contains(remainder, "[") {
-			buff = append(buff, remainder)
-			break
+
+	// test [blue](fg:blue,mod:bold) and [red](fg:red) and maybe even [foo](bg:red)!
+	for i, token := range tokens {
+		if i%2 == 0 {
+			index := lookLeftForBracket(token)
+			fmt.Println(i, "even", len(token), index)
+		} else {
+			index := lookRightForEndStyle(token)
+			fmt.Println(i, "odd", len(token), index)
 		}
-		if i > len(tokens)-1 {
-			break
-		}
+		buff = append(buff, token)
 	}
+
+	/*
+		styleString := ""
+		remainder := tokens[0]
+		i := 1
+		for {
+			prefix, item := lookLeftForBracket(remainder)
+			styleString, remainder = lookRightForEndStyle(tokens[i])
+			i++
+			buff = append(buff, prefix)
+			buff = append(buff, item)
+			buff = append(buff, styleString)
+			if !strings.Contains(remainder, "*") {
+				buff = append(buff, remainder)
+				break
+			}
+			if i > len(tokens)-1 {
+				break
+			}
+		}*/
 
 	return buff
 }
