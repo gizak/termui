@@ -11,6 +11,15 @@ func TestFindStylePositions(t *testing.T) {
 	if len(items) != 3 {
 		t.Fatal("wrong length", len(items))
 	}
+	if items[0] != 10 {
+		t.Fatal("wrong index", items[0])
+	}
+	if items[1] != 38 {
+		t.Fatal("wrong index", items[1])
+	}
+	if items[2] != 67 {
+		t.Fatal("wrong index", items[2])
+	}
 }
 
 func TestBreakByStylesComplex(t *testing.T) {
