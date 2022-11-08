@@ -71,14 +71,6 @@ func readStyle(runes []rune, defaultStyle Style) Style {
 	return style
 }
 
-func lookLeftForBracket(s string) int {
-	return strings.LastIndex(s, "[")
-}
-
-func lookRightForEndStyle(s string) int {
-	return strings.Index(s, ")")
-}
-
 type StyleBlock struct {
 	Start int
 	End   int
@@ -108,6 +100,9 @@ func findStartEndOfStyle(pos int, runes []rune) StyleBlock {
 func BreakBlocksIntoStrings(s string) []string {
 	buff := []string{}
 	blocks := FindStyleBlocks(s)
+	if len(blocks) == 0 {
+		return buff
+	}
 	startEnd := len(s)
 	for i := len(blocks) - 1; i >= 0; i-- {
 		b := blocks[i]
@@ -160,53 +155,18 @@ func FindStylePositions(s string) []int {
 	}
 
 	return buff
+}
 
-	// test [blue](fg:blue,mod:bold) and [red](fg:red) and maybe even [foo](bg:red)!
+func containsStyle(s string) bool {
+	return false
+}
 
-	/*
-		offset := 0
-		for i, token := range tokens {
-			if i%2 == 0 {
-				index := lookLeftForBracket(token)
-				ssp := StyleStringPosition{offset, offset + index, false}
-				ssps = append(ssps, ssp)
-				ssp = StyleStringPosition{offset + index, offset + len(token), true}
-				ssps = append(ssps, ssp)
-				fmt.Println(i, "even", len(token), index)
-			} else {
-				index := lookRightForEndStyle(token)
-				ssp := StyleStringPosition{offset, offset + index, true}
-				ssps = append(ssps, ssp)
-				ssp = StyleStringPosition{offset + index, offset + len(token), false}
-				ssps = append(ssps, ssp)
-				fmt.Println(i, "odd", len(token), index)
-			}
-			offset += len(token) + 2
-			buff = append(buff, token)
-		}
-		fmt.Println(ssps)
+func extractTextFromBlock(item string) string {
+	return "hi"
+}
 
-
-			styleString := ""
-			remainder := tokens[0]
-			i := 1
-			for {
-				prefix, item := lookLeftForBracket(remainder)
-				styleString, remainder = lookRightForEndStyle(tokens[i])
-				i++
-				buff = append(buff, prefix)
-				buff = append(buff, item)
-				buff = append(buff, styleString)
-				if !strings.Contains(remainder, "*") {
-					buff = append(buff, remainder)
-					break
-				}
-				if i > len(tokens)-1 {
-					break
-				}
-			}*/
-
-	return buff
+func extractStyleFromBlock(item string) string {
+	return "fg:red"
 }
 
 // ParseStyles parses a string for embedded Styles and returns []Cell with the correct styling.
@@ -216,26 +176,21 @@ func FindStylePositions(s string) []int {
 func ParseStyles(s string, defaultStyle Style) []Cell {
 	cells := []Cell{}
 
-	/*
-		items := BreakByStyles(s)
-		if len(items) == 1 {
-			runes := []rune(s)
-			for _, _rune := range runes {
-				cells = append(cells, Cell{_rune, defaultStyle})
-			}
-			return cells
-		}
+	items := BreakBlocksIntoStrings(s)
+	if len(items) == 0 {
+		return RunesToStyledCells([]rune(s), defaultStyle)
+	}
 
-		style := defaultStyle
-		for i := len(items) - 1; i > -1; i-- {
-			if containsColorOrMod(items[i]) {
-				style = readStyle([]rune(items[i]), defaultStyle)
-			} else {
-				cells = append(RunesToStyledCells([]rune(items[i]), style), cells...)
-				style = defaultStyle
-			}
+	for _, item := range items {
+		if containsStyle(item) {
+			text := extractTextFromBlock(item)
+			styleText := extractStyleFromBlock(item)
+			style := readStyle([]rune(styleText), defaultStyle)
+			cells = append(RunesToStyledCells([]rune(text), style), cells...)
+		} else {
+			cells = append(RunesToStyledCells([]rune(item), defaultStyle), cells...)
 		}
-	*/
+	}
 	return cells
 }
 
