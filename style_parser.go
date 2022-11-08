@@ -87,72 +87,70 @@ type StyleStringPosition struct {
 
 func BreakByStyles(s string) []string {
 	fmt.Println(s)
-	tokens := strings.Split(s, "](")
-	if len(tokens) == 1 {
-		return tokens
+	index := strings.Index(s, "](")
+	if index == -1 {
+		return []string{s}
 	}
 
-	ssps := []StyleStringPosition{}
 	buff := []string{}
 
-	// test [blue](fg:blue,mod:bold) and [red](fg:red) and maybe even [foo](bg:red)!
-	offset := 0
-	for i, token := range tokens {
-		if i%2 == 0 {
-			index := lookLeftForBracket(token)
-			ssp := StyleStringPosition{offset, offset + index, false}
-			ssps = append(ssps, ssp)
-			ssp = StyleStringPosition{offset + index, offset + len(token), true}
-			ssps = append(ssps, ssp)
-			fmt.Println(i, "even", len(token), index)
-		} else {
-			index := lookRightForEndStyle(token)
-			ssp := StyleStringPosition{offset, offset + index, true}
-			ssps = append(ssps, ssp)
-			ssp = StyleStringPosition{offset + index, offset + len(token), false}
-			ssps = append(ssps, ssp)
-			fmt.Println(i, "odd", len(token), index)
+	toProcess := s
+	for {
+		fmt.Println(index)
+		toProcess = toProcess[index+1:]
+		fmt.Println(toProcess)
+		index = strings.Index(toProcess, "](")
+		if index == -1 {
+			break
 		}
-		offset += len(token) + 2
-		buff = append(buff, token)
 	}
-	fmt.Println(ssps)
+
+	// test [blue](fg:blue,mod:bold) and [red](fg:red) and maybe even [foo](bg:red)!
 
 	/*
-		styleString := ""
-		remainder := tokens[0]
-		i := 1
-		for {
-			prefix, item := lookLeftForBracket(remainder)
-			styleString, remainder = lookRightForEndStyle(tokens[i])
-			i++
-			buff = append(buff, prefix)
-			buff = append(buff, item)
-			buff = append(buff, styleString)
-			if !strings.Contains(remainder, "*") {
-				buff = append(buff, remainder)
-				break
+		offset := 0
+		for i, token := range tokens {
+			if i%2 == 0 {
+				index := lookLeftForBracket(token)
+				ssp := StyleStringPosition{offset, offset + index, false}
+				ssps = append(ssps, ssp)
+				ssp = StyleStringPosition{offset + index, offset + len(token), true}
+				ssps = append(ssps, ssp)
+				fmt.Println(i, "even", len(token), index)
+			} else {
+				index := lookRightForEndStyle(token)
+				ssp := StyleStringPosition{offset, offset + index, true}
+				ssps = append(ssps, ssp)
+				ssp = StyleStringPosition{offset + index, offset + len(token), false}
+				ssps = append(ssps, ssp)
+				fmt.Println(i, "odd", len(token), index)
 			}
-			if i > len(tokens)-1 {
-				break
-			}
-		}*/
+			offset += len(token) + 2
+			buff = append(buff, token)
+		}
+		fmt.Println(ssps)
+
+
+			styleString := ""
+			remainder := tokens[0]
+			i := 1
+			for {
+				prefix, item := lookLeftForBracket(remainder)
+				styleString, remainder = lookRightForEndStyle(tokens[i])
+				i++
+				buff = append(buff, prefix)
+				buff = append(buff, item)
+				buff = append(buff, styleString)
+				if !strings.Contains(remainder, "*") {
+					buff = append(buff, remainder)
+					break
+				}
+				if i > len(tokens)-1 {
+					break
+				}
+			}*/
 
 	return buff
-}
-
-func containsColorOrMod(s string) bool {
-	if strings.Contains(s, "fg:") {
-		return true
-	}
-	if strings.Contains(s, "bg:") {
-		return true
-	}
-	if strings.Contains(s, "mod:") {
-		return true
-	}
-
-	return false
 }
 
 // ParseStyles parses a string for embedded Styles and returns []Cell with the correct styling.
@@ -162,25 +160,26 @@ func containsColorOrMod(s string) bool {
 func ParseStyles(s string, defaultStyle Style) []Cell {
 	cells := []Cell{}
 
-	items := BreakByStyles(s)
-	if len(items) == 1 {
-		runes := []rune(s)
-		for _, _rune := range runes {
-			cells = append(cells, Cell{_rune, defaultStyle})
+	/*
+		items := BreakByStyles(s)
+		if len(items) == 1 {
+			runes := []rune(s)
+			for _, _rune := range runes {
+				cells = append(cells, Cell{_rune, defaultStyle})
+			}
+			return cells
 		}
-		return cells
-	}
 
-	style := defaultStyle
-	for i := len(items) - 1; i > -1; i-- {
-		if containsColorOrMod(items[i]) {
-			style = readStyle([]rune(items[i]), defaultStyle)
-		} else {
-			cells = append(RunesToStyledCells([]rune(items[i]), style), cells...)
-			style = defaultStyle
+		style := defaultStyle
+		for i := len(items) - 1; i > -1; i-- {
+			if containsColorOrMod(items[i]) {
+				style = readStyle([]rune(items[i]), defaultStyle)
+			} else {
+				cells = append(RunesToStyledCells([]rune(items[i]), style), cells...)
+				style = defaultStyle
+			}
 		}
-	}
-
+	*/
 	return cells
 }
 
