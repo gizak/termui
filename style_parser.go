@@ -86,24 +86,31 @@ type StyleStringPosition struct {
 }
 
 func BreakByStyles(s string) []string {
+	return []string{}
+}
+
+func FindStylePositions(s string) []int {
 	fmt.Println(s)
 	index := strings.Index(s, "](")
 	if index == -1 {
-		return []string{s}
+		return []int{}
 	}
 
-	buff := []string{}
+	buff := []int{}
 
 	toProcess := s
+	offset := 0
 	for {
-		fmt.Println(index)
+		buff = append(buff, index+offset)
 		toProcess = toProcess[index+1:]
-		fmt.Println(toProcess)
+		offset += index + 1
 		index = strings.Index(toProcess, "](")
 		if index == -1 {
 			break
 		}
 	}
+
+	return buff
 
 	// test [blue](fg:blue,mod:bold) and [red](fg:red) and maybe even [foo](bg:red)!
 

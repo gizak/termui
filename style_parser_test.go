@@ -6,13 +6,15 @@ import (
 	"testing"
 )
 
+func TestFindStylePositions(t *testing.T) {
+	items := FindStylePositions("test [blue](fg:blue,mod:bold) and [red](fg:red) and maybe even [foo](bg:red)!")
+	if len(items) != 3 {
+		t.Fatal("wrong length", len(items))
+	}
+}
+
 func TestBreakByStylesComplex(t *testing.T) {
 	items := BreakByStyles("test [blue](fg:blue,mod:bold) and [red](fg:red) and maybe even [foo](bg:red)!")
-	// "test [blue](fg:blue,mod:bold) and [red](fg:red) and maybe even [foo](bg:red)!"
-	//  01234567890123456789012345678
-	//   0- 4  normal
-	//   5-28  style
-	//  29-
 	if len(items) != 10 {
 		t.Fatal("wrong length", len(items))
 	}
