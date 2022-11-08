@@ -79,6 +79,12 @@ func lookRightForEndStyle(s string) int {
 	return strings.Index(s, ")")
 }
 
+type StyleStringPosition struct {
+	Start   int
+	End     int
+	IsStyle bool
+}
+
 func BreakByStyles(s string) []string {
 	fmt.Println(s)
 	tokens := strings.Split(s, "](")
@@ -86,19 +92,31 @@ func BreakByStyles(s string) []string {
 		return tokens
 	}
 
+	ssps := []StyleStringPosition{}
 	buff := []string{}
 
 	// test [blue](fg:blue,mod:bold) and [red](fg:red) and maybe even [foo](bg:red)!
+	offset := 0
 	for i, token := range tokens {
 		if i%2 == 0 {
 			index := lookLeftForBracket(token)
+			ssp := StyleStringPosition{offset, offset + index, false}
+			ssps = append(ssps, ssp)
+			ssp = StyleStringPosition{offset + index, offset + len(token), true}
+			ssps = append(ssps, ssp)
 			fmt.Println(i, "even", len(token), index)
 		} else {
 			index := lookRightForEndStyle(token)
+			ssp := StyleStringPosition{offset, offset + index, true}
+			ssps = append(ssps, ssp)
+			ssp = StyleStringPosition{offset + index, offset + len(token), false}
+			ssps = append(ssps, ssp)
 			fmt.Println(i, "odd", len(token), index)
 		}
+		offset += len(token) + 2
 		buff = append(buff, token)
 	}
+	fmt.Println(ssps)
 
 	/*
 		styleString := ""
