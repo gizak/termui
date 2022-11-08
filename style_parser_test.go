@@ -5,6 +5,10 @@ import (
 	"testing"
 )
 
+func TestBreakBlocksIntoStrings(t *testing.T) {
+	BreakBlocksIntoStrings("test [blue](fg:blue,mod:bold) and [red](fg:red) and maybe even [foo](bg:red)!")
+}
+
 func TestFindStylePositions(t *testing.T) {
 	items := FindStylePositions("test [blue](fg:blue,mod:bold) and [red](fg:red) and maybe even [foo](bg:red)!")
 	if len(items) != 3 {
