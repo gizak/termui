@@ -1,7 +1,6 @@
 package termui
 
 import (
-	"fmt"
 	"strings"
 	"testing"
 )
@@ -22,22 +21,20 @@ func TestFindStylePositions(t *testing.T) {
 	}
 }
 
-func TestBreakByStylesComplex(t *testing.T) {
-	items := BreakByStyles("test [blue](fg:blue,mod:bold) and [red](fg:red) and maybe even [foo](bg:red)!")
-	if len(items) != 10 {
+func TestFindStyleBlocks(t *testing.T) {
+	items := FindStyleBlocks("test [blue](fg:blue,mod:bold) and [red](fg:red) and maybe even [foo](bg:red)!")
+	if len(items) != 3 {
 		t.Fatal("wrong length", len(items))
 	}
-	text := strings.Join(items, " ")
-	if text != "test  blue fg:blue,bg:white,mod:bold  and  red fg:red  and maybe even  foo bg:red !" {
-		t.Fatal("wrong text", text)
+	if items[0].Start != 5 && items[0].End != 28 {
+		t.Fatal("wrong index", items[0])
 	}
-}
-func TestBreakByStylesSimpler(t *testing.T) {
-	items := BreakByStyles("[blue](fg:blue) [1]")
-	// [blue](fg:blue) [1]
-	// 012345678901234
-	// 0-14, rest
-	fmt.Println(items, len(items))
+	if items[1].Start != 34 && items[1].End != 46 {
+		t.Fatal("wrong index", items[1])
+	}
+	if items[2].Start != 63 && items[2].End != 75 {
+		t.Fatal("wrong index", items[2])
+	}
 }
 
 func TestParseStyles(t *testing.T) {

@@ -79,14 +79,14 @@ func lookRightForEndStyle(s string) int {
 	return strings.Index(s, ")")
 }
 
-type StyleStringPosition struct {
-	Start   int
-	End     int
-	IsStyle bool
+type StyleBlock struct {
+	Start int
+	End   int
 }
 
-func BreakByStyles(s string) []string {
-	return []string{}
+func FindStyleBlocks(s string) []StyleBlock {
+	items := []StyleBlock{}
+	return items
 }
 
 func FindStylePositions(s string) []int {
