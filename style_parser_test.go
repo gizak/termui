@@ -1,12 +1,14 @@
 package termui
 
 import (
+	"fmt"
 	"strings"
 	"testing"
 )
 
 func TestBreakBlocksIntoStrings(t *testing.T) {
-	BreakBlocksIntoStrings("test [blue](fg:blue,mod:bold) and [red](fg:red) and maybe even [foo](bg:red)!")
+	items := BreakBlocksIntoStrings("test [blue](fg:blue,mod:bold) and [red](fg:red) and maybe even [foo](bg:red)!")
+	fmt.Println(strings.Join(items, ""))
 }
 
 func TestFindStylePositions(t *testing.T) {

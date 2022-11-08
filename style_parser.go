@@ -105,18 +105,25 @@ func findStartEndOfStyle(pos int, runes []rune) StyleBlock {
 	return sb
 }
 
-func BreakBlocksIntoStrings(s string) {
+func BreakBlocksIntoStrings(s string) []string {
+	buff := []string{}
 	blocks := FindStyleBlocks(s)
 	startEnd := len(s)
 	for i := len(blocks) - 1; i >= 0; i-- {
 		b := blocks[i]
-		foo := s[b.End+1 : startEnd]
-		fmt.Println("|" + foo + "|")
-		fmt.Println("|" + s[b.Start:b.End+1] + "|")
+		item := s[b.End+1 : startEnd]
+		if item != "" {
+			buff = append([]string{item}, buff...)
+		}
+		item = s[b.Start : b.End+1]
+		buff = append([]string{item}, buff...)
 		startEnd = b.Start
 	}
-	foo := s[0:startEnd]
-	fmt.Println("|" + foo + "|")
+	item := s[0:startEnd]
+	if item != "" {
+		buff = append([]string{item}, buff...)
+	}
+	return buff
 }
 
 func FindStyleBlocks(s string) []StyleBlock {
