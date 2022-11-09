@@ -7,12 +7,12 @@ import (
 )
 
 func TestBreakBlocksIntoStrings(t *testing.T) {
-	items := BreakBlocksIntoStrings("test [blue](fg:blue,mod:bold) and [red](fg:red) and maybe even [foo](bg:red)!")
+	items := breakBlocksIntoStrings("test [blue](fg:blue,mod:bold) and [red](fg:red) and maybe even [foo](bg:red)!")
 	fmt.Println(strings.Join(items, ""))
 }
 
 func TestFindStylePositions(t *testing.T) {
-	items := FindStylePositions("test [blue](fg:blue,mod:bold) and [red](fg:red) and maybe even [foo](bg:red)!")
+	items := findStylePositions("test [blue](fg:blue,mod:bold) and [red](fg:red) and maybe even [foo](bg:red)!")
 	if len(items) != 3 {
 		t.Fatal("wrong length", len(items))
 	}
@@ -28,7 +28,7 @@ func TestFindStylePositions(t *testing.T) {
 }
 
 func TestFindStyleBlocks(t *testing.T) {
-	items := FindStyleBlocks("test [blue](fg:blue,mod:bold) and [red](fg:red) and maybe even [foo](bg:red)!")
+	items := findStyleBlocks("test [blue](fg:blue,mod:bold) and [red](fg:red) and maybe even [foo](bg:red)!")
 	if len(items) != 3 {
 		t.Fatal("wrong length", len(items))
 	}
