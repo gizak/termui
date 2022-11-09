@@ -167,6 +167,12 @@ func findStylePositions(s string) []int {
 }
 
 func containsStyle(s string) bool {
+	if strings.HasPrefix(s, string(tokenBeginStyledText)) &&
+		strings.HasSuffix(s, string(tokenEndStyle)) &&
+		strings.Contains(s, string(tokenEndStyledText)) &&
+		strings.Contains(s, string(tokenBeginStyle)) {
+		return true
+	}
 	return false
 }
 
