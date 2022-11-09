@@ -5,6 +5,7 @@
 package termui
 
 import (
+	"fmt"
 	"strings"
 )
 
@@ -176,12 +177,16 @@ func containsStyle(s string) bool {
 	return false
 }
 
+// [text](style) will return text
 func extractTextFromBlock(item string) string {
-	return "hi"
+	index := strings.Index(item, string(tokenEndStyledText))
+	return item[1:index]
 }
 
+// [text](style) will return style
 func extractStyleFromBlock(item string) string {
-	return "fg:red"
+	index := strings.Index(item, string(tokenBeginStyle))
+	return item[index+1 : len(item)-1]
 }
 
 // ParseStyles parses a string for embedded Styles and returns []Cell with the correct styling.
@@ -200,10 +205,11 @@ func ParseStyles(s string, defaultStyle Style) []Cell {
 		if containsStyle(item) {
 			text := extractTextFromBlock(item)
 			styleText := extractStyleFromBlock(item)
+			fmt.Println("|" + text + "|" + styleText + "|")
 			style := readStyle([]rune(styleText), defaultStyle)
-			cells = append(RunesToStyledCells([]rune(text), style), cells...)
+			cells = append(cells, RunesToStyledCells([]rune(text), style)...)
 		} else {
-			cells = append(RunesToStyledCells([]rune(item), defaultStyle), cells...)
+			cells = append(cells, RunesToStyledCells([]rune(item), defaultStyle)...)
 		}
 	}
 	return cells
