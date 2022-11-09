@@ -5,7 +5,6 @@
 package termui
 
 import (
-	"fmt"
 	"strings"
 )
 
@@ -205,7 +204,6 @@ func ParseStyles(s string, defaultStyle Style) []Cell {
 		if containsStyle(item) {
 			text := extractTextFromBlock(item)
 			styleText := extractStyleFromBlock(item)
-			fmt.Println("|" + text + "|" + styleText + "|")
 			style := readStyle([]rune(styleText), defaultStyle)
 			cells = append(cells, RunesToStyledCells([]rune(text), style)...)
 		} else {

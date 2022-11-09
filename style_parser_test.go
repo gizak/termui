@@ -1,7 +1,6 @@
 package termui
 
 import (
-	"fmt"
 	"strings"
 	"testing"
 )
@@ -51,9 +50,6 @@ func TestParseStyles(t *testing.T) {
 	if len(cells) != 17 {
 		t.Fatal("wrong length", len(cells))
 	}
-	text := textFromCells(cells)
-	fmt.Println(text)
-	fmt.Println(cells)
 	for i := 0; i < 5; i++ {
 		if cells[i].Style.Fg != ColorWhite {
 			t.Fatal("wrong fg color", cells[i], i)
@@ -77,7 +73,7 @@ func TestParseStyles(t *testing.T) {
 		}
 	}
 
-	text = textFromCells(cells)
+	text := textFromCells(cells)
 	if text != "test blue and red" {
 		t.Fatal("wrong text", text)
 	}
