@@ -22,9 +22,10 @@ type Plot struct {
 	DataLabels []string
 	MaxVal     float64
 
-	LineColors Colors
-	AxesColor  Color // TODO
-	ShowAxes   bool
+	LineColors      Colors
+	AxesColor       Color // TODO
+	ShowAxes        bool
+	ShowXAxisLabels bool
 
 	Marker          PlotMarker
 	DotMarkerRune   rune
@@ -72,6 +73,7 @@ func NewPlot() *Plot {
 		HorizontalScale: 1,
 		DrawDirection:   DrawRight,
 		ShowAxes:        true,
+		ShowXAxisLabels: true,
 		PlotType:        LineChart,
 	}
 }
@@ -167,25 +169,27 @@ func (self *Plot) plotAxes(buf *Buffer, maxVal float64) {
 			image.Pt(self.Inner.Min.X+yAxisLabelsWidth, i+self.Inner.Min.Y),
 		)
 	}
-	// draw x axis labels
-	// draw 0
-	buf.SetString(
-		"0",
-		NewStyle(ColorWhite),
-		image.Pt(self.Inner.Min.X+yAxisLabelsWidth, self.Inner.Max.Y-1),
-	)
-	// draw rest
-	for x := self.Inner.Min.X + yAxisLabelsWidth + (xAxisLabelsGap)*self.HorizontalScale + 1; x < self.Inner.Max.X-1; {
-		label := fmt.Sprintf(
-			"%d",
-			(x-(self.Inner.Min.X+yAxisLabelsWidth)-1)/(self.HorizontalScale)+1,
-		)
+	if self.ShowXAxisLabels {
+		// draw x axis labels
+		// draw 0
 		buf.SetString(
-			label,
+			"0",
 			NewStyle(ColorWhite),
-			image.Pt(x, self.Inner.Max.Y-1),
+			image.Pt(self.Inner.Min.X+yAxisLabelsWidth, self.Inner.Max.Y-1),
 		)
-		x += (len(label) + xAxisLabelsGap) * self.HorizontalScale
+		// draw rest
+		for x := self.Inner.Min.X + yAxisLabelsWidth + (xAxisLabelsGap)*self.HorizontalScale + 1; x < self.Inner.Max.X-1; {
+			label := fmt.Sprintf(
+				"%d",
+				(x-(self.Inner.Min.X+yAxisLabelsWidth)-1)/(self.HorizontalScale)+1,
+			)
+			buf.SetString(
+				label,
+				NewStyle(ColorWhite),
+				image.Pt(x, self.Inner.Max.Y-1),
+			)
+			x += (len(label) + xAxisLabelsGap) * self.HorizontalScale
+		}
 	}
 	// draw y axis labels
 	verticalScale := maxVal / float64(self.Inner.Dy()-xAxisLabelsHeight-1)
