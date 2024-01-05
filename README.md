@@ -92,6 +92,7 @@ Run an example with `go run _examples/{example}.go` or run each example consecut
 - [go-jira-ui](https://github.com/mikepea/go-jira-ui)
 - [gotop](https://github.com/cjbassi/gotop)
 - [termeter](https://github.com/atsaki/termeter)
+- [updo](https://github.com/Owloops/updo)
 
 ## Related Works
 
