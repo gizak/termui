@@ -43,29 +43,31 @@ func (self *List) Draw(buf *Buffer) {
 	}
 
 	// draw rows
-	for row := self.topRow; row < len(self.Rows) && point.Y < self.Inner.Max.Y; row++ {
-		cells := ParseStyles(self.Rows[row], self.TextStyle)
-		if self.WrapText {
-			cells = WrapCells(cells, uint(self.Inner.Dx()))
-		}
-		for j := 0; j < len(cells) && point.Y < self.Inner.Max.Y; j++ {
-			style := cells[j].Style
-			if row == self.SelectedRow {
-				style = self.SelectedRowStyle
+	if len(self.Rows) > 0 {
+		for row := self.topRow; row < len(self.Rows) && point.Y < self.Inner.Max.Y; row++ {
+			cells := ParseStyles(self.Rows[row], self.TextStyle)
+			if self.WrapText {
+				cells = WrapCells(cells, uint(self.Inner.Dx()))
 			}
-			if cells[j].Rune == '\n' {
-				point = image.Pt(self.Inner.Min.X, point.Y+1)
-			} else {
-				if point.X+1 == self.Inner.Max.X+1 && len(cells) > self.Inner.Dx() {
-					buf.SetCell(NewCell(ELLIPSES, style), point.Add(image.Pt(-1, 0)))
-					break
+			for j := 0; j < len(cells) && point.Y < self.Inner.Max.Y; j++ {
+				style := cells[j].Style
+				if row == self.SelectedRow {
+					style = self.SelectedRowStyle
+				}
+				if cells[j].Rune == '\n' {
+					point = image.Pt(self.Inner.Min.X, point.Y+1)
 				} else {
-					buf.SetCell(NewCell(cells[j].Rune, style), point)
-					point = point.Add(image.Pt(rw.RuneWidth(cells[j].Rune), 0))
+					if point.X+1 == self.Inner.Max.X+1 && len(cells) > self.Inner.Dx() {
+						buf.SetCell(NewCell(ELLIPSES, style), point.Add(image.Pt(-1, 0)))
+						break
+					} else {
+						buf.SetCell(NewCell(cells[j].Rune, style), point)
+						point = point.Add(image.Pt(rw.RuneWidth(cells[j].Rune), 0))
+					}
 				}
 			}
+			point = image.Pt(self.Inner.Min.X, point.Y+1)
 		}
-		point = image.Pt(self.Inner.Min.X, point.Y+1)
 	}
 
 	// draw UP_ARROW if needed
