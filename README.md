@@ -91,6 +91,7 @@ Run an example with `go run _examples/{example}.go` or run each example consecut
 - [go-ethereum/monitorcmd](https://github.com/ethereum/go-ethereum/blob/master/cmd/geth/monitorcmd.go)
 - [go-jira-ui](https://github.com/mikepea/go-jira-ui)
 - [gotop](https://github.com/cjbassi/gotop)
+- [pkgtop](https://github.com/orhun/pkgtop)
 - [termeter](https://github.com/atsaki/termeter)
 - [updo](https://github.com/Owloops/updo)
 
