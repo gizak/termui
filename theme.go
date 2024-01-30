@@ -4,7 +4,7 @@
 
 package termui
 
-var StandardColors = []Color{
+var StandardColors = Colors{
 	ColorRed,
 	ColorGreen,
 	ColorYellow,
@@ -14,7 +14,7 @@ var StandardColors = []Color{
 	ColorWhite,
 }
 
-var StandardStyles = []Style{
+var StandardStyles = Styles{
 	NewStyle(ColorRed),
 	NewStyle(ColorGreen),
 	NewStyle(ColorYellow),
@@ -48,9 +48,9 @@ type BlockTheme struct {
 }
 
 type BarChartTheme struct {
-	Bars   []Color
-	Nums   []Style
-	Labels []Style
+	Bars   Colors
+	Nums   Styles
+	Labels Styles
 }
 
 type GaugeTheme struct {
@@ -59,7 +59,7 @@ type GaugeTheme struct {
 }
 
 type PlotTheme struct {
-	Lines []Color
+	Lines Colors
 	Axes  Color
 }
 
@@ -78,7 +78,7 @@ type ParagraphTheme struct {
 }
 
 type PieChartTheme struct {
-	Slices []Color
+	Slices Colors
 }
 
 type SparklineTheme struct {
@@ -87,9 +87,9 @@ type SparklineTheme struct {
 }
 
 type StackedBarChartTheme struct {
-	Bars   []Color
-	Nums   []Style
-	Labels []Style
+	Bars   Colors
+	Nums   Styles
+	Labels Styles
 }
 
 type TabTheme struct {
@@ -112,9 +112,9 @@ var Theme = RootTheme{
 	},
 
 	BarChart: BarChartTheme{
-		Bars:   StandardColors,
-		Nums:   StandardStyles,
-		Labels: StandardStyles,
+		Bars:   StandardColors.Clone(),
+		Nums:   StandardStyles.Clone(),
+		Labels: StandardStyles.Clone(),
 	},
 
 	Paragraph: ParagraphTheme{
@@ -122,7 +122,7 @@ var Theme = RootTheme{
 	},
 
 	PieChart: PieChartTheme{
-		Slices: StandardColors,
+		Slices: StandardColors.Clone(),
 	},
 
 	List: ListTheme{
@@ -136,9 +136,9 @@ var Theme = RootTheme{
 	},
 
 	StackedBarChart: StackedBarChartTheme{
-		Bars:   StandardColors,
-		Nums:   StandardStyles,
-		Labels: StandardStyles,
+		Bars:   StandardColors.Clone(),
+		Nums:   StandardStyles.Clone(),
+		Labels: StandardStyles.Clone(),
 	},
 
 	Gauge: GaugeTheme{
@@ -152,7 +152,7 @@ var Theme = RootTheme{
 	},
 
 	Plot: PlotTheme{
-		Lines: StandardColors,
+		Lines: StandardColors.Clone(),
 		Axes:  ColorWhite,
 	},
 

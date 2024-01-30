@@ -41,11 +41,11 @@ func TrimString(s string, w int) string {
 	return s
 }
 
-func SelectColor(colors []Color, index int) Color {
+func SelectColor(colors Colors, index int) Color {
 	return colors[index%len(colors)]
 }
 
-func SelectStyle(styles []Style, index int) Style {
+func SelectStyle(styles Styles, index int) Style {
 	return styles[index%len(styles)]
 }
 

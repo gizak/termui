@@ -20,7 +20,7 @@ type PieChartLabel func(dataIndex int, currentValue float64) string
 type PieChart struct {
 	Block
 	Data           []float64     // list of data items
-	Colors         []Color       // colors to by cycled through
+	Colors         Colors        // colors to by cycled through
 	LabelFormatter PieChartLabel // callback function for labels
 	AngleOffset    float64       // which angle to start drawing at? (see piechartOffsetUp)
 }
