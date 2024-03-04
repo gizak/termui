@@ -4,7 +4,7 @@ import (
 	"context"
 	"fmt"
 
-	. "github.com/gizak/termui/v3"
+	. "github.com/proullon/termui/v3"
 )
 
 type Field struct {
