@@ -1,0 +1,90 @@
+package widgets
+
+import (
+	ui "github.com/gizak/termui/v3"
+	"github.com/gizak/termui/v3/widgets"
+	"golang.org/x/exp/maps"
+)
+
+type ChainData struct {
+	parent   *ChainData
+	Children map[string]*ChainData
+	Clicker  func()
+	OnChange func()
+	selectAt int
+}
+
+type ChainList struct {
+	widgets.List
+	chainAt *ChainData
+}
+
+func NewChainList() *ChainList {
+	chainList := &ChainList{
+		List: *widgets.NewList(),
+	}
+	chainList.TextStyle = ui.Style{
+		Fg:       ui.ColorBlack,
+		Bg:       ui.ColorWhite,
+		Modifier: 0,
+	}
+	chainList.SelectedRowStyle = ui.Style{
+		Fg:       ui.ColorWhite,
+		Bg:       ui.ColorBlack,
+		Modifier: 0,
+	}
+	return chainList
+}
+func (l *ChainList) LoopSet(data ChainData) {
+	l.chainAt = &data
+	l.Rows = maps.Keys(l.chainAt.Children)
+	l.SelectedRow = 0
+}
+func (l *ChainList) Set(data ChainData) {
+	l.LoopSet(data)
+	if l.chainAt.OnChange != nil {
+		l.chainAt.OnChange()
+	}
+}
+func (l *ChainList) DoSelect() {
+	if l.chainAt.Children[l.Rows[l.SelectedRow]].Clicker != nil {
+		l.chainAt.Children[l.Rows[l.SelectedRow]].Clicker()
+	} else {
+		l.Enter()
+	}
+}
+
+func (l *ChainList) Enter() {
+	l.chainAt.selectAt = l.SelectedRow
+	if l.chainAt.Children[l.Rows[l.SelectedRow]] != nil {
+		l.chainAt.Children[l.Rows[l.SelectedRow]].parent = l.chainAt
+		l.chainAt = l.chainAt.Children[l.Rows[l.SelectedRow]]
+		l.Rows = maps.Keys(l.chainAt.Children)
+		l.SelectedRow = 0
+		if l.chainAt.OnChange != nil {
+			l.chainAt.OnChange()
+		}
+	}
+}
+func (l *ChainList) Exit() {
+	if l.chainAt.parent != nil {
+		l.chainAt = l.chainAt.parent
+		l.Rows = maps.Keys(l.chainAt.Children)
+		l.SelectedRow = l.chainAt.selectAt
+		if l.chainAt.OnChange != nil {
+			l.chainAt.OnChange()
+		}
+	}
+}
+func (l *ChainList) ScrollUp() {
+	l.List.ScrollUp()
+	if l.chainAt.OnChange != nil {
+		l.chainAt.OnChange()
+	}
+}
+func (l *ChainList) ScrollDown() {
+	l.List.ScrollDown()
+	if l.chainAt.OnChange != nil {
+		l.chainAt.OnChange()
+	}
+}
