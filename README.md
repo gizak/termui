@@ -4,6 +4,14 @@
 
 termui is a cross-platform and fully-customizable terminal dashboard and widget library built on top of [termbox-go](https://github.com/nsf/termbox-go). It is inspired by [blessed-contrib](https://github.com/yaronn/blessed-contrib) and [tui-rs](https://github.com/fdehau/tui-rs) and written purely in Go.
 
+## Note
+
+Please be aware that due to my fluctuating availability, the frequency of updates to this project may not always follow a consistent schedule. I would like to invite potential maintainers to contribute to this project. If you are interested in becoming a maintainer, please do not hesitate to reach out to me.
+
+## Versions
+
+termui is currently compatible with Go 1.15 (as in go.mod) and above (tracking the Debian's [oldstable](https://wiki.debian.org/DebianReleases)). Please use the version-numbered branch as stable release. The new changes will be pushed to master branch first and then merge to version branch.
+
 ## Features
 
 - Several premade widgets for common use cases
@@ -84,6 +92,7 @@ Run an example with `go run _examples/{example}.go` or run each example consecut
 - [go-jira-ui](https://github.com/mikepea/go-jira-ui)
 - [gotop](https://github.com/cjbassi/gotop)
 - [termeter](https://github.com/atsaki/termeter)
+- [updo](https://github.com/Owloops/updo)
 
 ## Related Works
 
