@@ -37,7 +37,7 @@ func main() {
 	bc.SetRect(5, 5, 35, 10)
 	bc.Labels = []string{"S0", "S1", "S2", "S3", "S4", "S5"}
 
-	tabpane := widgets.NewTabPane("pierwszy", "drugi", "trzeci", "żółw", "four", "five")
+	tabpane := widgets.NewTabPane("pierwszy", "drugi", "trzeci", "żółw", "four", "five", "glozzom", "equilstirax", "refellibal", "inkinda", "sitiallure", "mattomer")
 	tabpane.SetRect(0, 1, 50, 4)
 	tabpane.Border = true
 
