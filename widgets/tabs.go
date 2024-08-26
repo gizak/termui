@@ -33,12 +33,16 @@ func NewTabPane(names ...string) *TabPane {
 func (self *TabPane) FocusLeft() {
 	if self.ActiveTabIndex > 0 {
 		self.ActiveTabIndex--
+	} else if self.ActiveTabIndex == 0 && len(self.TabNames) > 1 {
+		self.ActiveTabIndex = 0
 	}
 }
 
 func (self *TabPane) FocusRight() {
 	if self.ActiveTabIndex < len(self.TabNames)-1 {
 		self.ActiveTabIndex++
+	} else if self.ActiveTabIndex >= len(self.TabNames)-1 {
+		self.ActiveTabIndex = len(self.TabNames) - 1
 	}
 }
 
@@ -46,7 +50,20 @@ func (self *TabPane) Draw(buf *Buffer) {
 	self.Block.Draw(buf)
 
 	xCoordinate := self.Inner.Min.X
-	for i, name := range self.TabNames {
+	startIndex := 0
+
+	totalLength := 0
+	for i := self.ActiveTabIndex; i >= 0; i-- {
+		name := self.TabNames[i]
+		totalLength += len(name) + 3
+		if totalLength > self.Inner.Max.X-self.Inner.Min.X {
+			startIndex = i + 1
+			break
+		}
+	}
+
+	for i := startIndex; i < len(self.TabNames); i++ {
+		name := self.TabNames[i]
 		ColorPair := self.InactiveTabStyle
 		if i == self.ActiveTabIndex {
 			ColorPair = self.ActiveTabStyle
@@ -61,11 +78,15 @@ func (self *TabPane) Draw(buf *Buffer) {
 
 		if i < len(self.TabNames)-1 && xCoordinate < self.Inner.Max.X {
 			buf.SetCell(
-				NewCell(VERTICAL_LINE, NewStyle(ColorWhite)),
+				NewCell(VERTICAL_DASH, NewStyle(ColorWhite)),
 				image.Pt(xCoordinate, self.Inner.Min.Y),
 			)
 		}
 
 		xCoordinate += 2
+
+		if xCoordinate > self.Inner.Max.X {
+			break
+		}
 	}
 }
