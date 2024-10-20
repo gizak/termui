@@ -1,3 +1,4 @@
+//go:build ignore
 // +build ignore
 
 package main
@@ -5,8 +6,8 @@ package main
 import (
 	"log"
 
-	ui "github.com/gizak/termui/v3"
-	"github.com/gizak/termui/v3/widgets"
+	ui "github.com/keaysma/termui/v3"
+	"github.com/keaysma/termui/v3/widgets"
 )
 
 func main() {

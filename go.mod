@@ -1,4 +1,4 @@
-module github.com/gizak/termui/v3
+module github.com/keaysma/termui/v3
 
 go 1.15
 

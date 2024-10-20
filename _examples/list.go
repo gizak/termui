@@ -2,6 +2,7 @@
 // Use of this source code is governed by a MIT license that can
 // be found in the LICENSE file.
 
+//go:build ignore
 // +build ignore
 
 package main
@@ -9,8 +10,8 @@ package main
 import (
 	"log"
 
-	ui "github.com/gizak/termui/v3"
-	"github.com/gizak/termui/v3/widgets"
+	ui "github.com/keaysma/termui/v3"
+	"github.com/keaysma/termui/v3/widgets"
 )
 
 func main() {
@@ -22,7 +23,7 @@ func main() {
 	l := widgets.NewList()
 	l.Title = "List"
 	l.Rows = []string{
-		"[0] github.com/gizak/termui/v3",
+		"[0] github.com/keaysma/termui/v3",
 		"[1] [你好，世界](fg:blue)",
 		"[2] [こんにちは世界](fg:red)",
 		"[3] [color](fg:white,bg:green) output",
