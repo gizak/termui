@@ -86,7 +86,7 @@ func (self *Plot) renderBraille(buf *Buffer, drawArea image.Rectangle, minVal fl
 	case ScatterPlot:
 		for i, line := range self.Data {
 			for j, val := range line {
-				height := int(((val-minVal)/r)*float64(drawArea.Dy()-1)) - int(val*float64(drawArea.Dy()-1))
+				height := int(((val-minVal)/r)*float64(drawArea.Dy()-1))
 				canvas.SetPoint(
 					image.Pt(
 						(drawArea.Min.X+(j*self.HorizontalScale))*2,
