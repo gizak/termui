@@ -96,6 +96,9 @@ func (self *List) ScrollAmount(amount int) {
 	} else {
 		self.SelectedRow += amount
 	}
+	if self.SelectedRow < 0 {
+		self.SelectedRow = 0
+	}
 }
 
 func (self *List) ScrollUp() {
@@ -133,4 +136,7 @@ func (self *List) ScrollTop() {
 
 func (self *List) ScrollBottom() {
 	self.SelectedRow = len(self.Rows) - 1
+	if self.SelectedRow < 0 {
+		self.SelectedRow = 0
+	}
 }
