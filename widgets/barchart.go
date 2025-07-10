@@ -49,15 +49,16 @@ func (self *BarChart) Draw(buf *Buffer) {
 	barXCoordinate := self.Inner.Min.X
 
 	for i, data := range self.Data {
-		// draw bar
-		height := int((data / maxVal) * float64(self.Inner.Dy()-1))
-		for x := barXCoordinate; x < MinInt(barXCoordinate+self.BarWidth, self.Inner.Max.X); x++ {
-			for y := self.Inner.Max.Y - 2; y > (self.Inner.Max.Y-2)-height; y-- {
-				c := NewCell(' ', NewStyle(ColorClear, SelectColor(self.BarColors, i)))
-				buf.SetCell(c, image.Pt(x, y))
+		if data > 0 {
+			// draw bar
+			height := int((data / maxVal) * float64(self.Inner.Dy()-1))
+			for x := barXCoordinate; x < MinInt(barXCoordinate+self.BarWidth, self.Inner.Max.X); x++ {
+				for y := self.Inner.Max.Y - 2; y > (self.Inner.Max.Y-2)-height; y-- {
+					c := NewCell(' ', NewStyle(ColorClear, SelectColor(self.BarColors, i)))
+					buf.SetCell(c, image.Pt(x, y))
+				}
 			}
 		}
-
 		// draw label
 		if i < len(self.Labels) {
 			labelXCoordinate := barXCoordinate +
