@@ -6,6 +6,7 @@ package widgets
 
 import (
 	"image"
+	"strings"
 
 	. "github.com/gizak/termui/v3"
 )
@@ -24,6 +25,7 @@ type Table struct {
 	Rows          [][]string
 	ColumnWidths  []int
 	TextStyle     Style
+	TextWrap      bool
 	RowSeparator  bool
 	TextAlignment Alignment
 	RowStyles     map[int]Style
@@ -62,6 +64,7 @@ func (self *Table) Draw(buf *Buffer) {
 	// draw rows
 	for i := 0; i < len(self.Rows) && yCoordinate < self.Inner.Max.Y; i++ {
 		row := self.Rows[i]
+		textWrap := false
 		colXCoordinate := self.Inner.Min.X
 
 		rowStyle := self.TextStyle
@@ -77,6 +80,10 @@ func (self *Table) Draw(buf *Buffer) {
 
 		// draw row cells
 		for j := 0; j < len(row); j++ {
+			if len(row[j]) > columnWidths[j] && self.TextWrap {
+				row = self.textWrapTransformer(row, i, j, columnWidths[j])
+				textWrap = true
+			}
 			col := ParseStyles(row[j], rowStyle)
 			// draw row cell
 			if len(col) > columnWidths[j] || self.TextAlignment == AlignLeft {
@@ -127,10 +134,40 @@ func (self *Table) Draw(buf *Buffer) {
 		yCoordinate++
 
 		// draw horizontal separator
+		if textWrap {
+			continue
+		}
 		horizontalCell := NewCell(HORIZONTAL_LINE, separatorStyle)
 		if self.RowSeparator && yCoordinate < self.Inner.Max.Y && i != len(self.Rows)-1 {
 			buf.Fill(horizontalCell, image.Rect(self.Inner.Min.X, yCoordinate, self.Inner.Max.X, yCoordinate+1))
 			yCoordinate++
 		}
 	}
+}
+
+func (self *Table) textWrapTransformer(row []string, i, j, columnWidth int) []string {
+	// Split words by column width
+	words := strings.Split(row[j], " ")
+	newWords := []string{}
+	nextWords := []string{}
+	totalChar := 0
+	for i := 0; i < len(words); i++ {
+		word := words[i]
+		if totalChar+len(word)+1 > columnWidth {
+			nextWords = words[i:]
+			break
+		}
+
+		newWords = append(newWords, word)
+		totalChar += len(word) + 1
+	}
+	row[j] = strings.Join(newWords, " ")
+
+	// Insert new sentence
+	last := len(self.Rows) - 1
+	self.Rows = append(self.Rows, self.Rows[last])
+	copy(self.Rows[i+1:], self.Rows[i:last])
+	self.Rows[i+1] = make([]string, len(self.Rows[i]))
+	self.Rows[i+1][j] = strings.Join(nextWords, " ")
+	return row
 }
