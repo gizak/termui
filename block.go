@@ -27,6 +27,8 @@ type Block struct {
 	Title      string
 	TitleStyle Style
 
+	ANSIString string
+
 	sync.Mutex
 }
 
@@ -102,4 +104,9 @@ func (self *Block) SetRect(x1, y1, x2, y2 int) {
 // GetRect implements the Drawable interface.
 func (self *Block) GetRect() image.Rectangle {
 	return self.Rectangle
+}
+
+// GetANSIString implements the Drawable interface.
+func (self *Block) GetANSIString() string {
+	return self.ANSIString
 }

@@ -7,39 +7,107 @@ package widgets
 import (
 	"image"
 	"image/color"
+	"sync"
+	"sync/atomic"
 
 	. "github.com/gizak/termui/v3"
 )
 
+type Drawer struct {
+	Remote         bool   // if the drawer can be used for remote terminals
+	IsEscapeString bool
+	Available      func() (bool)
+	Draw           func(*Image, *Buffer) (error)
+}
+
+var (
+	drawersMu     sync.Mutex
+	atomicDrawers atomic.Value
+)
+
+// from https://golang.org/src/image/format.go?s=1069:1193#L31
+func RegisterDrawer(nameNew string, drawerNew Drawer) {
+	drawersMu.Lock()
+	// drawers, _ := atomicDrawers.Load().([]Drawer)
+	// atomicDrawers.Store(append(drawers, dr))
+	drawers, _ := atomicDrawers.Load().(map[string]Drawer)
+	drawersNew := make(map[string]Drawer)
+	for name, drawer := range drawers {
+		drawersNew[name] = drawer
+	}
+	drawersNew[nameNew] = drawerNew
+	atomicDrawers.Store(drawersNew)
+	drawersMu.Unlock()
+}
+
+func GetDrawers() map[string]Drawer {
+	if drawers, ok := atomicDrawers.Load().(map[string]Drawer); ok {
+		return drawers
+	}
+	return map[string]Drawer{}
+}
+
+func init() {
+	RegisterDrawer(
+		"block",
+		Drawer{
+			Remote:         true,
+			IsEscapeString: false,
+			Available:      func() bool {return true},
+			Draw:           drawBlocks,
+		},
+	)
+}
+
 type Image struct {
 	Block
-	Image               image.Image
-	Monochrome          bool
-	MonochromeThreshold uint8
-	MonochromeInvert    bool
+	Image                   image.Image
+	Monochrome              bool
+	MonochromeThreshold     uint8
+	MonochromeInvert        bool
+	visibleSubImagePixels   image.Rectangle
 }
 
 func NewImage(img image.Image) *Image {
 	return &Image{
-		Block:               *NewBlock(),
-		MonochromeThreshold: 128,
-		Image:               img,
+		Block:                 *NewBlock(),
+		MonochromeThreshold:   128,
+		Image:                 img,
+		visibleSubImagePixels: image.Rectangle{},
 	}
 }
 
 func (self *Image) Draw(buf *Buffer) {
-	self.Block.Draw(buf)
+	drawers := GetDrawers()
 
-	if self.Image == nil {
+	// fall back - draw with box characters atomicDrawers.Load().(map[string]Drawer)]["blocks"]
+	// possible enhancement: make use of further box characters like chafa:
+	// https://hpjansson.org/chafa/
+	// https://github.com/hpjansson/chafa/
+	if drbl, ok := drawers["block"]; ok {
+		drbl.Draw(self, buf)
+	}
+
+	for name, dr := range drawers {
+		if name != "block" && dr.Available() {
+			dr.Draw(self, buf)
+		}
+	}
+}
+
+func drawBlocks(img *Image, buf *Buffer) (err error) {
+	img.Block.Draw(buf)
+
+	if img.Image == nil {
 		return
 	}
 
-	bufWidth := self.Inner.Dx()
-	bufHeight := self.Inner.Dy()
-	imageWidth := self.Image.Bounds().Dx()
-	imageHeight := self.Image.Bounds().Dy()
+	bufWidth := img.Inner.Dx()
+	bufHeight := img.Inner.Dy()
+	imageWidth := img.Image.Bounds().Dx()
+	imageHeight := img.Image.Bounds().Dy()
 
-	if self.Monochrome {
+	if img.Monochrome {
 		if bufWidth > imageWidth/2 {
 			bufWidth = imageWidth / 2
 		}
@@ -48,33 +116,33 @@ func (self *Image) Draw(buf *Buffer) {
 		}
 		for bx := 0; bx < bufWidth; bx++ {
 			for by := 0; by < bufHeight; by++ {
-				ul := self.colorAverage(
+				ul := img.colorAverage(
 					2*bx*imageWidth/bufWidth/2,
 					(2*bx+1)*imageWidth/bufWidth/2,
 					2*by*imageHeight/bufHeight/2,
 					(2*by+1)*imageHeight/bufHeight/2,
 				)
-				ur := self.colorAverage(
+				ur := img.colorAverage(
 					(2*bx+1)*imageWidth/bufWidth/2,
 					(2*bx+2)*imageWidth/bufWidth/2,
 					2*by*imageHeight/bufHeight/2,
 					(2*by+1)*imageHeight/bufHeight/2,
 				)
-				ll := self.colorAverage(
+				ll := img.colorAverage(
 					2*bx*imageWidth/bufWidth/2,
 					(2*bx+1)*imageWidth/bufWidth/2,
 					(2*by+1)*imageHeight/bufHeight/2,
 					(2*by+2)*imageHeight/bufHeight/2,
 				)
-				lr := self.colorAverage(
+				lr := img.colorAverage(
 					(2*bx+1)*imageWidth/bufWidth/2,
 					(2*bx+2)*imageWidth/bufWidth/2,
 					(2*by+1)*imageHeight/bufHeight/2,
 					(2*by+2)*imageHeight/bufHeight/2,
 				)
 				buf.SetCell(
-					NewCell(blocksChar(ul, ur, ll, lr, self.MonochromeThreshold, self.MonochromeInvert)),
-					image.Pt(self.Inner.Min.X+bx, self.Inner.Min.Y+by),
+					NewCell(blocksChar(ul, ur, ll, lr, img.MonochromeThreshold, img.MonochromeInvert)),
+					image.Pt(img.Inner.Min.X+bx, img.Inner.Min.Y+by),
 				)
 			}
 		}
@@ -87,7 +155,7 @@ func (self *Image) Draw(buf *Buffer) {
 		}
 		for bx := 0; bx < bufWidth; bx++ {
 			for by := 0; by < bufHeight; by++ {
-				c := self.colorAverage(
+				c := img.colorAverage(
 					bx*imageWidth/bufWidth,
 					(bx+1)*imageWidth/bufWidth,
 					by*imageHeight/bufHeight,
@@ -95,11 +163,22 @@ func (self *Image) Draw(buf *Buffer) {
 				)
 				buf.SetCell(
 					NewCell(c.ch(), NewStyle(c.fgColor(), ColorBlack)),
-					image.Pt(self.Inner.Min.X+bx, self.Inner.Min.Y+by),
+					image.Pt(img.Inner.Min.X+bx, img.Inner.Min.Y+by),
 				)
 			}
 		}
 	}
+	return
+}
+
+// measured in pixels
+func (self *Image) SetVisibleArea(area image.Rectangle) {
+	self.visibleSubImagePixels = area
+}
+
+// measured in pixels
+func (self *Image) GetVisibleArea() image.Rectangle {
+	return self.visibleSubImagePixels
 }
 
 func (self *Image) colorAverage(x0, x1, y0, y1 int) colorAverager {
