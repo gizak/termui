@@ -15,9 +15,9 @@ import (
 
 type StackedBarChart struct {
 	Block
-	BarColors    []Color
-	LabelStyles  []Style
-	NumStyles    []Style // only Fg and Modifier are used
+	BarColors    Colors
+	LabelStyles  Styles
+	NumStyles    Styles // only Fg and Modifier are used
 	NumFormatter func(float64) string
 	Data         [][]float64
 	Labels       []string
@@ -29,9 +29,9 @@ type StackedBarChart struct {
 func NewStackedBarChart() *StackedBarChart {
 	return &StackedBarChart{
 		Block:        *NewBlock(),
-		BarColors:    Theme.StackedBarChart.Bars,
-		LabelStyles:  Theme.StackedBarChart.Labels,
-		NumStyles:    Theme.StackedBarChart.Nums,
+		BarColors:    Theme.StackedBarChart.Bars.Clone(),
+		LabelStyles:  Theme.StackedBarChart.Labels.Clone(),
+		NumStyles:    Theme.StackedBarChart.Nums.Clone(),
 		NumFormatter: func(n float64) string { return fmt.Sprint(n) },
 		BarGap:       1,
 		BarWidth:     3,

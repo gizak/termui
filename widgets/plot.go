@@ -22,7 +22,7 @@ type Plot struct {
 	DataLabels []string
 	MaxVal     float64
 
-	LineColors []Color
+	LineColors Colors
 	AxesColor  Color // TODO
 	ShowAxes   bool
 
@@ -64,7 +64,7 @@ const (
 func NewPlot() *Plot {
 	return &Plot{
 		Block:           *NewBlock(),
-		LineColors:      Theme.Plot.Lines,
+		LineColors:      Theme.Plot.Lines.Clone(),
 		AxesColor:       Theme.Plot.Axes,
 		Marker:          MarkerBraille,
 		DotMarkerRune:   DOT,
