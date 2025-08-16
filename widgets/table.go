@@ -7,10 +7,11 @@ package widgets
 import (
 	"image"
 
-	. "github.com/gizak/termui/v3"
+	. "github.com/keaysma/termui/v3"
 )
 
-/*Table is like:
+/*
+Table is like:
 ┌ Awesome Table ───────────────────────────────────────────────┐
 │  Col0          | Col1 | Col2 | Col3  | Col4  | Col5  | Col6  |
 │──────────────────────────────────────────────────────────────│

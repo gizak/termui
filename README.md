@@ -1,12 +1,14 @@
 # termui
 
+This is [gizak's termui](https://github.com/gizak/termui) with minor alterations
+
 [<img src="./_assets/demo.gif" alt="demo cast under osx 10.10; Terminal.app; Menlo Regular 12pt.)" width="100%">](./_examples/demo.go)
 
 termui is a cross-platform and fully-customizable terminal dashboard and widget library built on top of [termbox-go](https://github.com/nsf/termbox-go). It is inspired by [blessed-contrib](https://github.com/yaronn/blessed-contrib) and [tui-rs](https://github.com/fdehau/tui-rs) and written purely in Go.
 
 ## Note
 
-Please be aware that due to my fluctuating availability, the frequency of updates to this project may not always follow a consistent schedule. I would like to invite potential maintainers to contribute to this project. If you are interested in becoming a maintainer, please do not hesitate to reach out to me.
+~Please be aware that due to my fluctuating availability, the frequency of updates to this project may not always follow a consistent schedule. I would like to invite potential maintainers to contribute to this project. If you are interested in becoming a maintainer, please do not hesitate to reach out to me.~
 
 ## Versions
 
@@ -38,8 +40,8 @@ package main
 import (
 	"log"
 
-	ui "github.com/gizak/termui/v3"
-	"github.com/gizak/termui/v3/widgets"
+	ui "github.com/keaysma/termui/v3"
+	"github.com/keaysma/termui/v3/widgets"
 )
 
 func main() {

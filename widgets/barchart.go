@@ -10,7 +10,7 @@ import (
 
 	rw "github.com/mattn/go-runewidth"
 
-	. "github.com/gizak/termui/v3"
+	. "github.com/keaysma/termui/v3"
 )
 
 type BarChart struct {

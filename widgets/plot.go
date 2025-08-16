@@ -8,7 +8,7 @@ import (
 	"fmt"
 	"image"
 
-	. "github.com/gizak/termui/v3"
+	. "github.com/keaysma/termui/v3"
 )
 
 // Plot has two modes: line(default) and scatter.
@@ -20,6 +20,7 @@ type Plot struct {
 
 	Data       [][]float64
 	DataLabels []string
+	MinVal     float64
 	MaxVal     float64
 
 	LineColors []Color
@@ -76,7 +77,8 @@ func NewPlot() *Plot {
 	}
 }
 
-func (self *Plot) renderBraille(buf *Buffer, drawArea image.Rectangle, maxVal float64) {
+func (self *Plot) renderBraille(buf *Buffer, drawArea image.Rectangle, minVal float64, maxVal float64) {
+	r := maxVal - minVal
 	canvas := NewCanvas()
 	canvas.Rectangle = drawArea
 
@@ -84,7 +86,7 @@ func (self *Plot) renderBraille(buf *Buffer, drawArea image.Rectangle, maxVal fl
 	case ScatterPlot:
 		for i, line := range self.Data {
 			for j, val := range line {
-				height := int((val / maxVal) * float64(drawArea.Dy()-1))
+				height := int(((val - minVal) / r) * float64(drawArea.Dy()-1))
 				canvas.SetPoint(
 					image.Pt(
 						(drawArea.Min.X+(j*self.HorizontalScale))*2,
@@ -96,9 +98,9 @@ func (self *Plot) renderBraille(buf *Buffer, drawArea image.Rectangle, maxVal fl
 		}
 	case LineChart:
 		for i, line := range self.Data {
-			previousHeight := int((line[1] / maxVal) * float64(drawArea.Dy()-1))
+			previousHeight := int(((line[1] - minVal) / r) * float64(drawArea.Dy()-1))
 			for j, val := range line[1:] {
-				height := int((val / maxVal) * float64(drawArea.Dy()-1))
+				height := int(((val - minVal) / r) * float64(drawArea.Dy()-1))
 				canvas.SetLine(
 					image.Pt(
 						(drawArea.Min.X+(j*self.HorizontalScale))*2,
@@ -118,12 +120,13 @@ func (self *Plot) renderBraille(buf *Buffer, drawArea image.Rectangle, maxVal fl
 	canvas.Draw(buf)
 }
 
-func (self *Plot) renderDot(buf *Buffer, drawArea image.Rectangle, maxVal float64) {
+func (self *Plot) renderDot(buf *Buffer, drawArea image.Rectangle, minVal float64, maxVal float64) {
+	r := maxVal - minVal
 	switch self.PlotType {
 	case ScatterPlot:
 		for i, line := range self.Data {
 			for j, val := range line {
-				height := int((val / maxVal) * float64(drawArea.Dy()-1))
+				height := int(((val - minVal) / r) * float64(drawArea.Dy()-1))
 				point := image.Pt(drawArea.Min.X+(j*self.HorizontalScale), drawArea.Max.Y-1-height)
 				if point.In(drawArea) {
 					buf.SetCell(
@@ -137,7 +140,7 @@ func (self *Plot) renderDot(buf *Buffer, drawArea image.Rectangle, maxVal float6
 		for i, line := range self.Data {
 			for j := 0; j < len(line) && j*self.HorizontalScale < drawArea.Dx(); j++ {
 				val := line[j]
-				height := int((val / maxVal) * float64(drawArea.Dy()-1))
+				height := int(((val - minVal) / r) * float64(drawArea.Dy()-1))
 				buf.SetCell(
 					NewCell(self.DotMarkerRune, NewStyle(SelectColor(self.LineColors, i))),
 					image.Pt(drawArea.Min.X+(j*self.HorizontalScale), drawArea.Max.Y-1-height),
@@ -147,7 +150,7 @@ func (self *Plot) renderDot(buf *Buffer, drawArea image.Rectangle, maxVal float6
 	}
 }
 
-func (self *Plot) plotAxes(buf *Buffer, maxVal float64) {
+func (self *Plot) plotAxes(buf *Buffer, minVal float64, maxVal float64) {
 	// draw origin cell
 	buf.SetCell(
 		NewCell(BOTTOM_LEFT, NewStyle(ColorWhite)),
@@ -188,10 +191,10 @@ func (self *Plot) plotAxes(buf *Buffer, maxVal float64) {
 		x += (len(label) + xAxisLabelsGap) * self.HorizontalScale
 	}
 	// draw y axis labels
-	verticalScale := maxVal / float64(self.Inner.Dy()-xAxisLabelsHeight-1)
+	verticalScale := (maxVal - minVal) / float64(self.Inner.Dy()-xAxisLabelsHeight-1)
 	for i := 0; i*(yAxisLabelsGap+1) < self.Inner.Dy()-1; i++ {
 		buf.SetString(
-			fmt.Sprintf("%.2f", float64(i)*verticalScale*(yAxisLabelsGap+1)),
+			fmt.Sprintf("%.2f", (float64(i)*verticalScale*(yAxisLabelsGap+1))+minVal),
 			NewStyle(ColorWhite),
 			image.Pt(self.Inner.Min.X, self.Inner.Max.Y-(i*(yAxisLabelsGap+1))-2),
 		)
@@ -201,13 +204,16 @@ func (self *Plot) plotAxes(buf *Buffer, maxVal float64) {
 func (self *Plot) Draw(buf *Buffer) {
 	self.Block.Draw(buf)
 
-	maxVal := self.MaxVal
+	minVal, maxVal := self.MinVal, self.MaxVal
 	if maxVal == 0 {
 		maxVal, _ = GetMaxFloat64From2dSlice(self.Data)
 	}
+	if minVal == 0 {
+		minVal, _ = GetMinFloat64From2dSlice(self.Data)
+	}
 
 	if self.ShowAxes {
-		self.plotAxes(buf, maxVal)
+		self.plotAxes(buf, minVal, maxVal)
 	}
 
 	drawArea := self.Inner
@@ -220,8 +226,8 @@ func (self *Plot) Draw(buf *Buffer) {
 
 	switch self.Marker {
 	case MarkerBraille:
-		self.renderBraille(buf, drawArea, maxVal)
+		self.renderBraille(buf, drawArea, minVal, maxVal)
 	case MarkerDot:
-		self.renderDot(buf, drawArea, maxVal)
+		self.renderDot(buf, drawArea, minVal, maxVal)
 	}
 }

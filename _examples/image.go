@@ -2,6 +2,7 @@
 // Use of this source code is governed by a MIT license that can
 // be found in the LICENSE file.
 
+//go:build ignore
 // +build ignore
 
 package main
@@ -18,8 +19,8 @@ import (
 	"os"
 	"strings"
 
-	ui "github.com/gizak/termui/v3"
-	"github.com/gizak/termui/v3/widgets"
+	ui "github.com/keaysma/termui/v3"
+	"github.com/keaysma/termui/v3/widgets"
 )
 
 func main() {
