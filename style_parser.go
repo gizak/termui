@@ -21,9 +21,16 @@ const (
 
 	tokenBeginStyle = '('
 	tokenEndStyle   = ')'
+
+	tokenStyleKey = "]("
 )
 
 type parserState uint
+
+type StyleBlock struct {
+	Start int
+	End   int
+}
 
 const (
 	parserStateDefault parserState = iota
@@ -70,87 +77,138 @@ func readStyle(runes []rune, defaultStyle Style) Style {
 	return style
 }
 
+// this will start at ]( and look backwards to find the [ and forward
+// to find the ) and record these Start and End indexes in a StyleBlock
+func findStartEndOfStyle(pos int, runes []rune) StyleBlock {
+	current := pos
+	sb := StyleBlock{0, 0}
+	for {
+		current--
+		if runes[current] == tokenBeginStyledText {
+			sb.Start = current
+			break
+		}
+	}
+	current = pos
+	for {
+		current++
+		if runes[current] == tokenEndStyle {
+			sb.End = current
+			break
+		}
+	}
+	return sb
+}
+
+// if are string is "foo [thing](style) foo [more](style)"
+// this will return "foo ", "[thing](style)", " foo ", "[more](style)"
+func breakBlocksIntoStrings(s string) []string {
+	buff := []string{}
+	blocks := findStyleBlocks(s)
+	if len(blocks) == 0 {
+		return buff
+	}
+	startEnd := len(s)
+	for i := len(blocks) - 1; i >= 0; i-- {
+		b := blocks[i]
+		item := s[b.End+1 : startEnd]
+		if item != "" {
+			buff = append([]string{item}, buff...)
+		}
+		item = s[b.Start : b.End+1]
+		buff = append([]string{item}, buff...)
+		startEnd = b.Start
+	}
+	item := s[0:startEnd]
+	if item != "" {
+		buff = append([]string{item}, buff...)
+	}
+	return buff
+}
+
+// loop through positions and make [] of StyleBlocks
+func findStyleBlocks(s string) []StyleBlock {
+	items := []StyleBlock{}
+	runes := []rune(s)
+
+	positions := findStylePositions(s)
+	for _, pos := range positions {
+		sb := findStartEndOfStyle(pos, runes)
+		items = append(items, sb)
+	}
+	return items
+}
+
+// uses tokenStyleKey ]( which tells us we have both a [text] and a (style)
+// if are string is "foo [thing](style) foo [more](style)"
+// this func will return a list of two ints: the index of the first ]( and
+// the index of the next one
+func findStylePositions(s string) []int {
+	index := strings.Index(s, tokenStyleKey)
+	if index == -1 {
+		return []int{}
+	}
+
+	buff := []int{}
+
+	toProcess := s
+	offset := 0
+	for {
+		buff = append(buff, index+offset)
+		toProcess = toProcess[index+1:]
+		offset += index + 1
+		index = strings.Index(toProcess, tokenStyleKey)
+		if index == -1 {
+			break
+		}
+	}
+
+	return buff
+}
+
+func containsStyle(s string) bool {
+	if strings.HasPrefix(s, string(tokenBeginStyledText)) &&
+		strings.HasSuffix(s, string(tokenEndStyle)) &&
+		strings.Contains(s, string(tokenEndStyledText)) &&
+		strings.Contains(s, string(tokenBeginStyle)) {
+		return true
+	}
+	return false
+}
+
+// [text](style) will return text
+func extractTextFromBlock(item string) string {
+	index := strings.Index(item, string(tokenEndStyledText))
+	return item[1:index]
+}
+
+// [text](style) will return style
+func extractStyleFromBlock(item string) string {
+	index := strings.Index(item, string(tokenBeginStyle))
+	return item[index+1 : len(item)-1]
+}
+
 // ParseStyles parses a string for embedded Styles and returns []Cell with the correct styling.
 // Uses defaultStyle for any text without an embedded style.
 // Syntax is of the form [text](fg:<color>,mod:<attribute>,bg:<color>).
 // Ordering does not matter. All fields are optional.
 func ParseStyles(s string, defaultStyle Style) []Cell {
 	cells := []Cell{}
-	runes := []rune(s)
-	state := parserStateDefault
-	styledText := []rune{}
-	styleItems := []rune{}
-	squareCount := 0
 
-	reset := func() {
-		styledText = []rune{}
-		styleItems = []rune{}
-		state = parserStateDefault
-		squareCount = 0
+	items := breakBlocksIntoStrings(s)
+	if len(items) == 0 {
+		return RunesToStyledCells([]rune(s), defaultStyle)
 	}
 
-	rollback := func() {
-		cells = append(cells, RunesToStyledCells(styledText, defaultStyle)...)
-		cells = append(cells, RunesToStyledCells(styleItems, defaultStyle)...)
-		reset()
-	}
-
-	// chop first and last runes
-	chop := func(s []rune) []rune {
-		return s[1 : len(s)-1]
-	}
-
-	for i, _rune := range runes {
-		switch state {
-		case parserStateDefault:
-			if _rune == tokenBeginStyledText {
-				state = parserStateStyledText
-				squareCount = 1
-				styledText = append(styledText, _rune)
-			} else {
-				cells = append(cells, Cell{_rune, defaultStyle})
-			}
-		case parserStateStyledText:
-			switch {
-			case squareCount == 0:
-				switch _rune {
-				case tokenBeginStyle:
-					state = parserStateStyleItems
-					styleItems = append(styleItems, _rune)
-				default:
-					rollback()
-					switch _rune {
-					case tokenBeginStyledText:
-						state = parserStateStyledText
-						squareCount = 1
-						styleItems = append(styleItems, _rune)
-					default:
-						cells = append(cells, Cell{_rune, defaultStyle})
-					}
-				}
-			case len(runes) == i+1:
-				rollback()
-				styledText = append(styledText, _rune)
-			case _rune == tokenBeginStyledText:
-				squareCount++
-				styledText = append(styledText, _rune)
-			case _rune == tokenEndStyledText:
-				squareCount--
-				styledText = append(styledText, _rune)
-			default:
-				styledText = append(styledText, _rune)
-			}
-		case parserStateStyleItems:
-			styleItems = append(styleItems, _rune)
-			if _rune == tokenEndStyle {
-				style := readStyle(chop(styleItems), defaultStyle)
-				cells = append(cells, RunesToStyledCells(chop(styledText), style)...)
-				reset()
-			} else if len(runes) == i+1 {
-				rollback()
-			}
+	for _, item := range items {
+		if containsStyle(item) {
+			text := extractTextFromBlock(item)
+			styleText := extractStyleFromBlock(item)
+			style := readStyle([]rune(styleText), defaultStyle)
+			cells = append(cells, RunesToStyledCells([]rune(text), style)...)
+		} else {
+			cells = append(cells, RunesToStyledCells([]rune(item), defaultStyle)...)
 		}
 	}
-
 	return cells
 }
