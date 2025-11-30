@@ -3,6 +3,7 @@ package widgets
 import (
 	"image"
 	"math"
+	"sort"
 
 	. "github.com/gizak/termui/v3"
 )
@@ -15,7 +16,8 @@ const (
 )
 
 // PieChartLabel callback
-type PieChartLabel func(dataIndex int, currentValue float64) string
+type PieChartLabel func(dataIndex int, currentValue float64, percentage float64) string
+// type PieChartLabel func(dataIndex int, currentValue float64) string
 
 type PieChart struct {
 	Block
@@ -48,7 +50,8 @@ func (self *PieChart) Draw(buf *Buffer) {
 	}
 
 	borderCircle := &circle{center, radius}
-	middleCircle := circle{Point: center, radius: radius / 2.0}
+	/* middleCircle := circle{Point: center, radius: radius / 2.0} */
+	/* declared but not used */
 
 	// draw sectors
 	phi := self.AngleOffset
@@ -63,16 +66,23 @@ func (self *PieChart) Draw(buf *Buffer) {
 
 	// draw labels
 	if self.LabelFormatter != nil {
-		phi = self.AngleOffset
+		normalizedData := normalizeData(self.Data, 2)
+		phi := self.AngleOffset
+		labelRadius := radius * 0.6 
+		labelCircle := circle{Point: center, radius: labelRadius}
 		for i, size := range sliceSizes {
-			labelPoint := middleCircle.at(phi + size/2.0)
+			labelPoint := labelCircle.at(phi + size/2.0)
+			text := self.LabelFormatter(i, self.Data[i], normalizedData[i])
+			textX := labelPoint.X - len(text)/2
+			textY := labelPoint.Y
 			if len(self.Data) == 1 {
-				labelPoint = center
+				textX = center.X - len(text)/2
+				textY = center.Y
 			}
 			buf.SetString(
-				self.LabelFormatter(i, self.Data[i]),
+				text,
 				NewStyle(SelectColor(self.Colors, i)),
-				image.Pt(labelPoint.X, labelPoint.Y),
+				image.Pt(textX, textY),
 			)
 			phi += size
 		}
@@ -146,4 +156,45 @@ func (self line) draw(cell Cell, buf *Buffer) {
 // width and height of a line
 func (self line) size() (w, h int) {
 	return AbsInt(self.P2.X - self.P1.X), AbsInt(self.P2.Y - self.P1.Y)
+}
+
+// normalize data
+func normalizeData(data []float64, precision int) []float64 {
+	if len(data) == 0 {
+		return nil
+	}
+	sum := SumFloat64Slice(data)
+	if sum == 0 {
+		return data
+	}
+
+	scale := math.Pow(10, float64(2+precision))
+
+	type val struct {
+		i int; v float64; rem float64
+	}
+	vals := make([]*val, len(data))
+	currentSum := 0
+
+	for i, v := range data {
+		scaled := (v / sum) * scale
+		intPart := int(math.Floor(scaled))
+		vals[i] = &val{i, v, scaled - float64(intPart)}
+		currentSum += intPart
+	}
+
+	diff := int(scale) - currentSum
+	sort.Slice(vals, func(i, j int) bool { return vals[i].rem > vals[j].rem })
+	
+	result := make([]float64, len(data))
+	for _, v := range vals {
+		result[v.i] = float64(int(math.Floor((v.v/sum)*scale))) 
+	}
+	for i := 0; i < diff && i < len(vals); i++ {
+		result[vals[i].i] += 1
+	}
+	for i := range result {
+		result[i] /= scale
+	}
+	return result
 }

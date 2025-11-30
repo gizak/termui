@@ -26,7 +26,7 @@ func main() {
 		noSlices := 1 + rand.Intn(5)
 		data = make([]float64, noSlices)
 		for i := range data {
-			data[i] = rand.Float64()
+			data[i] = rand.Float64()*100.0
 		}
 		offset = 2.0 * math.Pi * rand.Float64()
 		return
@@ -35,10 +35,10 @@ func main() {
 	pc := widgets.NewPieChart()
 	pc.Title = "Pie Chart"
 	pc.SetRect(5, 5, 70, 36)
-	pc.Data = []float64{.25, .25, .25, .25}
+	pc.Data = []float64{67.67, 11.45, 19.19, 81.00}
 	pc.AngleOffset = -.5 * math.Pi
-	pc.LabelFormatter = func(i int, v float64) string {
-		return fmt.Sprintf("%.02f", v)
+	pc.LabelFormatter = func(i int, v float64, p float64) string {
+		return fmt.Sprintf("%.2f (%.0f%%)", v, p*100)
 	}
 
 	pause := func() {
@@ -67,6 +67,21 @@ func main() {
 		case <-ticker:
 			if run {
 				pc.Data, pc.AngleOffset = randomDataAndOffset()
+				baseColors := []ui.Color{
+					ui.ColorRed,
+					ui.ColorGreen,
+					ui.ColorYellow,
+					ui.ColorBlue,
+					ui.ColorMagenta,
+					ui.ColorCyan,
+				}
+
+				perm := rand.Perm(len(baseColors))
+				pc.Colors = make([]ui.Color, len(pc.Data))
+				for i := range pc.Colors {
+					pc.Colors[i] = baseColors[perm[i]]
+				}
+				
 				ui.Render(pc)
 			}
 		}
