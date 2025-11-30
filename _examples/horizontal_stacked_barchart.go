@@ -29,7 +29,7 @@ func main() {
 	hsbc.Data[2] = []float64{75, 60, 80, 85}
 	hsbc.Data[3] = []float64{100, 100, 100, 100}
 	hsbc.SetRect(5, 5, 100, 30)
-	hsbc.BarHeight = 2
+	hsbc.BarHeight = 3
 
 	ui.Render(hsbc)
 

@@ -8,7 +8,7 @@ import (
 	"fmt"
 	"image"
 
-	rw "github.com/mattn/go-runewidth" // 必須匯入，因為 Draw 中使用了 rw.StringWidth
+	rw "github.com/mattn/go-runewidth"
 
 	. "github.com/gizak/termui/v3"
 )
@@ -66,7 +66,7 @@ func (self *HorizontalStackedBar) Draw(buf *Buffer) {
 			}
 
 			textX := self.Inner.Min.X + stackX + width/2 - rw.StringWidth(self.NumFormatter(data))/2
-			textY := barYCoordinate+self.BarHeight
+			textY := barYCoordinate+self.BarHeight/2
 			buf.SetString(
 				self.NumFormatter(data),
 				NewStyle(
