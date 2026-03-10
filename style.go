@@ -20,6 +20,14 @@ const (
 	ColorWhite   Color = 7
 )
 
+// Colors represents a slice of colors
+type Colors []Color
+
+// Clone the colors slice to not keep a reference
+func (c Colors) Clone() Colors {
+	return append(make([]Color, 0), c...)
+}
+
 type Modifier uint
 
 const (
@@ -35,6 +43,14 @@ type Style struct {
 	Fg       Color
 	Bg       Color
 	Modifier Modifier
+}
+
+// Styles represents a slice of styles
+type Styles []Style
+
+// Clone the styles slice to not keep a reference
+func (s Styles) Clone() Styles {
+	return append(make([]Style, 0), s...)
 }
 
 // StyleClear represents a default Style, with no colors or modifiers

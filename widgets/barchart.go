@@ -15,9 +15,9 @@ import (
 
 type BarChart struct {
 	Block
-	BarColors    []Color
-	LabelStyles  []Style
-	NumStyles    []Style // only Fg and Modifier are used
+	BarColors    Colors
+	LabelStyles  Styles
+	NumStyles    Styles // only Fg and Modifier are used
 	NumFormatter func(float64) string
 	Data         []float64
 	Labels       []string
@@ -29,9 +29,9 @@ type BarChart struct {
 func NewBarChart() *BarChart {
 	return &BarChart{
 		Block:        *NewBlock(),
-		BarColors:    Theme.BarChart.Bars,
-		NumStyles:    Theme.BarChart.Nums,
-		LabelStyles:  Theme.BarChart.Labels,
+		BarColors:    Theme.BarChart.Bars.Clone(),
+		NumStyles:    Theme.BarChart.Nums.Clone(),
+		LabelStyles:  Theme.BarChart.Labels.Clone(),
 		NumFormatter: func(n float64) string { return fmt.Sprint(n) },
 		BarGap:       1,
 		BarWidth:     3,
